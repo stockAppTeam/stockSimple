@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './Login.css';
 import Authorize from '../../utils/Authorize'
@@ -23,9 +22,9 @@ class Login extends Component {
   }
 
   // when the user tries to login, pass email and username to server
-  // if it responds ok, then set the token and email into local storage
+  // if it responds ok, then set the token and userID into local storage
   // the page will then redirect to 'home' and since the web token is there
-  // to authenticate it will allow the page to load
+  // to authenticate it will allow the page to load and grab all users data
   onSubmit = (e) => {
     e.preventDefault();
 
@@ -37,7 +36,7 @@ class Login extends Component {
     Authorize.login(currentUser)
       .then((result) => {
         localStorage.setItem('jwtToken', result.data.token);
-        localStorage.setItem('email', JSON.parse(result.config.data).email);
+        localStorage.setItem('userID', result.data.id);
         this.setState({ message: '' });
         this.props.history.push('/')
       })

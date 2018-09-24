@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
 import './Register.css';
 import Authorize from '../../utils/Authorize'
 
@@ -23,6 +21,7 @@ class Register extends Component {
   onSubmit = (e) => {
     e.preventDefault();
 
+    // new user object from the state and passed into register function
     let newUser = {
       name: this.state.name, 
       email: this.state.email, 
@@ -32,7 +31,6 @@ class Register extends Component {
     // create new user by calling register function and redirect user to login afterwards
     Authorize.register(newUser)
     .then((result) => {
-      console.log(result)
       this.props.history.push("/login"); 
     })
   }

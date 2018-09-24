@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
 import Authorize from '../../utils/Authorize'
 
 class App extends Component {
@@ -8,19 +6,19 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      test: 'test'
+      
     };
   }
 
-  // when the page loads grab the token and email from local storage
+  // when the page loads grab the token and userID from local storage
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
   componentDidMount() {
-    let userInfo =  {
+    let userAuthInfo =  {
       token: localStorage.getItem('jwtToken'), 
-      email: localStorage.getItem('email')
+      userID: localStorage.getItem('userID')
     }
-    Authorize.authenticate(userInfo)
+    Authorize.authenticate(userAuthInfo)
     .then((res) => {
       console.log(res.data)
     })
@@ -35,7 +33,7 @@ class App extends Component {
   // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
-    localStorage.removeItem('email');
+    localStorage.removeItem('userID');
     window.location.reload();
   }
 
