@@ -8,6 +8,7 @@ const router = express.Router();
 const User = require("../models/Users");
 // const db = require('../models')
 require('../models/Investments')
+require('../models/Articles')
 
 // Defining methods for the articlesController
 module.exports = {
@@ -58,12 +59,16 @@ module.exports = {
   }, 
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
-    User.find({ email : req.params.username }).populate("investments").exec(function (err, doc) {
+    User.find({ email : req.params.username }).populate("articles").populate("investments").exec(function (err, doc) {
       if (err) {
           throw err; 
       }
       else {
-        res.send(doc[0].investments); 
+        let userInfo = {};
+        userInfo.investments = doc[0].investments; 
+        userInfo.articles = doc[0].articles; 
+        res.send(userInfo); 
+        console.log(doc)
       }
   });
 
