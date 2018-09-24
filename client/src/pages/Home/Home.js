@@ -12,15 +12,27 @@ class App extends Component {
     };
   }
 
+  // when the page loads grab the token and email from local storage
+  // pass it into authenticate function. If server responds ok, then load data
+  // if not then push to login screen
   componentDidMount() {
     let userInfo =  {
       token: localStorage.getItem('jwtToken'), 
       email: localStorage.getItem('email')
     }
-    Authorize.authenticate(userInfo); 
+    Authorize.authenticate(userInfo)
+    .then((res) => {
+      console.log(res.data)
+    })
+    .catch((error) => {
+      if(error.response.status === 401) {
+        this.props.history.push("/login");
+      }
+    }); 
 
   }
 
+  // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('email');

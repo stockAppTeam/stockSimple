@@ -29,9 +29,11 @@ class Register extends Component {
       password: this.state.password 
     }
 
+    // create new user by calling register function and redirect user to login afterwards
     Authorize.register(newUser)
-    .then((res) => {
-      console.log(res)
+    .then((result) => {
+      console.log(result)
+      this.props.history.push("/login"); 
     })
   }
 

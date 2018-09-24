@@ -16,9 +16,23 @@ var UserSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    // Save the ObjectId for related collections. 'ref' is to the model it refers to
+    watchlists: [{
+        type: Schema.Types.ObjectId,
+        ref: "Watchlists"
+    }],
+    articles: [{
+        type: Schema.Types.ObjectId,
+        ref: "Articles"
+    }],
+    investments: [{
+        type: Schema.Types.ObjectId,
+        ref: "Investments"
+    }]
 });
 
+// Functions on the user schema for hashing the password and comparing it when the user logs in
 UserSchema.pre('save', function (next) {
     var user = this;
     if (this.isModified('password') || this.isNew) {
