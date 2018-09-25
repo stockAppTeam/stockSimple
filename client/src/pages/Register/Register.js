@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './Register.css';
-import Authorize from '../../utils/Authorize'
+import Authorize from '../../utils/Authorize';
+import { Container, Row, Col, Input, Button, Card, CardBody} from 'mdbreact';
 
 class Register extends Component {
 
@@ -8,7 +9,7 @@ class Register extends Component {
     super();
     this.state = {
       name: '',
-      password: '', 
+      password: '',
       email: ''
     };
   }
@@ -23,35 +24,47 @@ class Register extends Component {
 
     // new user object from the state and passed into register function
     let newUser = {
-      name: this.state.name, 
-      email: this.state.email, 
-      password: this.state.password 
+      name: this.state.name,
+      email: this.state.email,
+      password: this.state.password
     }
 
     // create new user by calling register function and redirect user to login afterwards
     Authorize.register(newUser)
-    .then((result) => {
-      this.props.history.push("/login"); 
-    })
+      .then((result) => {
+        this.props.history.push("/login");
+      })
   }
 
   render() {
     const { name, password, email } = this.state;
     return (
-      <div className="container">
-        <form className="form-signin" onSubmit={this.onSubmit}>
-          <h2 className="form-signin-heading">Register</h2>
-          <label htmlFor="Name" className="sr-only">Name</label>
-          <input type="text" className="form-control" placeholder="Full Name" name="name" value={name} onChange={this.onChange} required/>
-          <label htmlFor="Email" className="sr-only">Email</label>
-          <input type="email" className="form-control" placeholder="Email" name="email" value={email} onChange={this.onChange} required/>
-          <label htmlFor="inputPassword" className="sr-only">Password</label>
-          <input type="password" className="form-control" placeholder="Password" name="password" value={password} onChange={this.onChange} required/>
-          <button className="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-        </form>
-      </div>
+
+      <Container>
+        <Row className="justify-content-center">
+          <Col md="6">
+            <Card className="bg-dark text-white">
+              <CardBody>
+                <form>
+                  <p className="h4 text-center py-4">Sign up</p>
+                  <div className="grey-text">
+                    <Input label="Your name" icon="user" group type="text" validate error="wrong" name="name" value={name} onChange={this.onChange} success="right" />
+                    <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
+                    <Input label="Your password" icon="lock" group type="password" validate  name="password" value={password} onChange={this.onChange} />
+                  </div>
+                  <div className="text-center py-4 mt-3">
+                    <Button color="blue" onClick={this.onSubmit}>Go!</Button>
+                  </div>
+                </form>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
     );
   }
 }
+
 
 export default Register;

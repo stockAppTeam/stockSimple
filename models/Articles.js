@@ -5,7 +5,6 @@ let Schema = mongoose.Schema;
 // make new article schema
 let ArticleSchema = new Schema ({
     
-    // title  links must be a string
     title: {
       type: String,
       unique: true, 

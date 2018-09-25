@@ -2,7 +2,7 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-// make new article schema
+// make new investment schema
 let InvestmentSchema = new Schema({
     name: {
         type: String,
@@ -29,8 +29,7 @@ let InvestmentSchema = new Schema({
 
 });
 
-// Create the Article model with the ArticleSchema
+// Create the investment model with the investment Schema
 let Investments = mongoose.model("Investments", InvestmentSchema);
 
-// Export the model
 module.exports = Investments; 

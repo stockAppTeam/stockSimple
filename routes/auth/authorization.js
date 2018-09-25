@@ -13,7 +13,8 @@ router
     .post(authControllers.login);
 
 router
-    .route("/authenticate/:username")
+// this is the route hit after logging in that authenticates the user and gets all of their data
+    .route("/authenticate/:userID")
     .get(passport.authenticate('jwt', { session: false }), function (req, res) {
         let token = getToken(req.headers);
         // if the token is found in the headers then load all data from the authentication controllers
@@ -28,7 +29,7 @@ router
 // helper function to extract the web token from the headers
 getToken = function (headers) {
     if (headers && headers.authorization) {
-        var parted = headers.authorization.split(' ');
+        let parted = headers.authorization.split(' ');
         if (parted.length === 2) {
             return parted[1];
         } else {

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import './Login.css';
-import Authorize from '../../utils/Authorize'
+import Authorize from '../../utils/Authorize';
+import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact';
 
 class Login extends Component {
 
@@ -51,24 +52,34 @@ class Login extends Component {
   render() {
     const { password, email, message } = this.state;
     return (
-      <div className="container">
-        <form className="form-signin" onSubmit={this.onSubmit}>
-          {message !== '' &&
-            <div className="alert alert-warning alert-dismissible" role="alert">
-              {message}
-            </div>
-          }
-          <h2 className="form-signin-heading">Login</h2>
-          <label htmlFor="Email" className="sr-only">Email</label>
-          <input type="email" className="form-control" placeholder="Email" name="email" value={email} onChange={this.onChange} required />
-          <label htmlFor="inputPassword" className="sr-only">Password</label>
-          <input type="password" className="form-control" placeholder="Password" name="password" value={password} onChange={this.onChange} required />
-          <button className="btn btn-lg btn-primary btn-block" type="submit">Login!</button>
-          <p>
-            Not a member? <Link to="/register"><span className="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Register here</Link>
-          </p>
-        </form>
-      </div>
+      <Container>
+        <Row className="justify-content-center">
+          <Col md="6">
+            <Card className="bg-dark text-white">
+              <CardBody>
+                <form>
+                  <p className="h4 text-center py-4">Login</p>
+                  <div className="grey-text">
+                    <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
+                    <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
+                  </div>
+                  <p>
+                    Not a member? <Link to="/register"><span className="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Register here</Link>
+                  </p>
+                  <div className="text-center py-4 mt-3">
+                    <Button color="blue" onClick={this.onSubmit}>Login</Button>
+                  </div>
+                </form>
+                {message !== '' &&
+                  <div className="alert alert-warning alert-dismissible" role="alert">
+                    {message}
+                  </div>
+                }
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }

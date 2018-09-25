@@ -6,12 +6,11 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require("../models/Users");
-// const db = require('../models')
-require('../models/Investments')
-require('../models/Articles')
+const db = require('../models')
 
 // Defining methods for the articlesController
 module.exports = {
+  
   // controller for creating a new user
   create: function (req, res) {
     if (!req.body.name || !req.body.password) {
@@ -32,8 +31,10 @@ module.exports = {
       });
     }
   }, 
+
   //controller for login. checks for existing email and compares password
   // user info is passed to front end through 'token' after password is compared
+  // token passed to front end contains user info that is used to save id to local storage
   login: function (req, res) {
     User.findOne({
       email: req.body.email
@@ -49,7 +50,7 @@ module.exports = {
             // if user is found and password is right create a token
             var token = jwt.sign(user.toJSON(), settings.secret);
             // return the information including token as JSON
-            res.json({success: true, token: 'JWT ' + token});
+            res.json({success: true, token: 'JWT ' + token, id: user._id});
           } else {
             res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
           }
@@ -59,16 +60,21 @@ module.exports = {
   }, 
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
-    User.find({ email : req.params.username }).populate("articles").populate("investments").exec(function (err, doc) {
+    db.User.find({ _id : req.params.userID })
+    .populate("articles")
+    .populate("investments")
+    .populate("watchlists")
+    .exec(function (err, doc) {
       if (err) {
           throw err; 
       }
       else {
+        // create an object of user info and pass it into the front end with 'send' function
         let userInfo = {};
         userInfo.investments = doc[0].investments; 
         userInfo.articles = doc[0].articles; 
+        userInfo.watchlists = doc[0].watchlists; 
         res.send(userInfo); 
-        console.log(doc)
       }
   });
 

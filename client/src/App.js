@@ -6,13 +6,11 @@ import Home from "./pages/Home";
 
 const App = () => (
   <Router>
-    <div className="main-page p-3 mx-auto">
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
       </Switch>
-    </div>
   </Router>
 );
 
