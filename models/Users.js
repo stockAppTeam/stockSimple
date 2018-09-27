@@ -17,6 +17,11 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
+    ofAge: {
+        type: Boolean, 
+        required: true, 
+        default: false
+    },
     // Save the ObjectId for related collections. 'ref' is to the model it refers to
     watchlists: [{
         type: Schema.Types.ObjectId,

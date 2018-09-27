@@ -2,10 +2,6 @@ MERN/Authentication example
 
 - https://www.djamware.com/post/5a90c37980aca7059c14297a/securing-mern-stack-web-application-using-passport
 
-Material Boostrap design for react
-
-- https://mdbootstrap.com/react/
-
 Stock API's
 
     - https://www.alphavantage.co/(this one has alot of historical data)
@@ -14,7 +10,14 @@ Stock API's
 Website for scraping articles
 
     - https://www.investopedia.com/markets/
+	-https://bravos.co/m/top
 
 Potential Design ideas
 
 	- https://www.awwwards.com/sites/yo-dezeen
+
+Resource Documentation
+
+    - Chart.js: https://www.chartjs.org/
+    - List.js Docs: http://listjs.com/
+    - MAterial Design for bootstrap: https://mdbootstrap.com/react/

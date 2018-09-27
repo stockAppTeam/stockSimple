@@ -1,5 +1,21 @@
-body {
-    padding-top: 40px;
-    padding-bottom: 40px;
-    background-color: rgb(99, 98, 98);
-  }
+.login-page {
+  height: inherit;
+  width: inherit;
+  background: url('../../images/register-login-br.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.login-main {
+  align-items: center; 
+  display: flex; 
+  height: inherit; 
+}
+  
+.login-card {
+  max-width: 500px; 
+  background: rgba(255, 255, 255, 0.1);  
+}
+  

@@ -44,7 +44,7 @@ class Login extends Component {
       // if there is an error with authentication, it will be caught here
       .catch((error) => {
         if (error.response.status === 401) {
-          this.setState({ message: 'Login failed. Username or password not match' });
+          this.setState({ message: 'Login failed. Username or password do not match' });
         }
       });
   }
@@ -52,26 +52,27 @@ class Login extends Component {
   render() {
     const { password, email, message } = this.state;
     return (
-      <Container>
-        <Row className="justify-content-center">
-          <Col md="6">
-            <Card className="bg-dark text-white">
+      <div className="login-page">
+      <Container className="login-main">
+        <Row className="justify-content-center w-100">
+          <Col className="mx-auto">
+            <Card className="text-white mx-auto login-card">
               <CardBody>
                 <form>
-                  <p className="h4 text-center py-4">Login</p>
-                  <div className="grey-text">
+                  <p className="h4 text-center py-4 heading-font">Login</p>
+                  <div className="text-white">
                     <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
                     <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
                   </div>
-                  <p>
-                    Not a member? <Link to="/register"><span className="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Register here</Link>
-                  </p>
                   <div className="text-center py-4 mt-3">
-                    <Button color="blue" onClick={this.onSubmit}>Login</Button>
+                    <Button className="turq-bg" onClick={this.onSubmit}>Login</Button>
                   </div>
+                  <p>
+                    Not a member? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3" aria-hidden="true"></span> Register here</Link>
+                  </p>
                 </form>
                 {message !== '' &&
-                  <div className="alert alert-warning alert-dismissible" role="alert">
+                  <div className="alert alert-warning alert-dismissible bg-grey" role="alert">
                     {message}
                   </div>
                 }
@@ -80,6 +81,7 @@ class Login extends Component {
           </Col>
         </Row>
       </Container>
+      </div>
     );
   }
 }
