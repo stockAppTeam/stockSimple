@@ -1,11 +1,6 @@
-html, body {
+html, body, #root {
     height: 100%; 
 }
-
-#root {
-    height: inherit; 
-}
-
 .heading-font {
     font-family: 'Prata', serif;
 }
@@ -22,4 +17,11 @@ html, body {
 .turq-text {
     color:  #008385; 
 }
+
+@media only screen and (max-height: 750px) {
+    html {
+      height: unset; 
+    }
+  
+  }
    

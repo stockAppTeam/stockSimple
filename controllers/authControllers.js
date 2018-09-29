@@ -21,8 +21,12 @@ module.exports = {
   create: function (req, res) {
     if (!req.body.age) {
       res.json({ success: false, msg: 'You must be 16 or older to use this app!' });
-    } else if (!req.body.name || !req.body.password || !validateEmail(req.body.email)) {
+    } else if (!req.body.name || !req.body.password) {
       res.json({ success: false, msg: 'Your email, password, or username is incomplete.' });
+    } else if (req.body.password.length < 12) {
+      res.json({ success: false, msg: 'Your password must be at least 12 characters long.' });
+    } else if (!validateEmail(req.body.email)) {
+      res.json({ success: false, msg: 'That is not a valid email address' });
     } else {
       let newUser = new User({
         name: req.body.name,

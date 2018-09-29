@@ -52,35 +52,54 @@ class Login extends Component {
   render() {
     const { password, email, message } = this.state;
     return (
-      <div className="login-page">
-      <Container className="login-main">
-        <Row className="justify-content-center w-100">
-          <Col className="mx-auto">
-            <Card className="text-white mx-auto login-card">
-              <CardBody>
-                <form>
-                  <p className="h4 text-center py-4 heading-font">Login</p>
-                  <div className="text-white">
-                    <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
-                    <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
-                  </div>
-                  <div className="text-center py-4 mt-3">
-                    <Button className="turq-bg" onClick={this.onSubmit}>Login</Button>
-                  </div>
-                  <p>
-                    Not a member? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3" aria-hidden="true"></span> Register here</Link>
-                  </p>
-                </form>
-                {message !== '' &&
-                  <div className="alert alert-warning alert-dismissible bg-grey" role="alert">
-                    {message}
-                  </div>
-                }
-              </CardBody>
-            </Card>
+      <div className="login-page p-2">
+        <Row className="m-0">
+          <Col sm="12" md="6">
+            <div className="icon chart mr-auto fixed-top">
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+          </Col>
+          <Col sm="12" md="6">
+            <p className="text-white heading-font h1 p-4 mt-5 mr-2 heading-text">Stock Simple</p>
           </Col>
         </Row>
-      </Container>
+        <Container className="login-main mt-4">
+          <Row className="justify-content-center align-items-center w-100 mt-3 flex-column">
+            <Row className="info-row mb-4 w-100 p-4 rounded justify-content-center">
+              <p className="content-font text-white h4 font-weight-bold text-left login-info">
+                Live access to stock information and personal investment tracking.
+            </p>
+            </Row>
+            <Row className="w-100">
+              <Col className="mb-4 col-12">
+                <Card className="text-white login-card mx-auto content-font ">
+                  <CardBody>
+                    <form>
+                      <p className="h4 text-center p-2 heading-font">Login</p>
+                      <div className="text-white">
+                        <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
+                        <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
+                      </div>
+                      <div className="text-center p-2 mt-1">
+                        <Button className="turq-bg" onClick={this.onSubmit}>Login</Button>
+                      </div>
+                      <p>
+                        Not a member ? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3" aria-hidden="true"></span>Sign up here</Link>
+                      </p>
+                    </form>
+                    {message !== '' &&
+                      <div className="alert alert-warning alert-dismissible bg-grey" role="alert">
+                        {message}
+                      </div>
+                    }
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          </Row>
+        </Container>
       </div>
     );
   }

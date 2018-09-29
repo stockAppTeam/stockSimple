@@ -6,7 +6,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      
+      test: 'test'
     };
   }
 
@@ -21,6 +21,7 @@ class App extends Component {
     Authorize.authenticate(userAuthInfo)
     .then((res) => {
       console.log(res.data)
+      console.log(this.state)
     })
     .catch((error) => {
       if(error.response.status === 401) {
