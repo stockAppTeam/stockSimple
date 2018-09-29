@@ -76,7 +76,7 @@ class Register extends Component {
           <Row className="justify-content-center align-items-center w-100 mt-3 flex-column">
             <Row className="info-row mb-4 w-100 p-4 rounded justify-content-center">
               <p className="content-font text-white h4 font-weight-bold text-left register-info">
-                  Live access to stock information and personal investment tracking. 
+              Personal investment tracking and access to live stock information.
               </p>  
             </Row>
             <Row className="w-100">
@@ -100,7 +100,7 @@ class Register extends Component {
                         </div>
                       </div>
                       <div className="text-center p-1 mt-3">
-                        <Button className="turq-text" onClick={this.onSubmit} >Go!</Button>
+                        <Button className="turq-text" type="sumbit" onSubmit={this.onSubmit} onClick={this.onSubmit} >Go!</Button>
                       </div>
                       Already a member? <Link to="/login"><span className="glyphicon glyphicon-plus-sign turq-text text-left" aria-hidden="true"></span>Login here</Link>
                     </form>

@@ -69,21 +69,21 @@ class Login extends Component {
           <Row className="justify-content-center align-items-center w-100 mt-3 flex-column">
             <Row className="info-row mb-4 w-100 p-4 rounded justify-content-center">
               <p className="content-font text-white h4 font-weight-bold text-left login-info">
-                Live access to stock information and personal investment tracking.
+                Personal investment tracking and access to live stock information.
             </p>
             </Row>
             <Row className="w-100">
               <Col className="mb-4 col-12">
                 <Card className="text-white login-card mx-auto content-font ">
                   <CardBody>
-                    <form>
+                    <form className="form">
                       <p className="h4 text-center p-2 heading-font">Login</p>
                       <div className="text-white">
                         <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
                         <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
                       </div>
                       <div className="text-center p-2 mt-1">
-                        <Button className="turq-bg" onClick={this.onSubmit}>Login</Button>
+                        <Button className="turq-bg" type="sumbit" onSubmit={this.onSubmit} onClick={this.onSubmit}>Login</Button>
                       </div>
                       <p>
                         Not a member ? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3" aria-hidden="true"></span>Sign up here</Link>
