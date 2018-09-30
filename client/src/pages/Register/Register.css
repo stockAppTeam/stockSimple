@@ -25,52 +25,11 @@ a {
 }
 
 .info-row{
-  background: rgba(0, 255, 255, 0.3); 
+  background: rgba(255, 255, 255, 0.1); 
 }
 
 .register-info {
-  font-size: 35px; 
-}
-
-.registerImg {
-  height: 165px; 
-  width: 165px; 
-}
-
-.registerImg1 {
-  background: url('../../images/registerInfo1.png'); 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  opacity: 0.5; 
-} 
-
-.registerImg2 {
-  background: url('../../images/registerInfo2.png'); 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  opacity: 0.5; 
-}
-
-.registerImg3 {
-  background: url('../../images/registerInfo3.png'); 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  opacity: 0.5; 
-}
-
-.info-icon {
-  display: none !important; 
-}
-
-.info-icon:hover {
-  cursor: pointer; 
-  color: white; 
+  font-size: 30px; 
 }
 
 .form input:focus {

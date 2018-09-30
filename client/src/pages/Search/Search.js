@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
-import './Home.css';
+import './Search.css';
 import MainNavbar from '../../components/Navbar';
 
-class Home extends Component {
+class Search extends Component {
 
   constructor(props) {
     super(props);
@@ -42,6 +42,7 @@ class Home extends Component {
       });
 
   }
+
   // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
@@ -51,21 +52,21 @@ class Home extends Component {
 
   render() {
     return (
-        <div className="home-div">
-          <MainNavbar
-            navToggle={this.navToggle}
-            isWideEnough={!this.state.isWideEnough}
-            collapse={this.state.collapse}
-            pageName={'Stock Simple |'}
-            logout={localStorage.getItem('jwtToken') && this.logout}
-            username={this.state.username}
-            pageSwitchName='Go to Search'
-            pageSwitchLink='/search'
-          />
-        </div>
+      <div className="search-div">
+        <MainNavbar
+          navToggle={this.navToggle}
+          isWideEnough={!this.state.isWideEnough}
+          collapse={this.state.collapse}
+          pageName={'Stock Simple |'}
+          logout={localStorage.getItem('jwtToken') && this.logout}
+          username={this.state.username}
+          pageSwitchName='Go to Home'
+          pageSwitchLink='/'
+        />
+      </div>
     );
   }
 }
 
 
-export default Home;
+export default Search;

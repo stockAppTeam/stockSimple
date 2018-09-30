@@ -19,6 +19,21 @@ class Register extends Component {
     };
   }
 
+  // check if token exists, and if it does then send user to home page
+  componentDidMount() {
+    let userAuthInfo = {
+      token: localStorage.getItem('jwtToken'),
+      userID: localStorage.getItem('userID')
+    }
+    Authorize.authenticate(userAuthInfo)
+      .then((res) => {
+        this.props.history.push("/");
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
   handleCheck = (e) => {
     console.log(this.state.ageCheck)
     this.setState({ ageCheck: !this.state.ageCheck });
@@ -54,7 +69,7 @@ class Register extends Component {
           this.props.history.push("/login");
         }
       })
-  }
+  }  
 
   render() {
     const { name, password, email, registerError } = this.state;
@@ -79,17 +94,12 @@ class Register extends Component {
               Personal investment tracking and access to live stock information.
               </p>  
             </Row>
-            <Row className="w-100">
-              <Col sm="12" md="6" className="d-flex flex-column">
-                <div className="registerImg registerImg1"></div>
-                <div className="registerImg registerImg3 mx-auto"></div>
-                <div className="registerImg registerImg2 align-self-end"></div>
-              </Col>
-              <Col sm="12" md="6" className="mb-4">
+            <Row className="w-100 justify-content-center">
+              <Col sm="6" className="mb-4">
                 <Card className="text-white register-card mx-auto content-font ">
                   <CardBody>
-                    <form className="form">
-                      <p className="h3 text-center p-2 heading-font mt-2">Register!</p>
+                    <form className="form content-font">
+                      <p className="h3 text-center p-2  mt-2">Register!</p>
                       <div className="text-white font-weight-bolder">
                         <Input label="Your name" icon="user" group type="text" validate error="wrong" name="name" value={name} onChange={this.onChange} success="right" />
                         <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
@@ -100,7 +110,7 @@ class Register extends Component {
                         </div>
                       </div>
                       <div className="text-center p-1 mt-3">
-                        <Button className="turq-text" type="sumbit" onSubmit={this.onSubmit} onClick={this.onSubmit} >Go!</Button>
+                        <Button className="turq-bg" type="sumbit" onSubmit={this.onSubmit} onClick={this.onSubmit} >Go!</Button>
                       </div>
                       Already a member? <Link to="/login"><span className="glyphicon glyphicon-plus-sign turq-text text-left" aria-hidden="true"></span>Login here</Link>
                     </form>

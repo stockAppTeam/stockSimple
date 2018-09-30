@@ -20,4 +20,8 @@ Resource Documentation
 
     - Chart.js: https://www.chartjs.org/
     - List.js Docs: http://listjs.com/
-    - MAterial Design for bootstrap: https://mdbootstrap.com/react/
+    - Material Design for bootstrap: https://mdbootstrap.com/react/
+
+Loading Icon
+    - https://codepen.io/worksbyvan/pen/YxpXoo
+    - https://giphy.com/gifs/loading-icon-indicator-u2Prjtt7QYD0A

@@ -6,6 +6,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require("../models/Users");
+const Watchlist = require("../models/Watchlists");
 const db = require('../models');
 
 //helper function to check for valid email
@@ -34,14 +35,50 @@ module.exports = {
         password: req.body.password,
         ofAge: req.body.age
       });
+
+      let defaultWatchlists = [
+        {
+          name: 'Technology',
+          stocks: ['AAPL', 'AMZN', 'MSFT', 'MU', 'AMD']
+        },
+        {
+          name: 'Banking & Credit',
+          stocks: ['V', 'MA', 'AXP', 'BAC', 'RY']
+        },
+        {
+          name: 'Favourites',
+          stocks: ['AAPL', 'AMZN', 'CGC', 'CSIQ', 'SHOP-CA']
+        },
+      ]
       // save the user
-      newUser.save(function (err) {
-        if (err) {
-          console.log(err)
-          return res.json({ success: false, msg: 'Username already exists.' });
-        }
-        res.json({ success: true, msg: 'Successful created new user.' });
-      });
+      newUser.save()
+        .then(result => {
+
+        //loop over default watchlists, create one for each value and push the id of default watchlist into the new users 'watchlist' property as a reference
+          defaultWatchlists.forEach((watchlists) => {
+            
+          let newWatchlist = new Watchlist({
+              name: watchlists.name,
+              stocks: watchlists.stocks
+            });
+
+            newWatchlist.save()
+            .then(newWatchId => {
+              db.User.findOneAndUpdate({ _id: result._id  }, { $push: { watchlists: newWatchId._id } }, { new: true }, function(err, res) {
+                if(err) {
+                  console.log(err)
+                }
+              });
+            })
+          })
+
+        })
+        .then(result => {
+          res.json({ success: true, msg: 'Sign up complete' });
+        })
+        .catch((err) => {
+          res.send({ success: false, msg: 'Server Error' });
+        })
     }
   },
 
@@ -84,6 +121,7 @@ module.exports = {
         else {
           // create an object of user info and pass it into the front end with 'send' function
           let userInfo = {};
+          userInfo.name = doc[0].name; 
           userInfo.investments = doc[0].investments;
           userInfo.articles = doc[0].articles;
           userInfo.watchlists = doc[0].watchlists;

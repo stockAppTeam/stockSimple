@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+Promise = require('bluebird');
 const routes = require("./routes");
 const app = express();
 const PORT = process.env.PORT || 3001;

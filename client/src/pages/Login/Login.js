@@ -16,6 +16,21 @@ class Login extends Component {
     };
   }
 
+    // check if token exists, and if it does then send user to home page
+    componentDidMount() {
+      let userAuthInfo = {
+        token: localStorage.getItem('jwtToken'),
+        userID: localStorage.getItem('userID')
+      }
+      Authorize.authenticate(userAuthInfo)
+        .then((res) => {
+          this.props.history.push("/");
+        })
+        .catch((error) => {
+          console.log(error)
+        });
+    }  
+
   onChange = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
@@ -76,8 +91,8 @@ class Login extends Component {
               <Col className="mb-4 col-12">
                 <Card className="text-white login-card mx-auto content-font ">
                   <CardBody>
-                    <form className="form">
-                      <p className="h4 text-center p-2 heading-font">Login</p>
+                    <form className="form content-font">
+                      <p className="h4 text-center p-2">Login</p>
                       <div className="text-white">
                         <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
                         <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />

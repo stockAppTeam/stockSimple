@@ -1,0 +1,26 @@
+.nav-bg {
+    background-color: rgb(44, 44, 44); 
+}
+
+.nav-logo {
+    background: url('../../images/navbarLogo.png');
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    opacity: 0.5; 
+    width: 75px; 
+    height: 75px;
+}
+
+.nav-link:hover {
+    transform: scale(1.05); 
+    background-color: white;
+}
+
+
+@media only screen and (max-width: 768px) {
+    .nav-logo {
+        display: none; 
+    }
+  }
