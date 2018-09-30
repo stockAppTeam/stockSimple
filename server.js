@@ -2,11 +2,13 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+Promise = require('bluebird');
 const routes = require("./routes");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 
+// Require all models
 
 // Configure body parser for AJAX requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,8 +27,8 @@ app.get('*', function (req, res) {
 });
 
 // Connect to the Mongo DB
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/nytreact";
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/nytreact");
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/stockSimple";
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/stockSimple");
 
 // Connect to the Mongo DB
 mongoose.Promise = Promise;

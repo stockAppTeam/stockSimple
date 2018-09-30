@@ -1,8 +1,4 @@
-a {
-  text-decoration: none; 
-  color:  #008385 !important; 
-}
-.register-page {
+.login-page { 
   height: 100%; 
   width: 100vw;
   background: url('../../images/register-login-br.jpg') no-repeat center center fixed; 
@@ -12,23 +8,20 @@ a {
   background-size: cover;
 }
 
-.register-main {
+.login-main {
   align-items: center;
   justify-content: center;  
   flex-direction: column; 
   display: flex; 
 }
 
-.register-card {
+.login-card {
   max-width: 500px; 
+  max-height: 450px; 
   background: rgba(255, 255, 255, 0.1);  
 }
 
-.info-row{
-  background: rgba(255, 255, 255, 0.1); 
-}
-
-.register-info {
+.login-info {
   font-size: 30px; 
 }
 
@@ -45,7 +38,6 @@ a {
 }
 
 
-
 .icon {
   position: absolute;
   top: 100px;
@@ -53,6 +45,10 @@ a {
   width: 16em;
   height: 16em;
   transform: translate(-50%,-50%);
+}
+
+.login-row {
+  min-height: 70vh; 
 }
 
 /* Chart */
@@ -134,14 +130,8 @@ a {
 }
 
 @media only screen and (max-width: 768px) {
-  .register-page {
-    padding: 10px; 
-  }
-  .registerImg {
-    display: none; 
-  }
 
-  .register-info {
+  .login-info {
     font-size: 30px; 
   }
 
@@ -153,21 +143,22 @@ a {
     display: none; 
   }
 
-  .register-info {
-    font-size: 100%; 
+  .login-info {
+    font-size: 125%; 
     display: flex; 
     align-items: center; 
   }
 
-  .heading-text {
-    margin-top: 5px !important; 
+  .login-row {
+    min-height: 95vh; 
   }
 
-  .register-main {
-    margin-top: 5px !important; 
-  }
-
-  .register-info {
-    font-size: 20px; 
+  .heading-text{
+    font-size: 30px; 
+    padding: 0 !important; 
+   text-align: center; 
   }
 }
+
+
+  
