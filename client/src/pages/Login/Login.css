@@ -1,5 +1,5 @@
 .login-page { 
-  height: 100%; 
+  min-height: inherit; 
   width: 100vw;
   background: url('../../images/register-login-br.jpg') no-repeat center center fixed; 
   -webkit-background-size: cover;

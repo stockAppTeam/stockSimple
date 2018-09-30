@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
+import SearchFunction from '../../utils/ScrapeFunctions';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
+import {Button, Row } from 'mdbreact';
 
 class Search extends Component {
 
@@ -15,11 +17,6 @@ class Search extends Component {
     this.navToggle = this.navToggle.bind(this);
   }
 
-  navToggle() {
-    this.setState({
-      collapse: !this.state.collapse,
-    });
-  }
   // when the page loads grab the token and userID from local storage
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
@@ -50,6 +47,17 @@ class Search extends Component {
     window.location.reload();
   }
 
+  navToggle() {
+    this.setState({
+      collapse: !this.state.collapse,
+    });
+  }
+
+  scrapeArticles = (e) => {
+    console.log('hey')
+    SearchFunction.investopedia()
+  }
+
   render() {
     return (
       <div className="search-div">
@@ -63,6 +71,9 @@ class Search extends Component {
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
+        <Row className="p-2">
+          <Button className="turq-bg" type="sumbit" onClick={this.scrapeArticles}>Scrape</Button>
+        </Row>
       </div>
     );
   }
