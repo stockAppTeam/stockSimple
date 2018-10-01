@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
+import SearchFunction from '../../utils/ScrapeFunctions';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
 
@@ -28,6 +29,7 @@ class Home extends Component {
       token: localStorage.getItem('jwtToken'),
       userID: localStorage.getItem('userID')
     }
+    this.scrapeMarketWatch(); 
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
         console.log(res.data)
@@ -41,6 +43,13 @@ class Home extends Component {
         }
       });
 
+  }
+
+  scrapeMarketWatch = (e) => {
+    SearchFunction.marketWatch()
+      .then((movers) => {
+        console.log(movers)
+      })
   }
   // clear the web token and email from local storage when the user logs out
   logout = () => {
@@ -62,6 +71,7 @@ class Home extends Component {
             pageSwitchName='Go to Search'
             pageSwitchLink='/search'
           />
+          <button className="turq-bg btn" type="sumbit" onClick={this.scrapeMarketWatch}>Market Watch</button>
         </div>
     );
   }

@@ -3,7 +3,9 @@ import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
-import {Button, Row } from 'mdbreact';
+import Article from '../../components/Article'
+import moment from 'moment';
+import { Row, Col } from 'mdbreact';
 
 class Search extends Component {
 
@@ -13,6 +15,8 @@ class Search extends Component {
       username: "",
       collapse: false,
       isWideEnough: false,
+      articleSearch: [], 
+      date: moment().format("DD-MM-YYYY")
     };
     this.navToggle = this.navToggle.bind(this);
   }
@@ -47,15 +51,29 @@ class Search extends Component {
     window.location.reload();
   }
 
+  // function for toggling the navbar on smaller viewports
   navToggle() {
     this.setState({
       collapse: !this.state.collapse,
     });
   }
 
-  scrapeArticles = (e) => {
-    console.log('hey')
+  // scrapes the investopedia with the mthod from utils and logs the results
+  scrapeInvestopedia = (e) => {
     SearchFunction.investopedia()
+      .then((articles) => {
+        this.setState({
+          articleSearch: articles.data
+        })
+        console.log(this.state)
+      })
+  }
+  // scrapes market watch website to get most movers and gainers from the day
+  scrapeMarketWatch = (e) => {
+    SearchFunction.marketWatch()
+      .then((movers) => {
+        console.log(movers)
+      })
   }
 
   render() {
@@ -71,8 +89,24 @@ class Search extends Component {
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
-        <Row className="p-2">
-          <Button className="turq-bg" type="sumbit" onClick={this.scrapeArticles}>Scrape</Button>
+        <Row className="p-3">
+          <Col sm="12" md="6">
+            <button className="turq-bg btn" type="sumbit" onClick={this.scrapeInvestopedia}>Investopedia</button>
+          </Col>
+          <Col sm="12" md="6">
+            <Row className="justify-content-center">
+              {this.state.articleSearch.map((article, index) => (
+                <Article
+                  key={article.link}
+                  imgLink={article.imgLink}
+                  title={article.title}
+                  desc={article.desc}
+                  link={`https://www.investopedia.com/${article.link}`}
+                  date={this.state.date}
+                />
+              ))}
+            </Row>
+          </Col>
         </Row>
       </div>
     );
