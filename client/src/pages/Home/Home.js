@@ -3,6 +3,8 @@ import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
+import Article from '../../components/Article';
+import { Row, Col } from 'mdbreact';
 
 class Home extends Component {
 
@@ -12,8 +14,10 @@ class Home extends Component {
       username: "",
       collapse: false,
       isWideEnough: false,
+      savedArticles: []
     };
     this.navToggle = this.navToggle.bind(this);
+    this.deleteArticle = this.deleteArticle.bind(this);
   }
 
   navToggle() {
@@ -29,12 +33,13 @@ class Home extends Component {
       token: localStorage.getItem('jwtToken'),
       userID: localStorage.getItem('userID')
     }
-    this.scrapeMarketWatch(); 
+    this.scrapeMarketWatch();
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
         console.log(res.data)
         this.setState({
-          username: res.data.name
+          username: res.data.name,
+          savedArticles: res.data.articles
         })
       })
       .catch((error) => {
@@ -44,6 +49,11 @@ class Home extends Component {
       });
 
   }
+
+  deleteArticle = index => {
+    console.log('hey')
+  }
+
 
   scrapeMarketWatch = (e) => {
     SearchFunction.marketWatch()
@@ -60,19 +70,38 @@ class Home extends Component {
 
   render() {
     return (
-        <div className="home-div">
-          <MainNavbar
-            navToggle={this.navToggle}
-            isWideEnough={!this.state.isWideEnough}
-            collapse={this.state.collapse}
-            pageName={'Stock Simple |'}
-            logout={localStorage.getItem('jwtToken') && this.logout}
-            username={this.state.username}
-            pageSwitchName='Go to Search'
-            pageSwitchLink='/search'
-          />
-          <button className="turq-bg btn" type="sumbit" onClick={this.scrapeMarketWatch}>Market Watch</button>
-        </div>
+      <div className="home-div">
+        <MainNavbar
+          navToggle={this.navToggle}
+          isWideEnough={!this.state.isWideEnough}
+          collapse={this.state.collapse}
+          pageName={'Stock Simple |'}
+          logout={localStorage.getItem('jwtToken') && this.logout}
+          username={this.state.username}
+          pageSwitchName='Go to Search'
+          pageSwitchLink='/search'
+        />
+        <Row className="p-3">
+          <Col sm="12" md="6">
+            <Row className="justify-content-center">
+              {this.state.savedArticles.map((article, index) => (
+                <Article
+                  key={article.id}
+                  imgLink={article.imgLink}
+                  title={article.title}
+                  desc={article.desc}
+                  action={'Delete'}
+                  // site uses relative url so need to interpolate full url for link to work
+                  link={`https://www.investopedia.com/${article.link}`}
+                  date={article.date}
+                  actionBtn={() => this.deleteArticle(index)}
+                >
+                </Article>
+              ))}
+            </Row>
+          </Col>
+        </Row>
+      </div>
     );
   }
 }

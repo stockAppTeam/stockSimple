@@ -25,7 +25,6 @@ router
             })
         })
             .then(() => {
-                console.log(entries)
                 res.send(entries);
             });
     });

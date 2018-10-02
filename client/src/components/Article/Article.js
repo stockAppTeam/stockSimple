@@ -13,7 +13,7 @@ const Article = props => (
             <ul className="list-unstyled list-inline font-small m-0 p-2">
                 <li className="list-inline-item pr-2 white-text"><Fa icon="clock-o"></Fa>&nbsp;{props.date}</li>
                 <li className="list-inline-item pr-2 white-text"><a target="_blank" href={props.link}>Visit Article</a></li>
-                <li className="list-inline-item pr-2 white-text"><button className="turq-bg btn p-2">Save</button></li>
+                <li className="list-inline-item pr-2 white-text"><button onClick={props.actionBtn} className="turq-bg btn p-2">{props.action}</button></li>
             </ul>
         </div>
     </Card>

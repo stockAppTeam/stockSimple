@@ -15,7 +15,7 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-// Defining methods for the articlesController
+// Defining methods for the authorizeController
 module.exports = {
 
   // controller for creating a new user

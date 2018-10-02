@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
+import ArticleFunction from '../../utils/ArticleData';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
-import Article from '../../components/Article'
+import Article from '../../components/Article';
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 
@@ -11,14 +12,15 @@ class Search extends Component {
 
   constructor(props) {
     super(props);
+    this.saveArticle = this.saveArticle.bind(this);
+    this.navToggle = this.navToggle.bind(this);
     this.state = {
       username: "",
       collapse: false,
       isWideEnough: false,
-      articleSearch: [], 
+      articleSearch: [],
       date: moment().format("DD-MM-YYYY")
     };
-    this.navToggle = this.navToggle.bind(this);
   }
 
   // when the page loads grab the token and userID from local storage
@@ -31,7 +33,6 @@ class Search extends Component {
     }
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
-        console.log(res.data)
         this.setState({
           username: res.data.name
         })
@@ -41,7 +42,6 @@ class Search extends Component {
           this.props.history.push("/login");
         }
       });
-
   }
 
   // clear the web token and email from local storage when the user logs out
@@ -65,15 +65,22 @@ class Search extends Component {
         this.setState({
           articleSearch: articles.data
         })
-        console.log(this.state)
       })
   }
-  // scrapes market watch website to get most movers and gainers from the day
-  scrapeMarketWatch = (e) => {
-    SearchFunction.marketWatch()
-      .then((movers) => {
-        console.log(movers)
-      })
+
+  saveArticle = index => {
+    let { title, link, desc, imgLink } = this.state.articleSearch[index];
+    let date = this.state.date;
+    let user = localStorage.getItem('userID');
+
+    ArticleFunction.saveArticle({
+      user, 
+      title,
+      link,
+      desc,
+      imgLink,
+      date
+    })
   }
 
   render() {
@@ -97,13 +104,17 @@ class Search extends Component {
             <Row className="justify-content-center">
               {this.state.articleSearch.map((article, index) => (
                 <Article
-                  key={article.link}
+                  key={index}
                   imgLink={article.imgLink}
                   title={article.title}
                   desc={article.desc}
+                  action={'Save'}
+                  // site uses relative url so need to interpolate full url for link to work
                   link={`https://www.investopedia.com/${article.link}`}
                   date={this.state.date}
-                />
+                  actionBtn={() => this.saveArticle(index)}
+                >
+                </Article>
               ))}
             </Row>
           </Col>
