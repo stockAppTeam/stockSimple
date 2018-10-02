@@ -7,6 +7,7 @@ import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
+import swal from 'sweetalert';
 
 class Search extends Component {
 
@@ -74,13 +75,29 @@ class Search extends Component {
     let user = localStorage.getItem('userID');
 
     ArticleFunction.saveArticle({
-      user, 
+      user,
       title,
       link,
       desc,
       imgLink,
       date
     })
+      .then((response) => {
+          console.log(response)
+          console.log(this.state)
+        if (response.data.success) {
+          this.setState({
+            articleSearch: this.state.articleSearch.filter((_, i) => i !== index)
+          });
+          swal("Article Saved", "Its on your home page", "success");
+        } else {
+          swal({
+            title: "Could not delete, please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      })
   }
 
   render() {
@@ -101,6 +118,7 @@ class Search extends Component {
             <button className="turq-bg btn" type="sumbit" onClick={this.scrapeInvestopedia}>Investopedia</button>
           </Col>
           <Col sm="12" md="6">
+            <h1 className="turq-text text-center content-font">Latest News</h1>
             <Row className="justify-content-center">
               {this.state.articleSearch.map((article, index) => (
                 <Article

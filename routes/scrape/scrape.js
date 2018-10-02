@@ -4,6 +4,8 @@ let rp = require('request-promise');
 let cheerio = require("cheerio");
 
 // Matches with "/scrape/articles"
+
+//this route is for getting articles on the 'search page'
 router
     .route("/investopedia")
     .get((req, res) => {
@@ -29,6 +31,7 @@ router
             });
     });
 
+    // this is where the gainers/losers data comes from
 router
     .route("/marketWatch")
     .get((req, res) => {

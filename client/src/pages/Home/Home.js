@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
+import ArticleFunction from '../../utils/ArticleData';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
 import { Row, Col } from 'mdbreact';
+import swal from 'sweetalert';
 
 class Home extends Component {
 
@@ -50,17 +52,41 @@ class Home extends Component {
 
   }
 
+  // grab theindex of the article clicked and pass it into delete function
+  // if the server responds with success than display a message (swal) and remove the element from the state
+  // Article function imported from 'utils' which hits back end sraping route
   deleteArticle = index => {
-    console.log('hey')
+    let { _id } = this.state.savedArticles[index];
+    ArticleFunction.deleteArticle(_id)
+      .then((response) => {
+        if (response.data.success) {
+          this.setState({
+            savedArticles: this.state.savedArticles.filter((_, i) => i !== index)
+          });
+          swal({
+            title: "Article Deleted!",
+            icon: "error",
+            dangerMode: true,
+          })
+        } else {
+          swal({
+            title: "Could not delete, please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      })
   }
 
-
+// function for getting 'best and worst performant stocks. put results in the console
+// Search function imported from 'utils' which hits back end sraping route
   scrapeMarketWatch = (e) => {
     SearchFunction.marketWatch()
       .then((movers) => {
         console.log(movers)
       })
   }
+
   // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
@@ -83,7 +109,11 @@ class Home extends Component {
         />
         <Row className="p-3">
           <Col sm="12" md="6">
+          </Col>
+          <Col sm="12" md="6">
+            <h1 className="turq-text text-center content-font">Saved Articles</h1>
             <Row className="justify-content-center">
+            {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
               {this.state.savedArticles.map((article, index) => (
                 <Article
                   key={article.id}
