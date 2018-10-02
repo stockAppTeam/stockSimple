@@ -1,4 +1,4 @@
 .home-div {
     background-color: black; 
-    height: inherit; 
+    min-height: inherit; 
 }

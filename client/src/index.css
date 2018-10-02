@@ -3,10 +3,11 @@ html, body, #root {
     min-height: 100%; 
 }
 
-body {
-    min-height: inherit; 
-    background-size: cover; 
-}
+a {
+    text-decoration: none; 
+    color:  #127880 !important; 
+  }
+  
 .heading-font {
     font-family: 'Prata', serif;
 }
