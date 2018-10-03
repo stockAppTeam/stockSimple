@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
-import './Test.css';
 import StockAPI from '../../utils/StockAPI';
 
 class Test extends Component {
@@ -23,10 +20,10 @@ class Test extends Component {
 
     StockAPI.getLiveWatchListStockInfo()
       .then((stockInfo) => {
-        console.log("I've gotten the stock info from WorldTradingData:", stockInfo);
+        console.log("I've gotten the stock info from WorldTradingData:", stockInfo.data);
 
         this.setState({
-          allInfoFromStockTickers: stockInfo
+          allInfoFromStockTickers: stockInfo.data
         });
 
       });
@@ -67,9 +64,9 @@ class Test extends Component {
     return (
       <div className="container">
         <p>World Trading Data API Test</p>
-        <div>
-          {/* {listItems} */}
-        </div>
+        {this.state.allInfoFromStockTickers.map((stock, index) => (
+            <div key={stock.symbol}>{stock.symbol}: ${stock.price} ${stock.change_pct}%</div>
+        ))}
       </div>
     );
   }

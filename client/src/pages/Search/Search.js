@@ -5,8 +5,10 @@ import ArticleFunction from '../../utils/ArticleData';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
+import SearchBar from '../../components/SearchBar'
+import TablePage from "../../components/MoversTable"
 import moment from 'moment';
-import { Row, Col } from 'mdbreact';
+import { Row, Col, Fa } from 'mdbreact';
 import swal from 'sweetalert';
 
 class Search extends Component {
@@ -20,9 +22,68 @@ class Search extends Component {
       collapse: false,
       isWideEnough: false,
       articleSearch: [],
-      date: moment().format("DD-MM-YYYY")
+      date: moment().format("DD-MM-YYYY"),
+      columns: [
+        {
+          label: '#',
+          field: 'id',
+          sort: 'asc',
+        },
+        {
+          label: 'Name',
+          field: 'name',
+          sort: 'asc'
+        },
+        {
+          label: 'Surname',
+          field: 'surname',
+          sort: 'asc'
+        },
+        {
+          label: 'Country',
+          field: 'country',
+          sort: 'asc'
+        },
+        {
+          label: 'City',
+          field: 'city',
+          sort: 'asc'
+        },
+        {
+          label: 'Position',
+          field: 'position',
+          sort: 'asc'
+        },
+        {
+          label: 'Age',
+          field: 'age',
+          sort: 'asc'
+        }
+      ],
+      rows: [
+        {
+          'id': '1',
+          'name': 'Kate',
+          'surname': 'Moss',
+          'country': 'USA',
+          'city': 'New York City',
+          'position': 'Web Designer',
+          'age': '23'
+        },
+        {
+          'id': '2',
+          'name': 'Anna',
+          'surname': 'Wintour',
+          'country': 'United Kingdom',
+          'city': 'London',
+          'position': 'Frontend Developer',
+          'age': '36'
+        },
+      ]
     };
   }
+
+
 
   // when the page loads grab the token and userID from local storage
   // pass it into authenticate function. If server responds ok, then load data
@@ -83,8 +144,8 @@ class Search extends Component {
       date
     })
       .then((response) => {
-          console.log(response)
-          console.log(this.state)
+        console.log(response)
+        console.log(this.state)
         if (response.data.success) {
           this.setState({
             articleSearch: this.state.articleSearch.filter((_, i) => i !== index)
@@ -100,7 +161,9 @@ class Search extends Component {
       })
   }
 
+
   render() {
+
     return (
       <div className="search-div">
         <MainNavbar
@@ -113,30 +176,40 @@ class Search extends Component {
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
-        <Row className="p-3">
-          <Col sm="12" md="6">
-            <button className="turq-bg btn" type="sumbit" onClick={this.scrapeInvestopedia}>Investopedia</button>
-          </Col>
-          <Col sm="12" md="6">
-            <h1 className="turq-text text-center content-font">Latest News</h1>
-            <Row className="justify-content-center">
-              {this.state.articleSearch.map((article, index) => (
-                <Article
-                  key={index}
-                  imgLink={article.imgLink}
-                  title={article.title}
-                  desc={article.desc}
-                  action={'Save'}
-                  // site uses relative url so need to interpolate full url for link to work
-                  link={`https://www.investopedia.com/${article.link}`}
-                  date={this.state.date}
-                  actionBtn={() => this.saveArticle(index)}
-                >
-                </Article>
-              ))}
-            </Row>
-          </Col>
-        </Row>
+        <div id="App">
+          <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
+            scrapeInvestopedia={this.scrapeInvestopedia}
+          />
+          <div id="page-wrap">
+          </div>
+          <Row className="w-100" >
+            <Col sm="12" md="6">
+              <TablePage
+                columns={this.state.columns}
+                rows={this.state.rows}
+              ></TablePage>
+            </Col>
+            <Col sm="12" md="6">
+              <h1 className="turq-text text-center content-font">Latest News</h1>
+              <Row className="justify-content-center">
+                {this.state.articleSearch.map((article, index) => (
+                  <Article
+                    key={index}
+                    imgLink={article.imgLink}
+                    title={article.title}
+                    desc={article.desc}
+                    action={'Save'}
+                    // site uses relative url so need to interpolate full url for link to work
+                    link={`https://www.investopedia.com/${article.link}`}
+                    date={this.state.date}
+                    actionBtn={() => this.saveArticle(index)}
+                  >
+                  </Article>
+                ))}
+              </Row>
+            </Col>
+          </Row>
+        </div>
       </div>
     );
   }
