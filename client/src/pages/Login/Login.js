@@ -68,7 +68,7 @@ class Login extends Component {
     const { password, email, message } = this.state;
     return (
       <div className="login-page p-2">
-        <Row className="m-0">
+        <Row className="m-0 w-100">
           <Col sm="12" md="6">
             <div className="icon chart mr-auto fixed-top">
               <i></i>

@@ -8,7 +8,7 @@ import Article from '../../components/Article';
 import SearchBar from '../../components/SearchBar'
 import TablePage from "../../components/MoversTable"
 import moment from 'moment';
-import { Row, Col, Fa } from 'mdbreact';
+import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
 
 class Search extends Component {
@@ -25,61 +25,28 @@ class Search extends Component {
       date: moment().format("DD-MM-YYYY"),
       columns: [
         {
-          label: '#',
-          field: 'id',
+          label: 'Company',
+          field: 'Company',
           sort: 'asc',
         },
         {
-          label: 'Name',
-          field: 'name',
+          label: 'Symbol',
+          field: 'Symbol',
           sort: 'asc'
         },
         {
-          label: 'Surname',
-          field: 'surname',
+          label: 'Change %',
+          field: 'Change',
           sort: 'asc'
         },
         {
-          label: 'Country',
-          field: 'country',
+          label: 'Change  $',
+          field: 'Change $',
           sort: 'asc'
         },
-        {
-          label: 'City',
-          field: 'city',
-          sort: 'asc'
-        },
-        {
-          label: 'Position',
-          field: 'position',
-          sort: 'asc'
-        },
-        {
-          label: 'Age',
-          field: 'age',
-          sort: 'asc'
-        }
       ],
-      rows: [
-        {
-          'id': '1',
-          'name': 'Kate',
-          'surname': 'Moss',
-          'country': 'USA',
-          'city': 'New York City',
-          'position': 'Web Designer',
-          'age': '23'
-        },
-        {
-          'id': '2',
-          'name': 'Anna',
-          'surname': 'Wintour',
-          'country': 'United Kingdom',
-          'city': 'London',
-          'position': 'Frontend Developer',
-          'age': '36'
-        },
-      ]
+      gainerRows: [],
+      loserRows: []
     };
   }
 
@@ -98,6 +65,8 @@ class Search extends Component {
         this.setState({
           username: res.data.name
         })
+        this.scrapeMarketWatch();
+        this.scrapeInvestopedia(); 
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -129,6 +98,20 @@ class Search extends Component {
         })
       })
   }
+
+  // function for getting 'best and worst performant stocks. put results in the console
+  // Search function imported from 'utils' which hits back end sraping route
+  scrapeMarketWatch = (e) => {
+    SearchFunction.marketWatch()
+      .then((movers) => {
+        console.log(movers)
+        this.setState({
+          gainerRows: movers.data.gainers,
+          loserRows: movers.data.losers
+        })
+      })
+  }
+
 
   saveArticle = index => {
     let { title, link, desc, imgLink } = this.state.articleSearch[index];
@@ -172,24 +155,30 @@ class Search extends Component {
           collapse={this.state.collapse}
           pageName={'Stock Simple |'}
           logout={localStorage.getItem('jwtToken') && this.logout}
-          username={this.state.username}
+          username={this.state.username}  
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
         <div id="App">
           <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
-            scrapeInvestopedia={this.scrapeInvestopedia}
+  
           />
           <div id="page-wrap">
           </div>
-          <Row className="w-100" >
+          <Row className="w-100 m-0 justify-content-center" >
             <Col sm="12" md="6">
               <TablePage
+                title="Gainers"
                 columns={this.state.columns}
-                rows={this.state.rows}
+                rows={this.state.gainerRows}
+              ></TablePage>
+              <TablePage
+                title="Losers"
+                columns={this.state.columns}
+                rows={this.state.loserRows}
               ></TablePage>
             </Col>
-            <Col sm="12" md="6">
+            <Col  sm="12" md="6">
               <h1 className="turq-text text-center content-font">Latest News</h1>
               <Row className="justify-content-center">
                 {this.state.articleSearch.map((article, index) => (
