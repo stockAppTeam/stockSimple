@@ -98,7 +98,7 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
         />
-        <Row className="p-3">
+        <Row className="w-100 m-0 justify-content-center">
           <Col sm="12" md="6">
           </Col>
           <Col sm="12" md="6">
@@ -107,7 +107,7 @@ class Home extends Component {
             {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
               {this.state.savedArticles.map((article, index) => (
                 <Article
-                  key={article.id}
+                  key={index}
                   imgLink={article.imgLink}
                   title={article.title}
                   desc={article.desc}

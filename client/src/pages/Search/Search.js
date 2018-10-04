@@ -17,11 +17,20 @@ class Search extends Component {
     super(props);
     this.saveArticle = this.saveArticle.bind(this);
     this.navToggle = this.navToggle.bind(this);
+    this.searchVal = this.searchVal.bind(this);
+    this.stockQuery = this.stockQuery.bind(this);
+    this.handleParam = this.handleParam.bind(this);
     this.state = {
       username: "",
       collapse: false,
       isWideEnough: false,
+      stockSearchName: "",
+      stockSearchTicker: "",
+      stockSearchMin: "",
+      stockSearchMax: "",
+      searchParam: "HTL",
       articleSearch: [],
+      badSearchMessage: "", 
       date: moment().format("DD-MM-YYYY"),
       columns: [
         {
@@ -89,7 +98,7 @@ class Search extends Component {
     });
   }
 
-  // scrapes the investopedia with the mthod from utils and logs the results
+  // scrapes the investopedia with the method from utils and logs the results
   scrapeInvestopedia = (e) => {
     SearchFunction.investopedia()
       .then((articles) => {
@@ -99,7 +108,7 @@ class Search extends Component {
       })
   }
 
-  // function for getting 'best and worst performant stocks. put results in the console
+  // function for getting 'best and worst performant stocks
   // Search function imported from 'utils' which hits back end sraping route
   scrapeMarketWatch = (e) => {
     SearchFunction.marketWatch()
@@ -113,6 +122,7 @@ class Search extends Component {
   }
 
 
+  //function saves article. It finds the selected article by getting the array element with the index passed in from the 'map function'
   saveArticle = index => {
     let { title, link, desc, imgLink } = this.state.articleSearch[index];
     let date = this.state.date;
@@ -145,6 +155,34 @@ class Search extends Component {
   }
 
 
+  // this function changes the state of the search paramaters for the 'search side navgation' based on what is being typed in the input
+  searchVal = (e) => {
+    const state = this.state
+    state[e.target.name] = e.target.value;
+    this.setState(state);
+  }
+
+  // method is called to change the value of 'search param' in the state, which is how the user wants their results ordered
+  // the value changes based on which radio button is checked
+  handleParam = (e) => {
+    this.setState({
+      searchParam: e.target.value
+    })
+  }
+
+  // method called when user queries a stock, values are retrieved from the state (which were set by stockQuery() and searchParam())
+  stockQuery = (e) => {
+    let {stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam } = this.state; 
+    if (!stockSearchName || !stockSearchTicker) {
+      this.setState({
+        badSearchMessage : "Your query is incomplete. You need at least a name or ticker. Please Try again"
+      })
+    } else {
+      console.log(this.state)
+    }
+  }
+
+
   render() {
 
     return (
@@ -161,12 +199,24 @@ class Search extends Component {
         />
         <div id="App">
           <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
-  
+            searchVal={this.searchVal}
+            stockQuery={this.stockQuery}
+            stockName={this.state.stockSearchName}
+            stockTicker={this.state.stockSearchTicker}
+            stockMin={this.state.stockSearchName}
+            stockMax={this.state.stockSearchName}
+            // 'High to Low, Low to High, and Market' - these are the props passed into the search component radio buttons that change the value of 'search Param' in the state
+            HTL={this.state.searchParam === "HTL"}
+            LTH={this.state.searchParam === "LTH"}
+            MKT={this.state.searchParam === "MKT"}
+            handleParam={this.handleParam}
+            // paragraph gets populated if the search value is empty
+            badSearch={this.state.badSearchMessage}
           />
           <div id="page-wrap">
           </div>
           <Row className="w-100 m-0 justify-content-center" >
-            <Col sm="12" md="6">
+            <Col sm="12" md="5">
               <TablePage
                 title="Gainers"
                 columns={this.state.columns}
@@ -178,9 +228,10 @@ class Search extends Component {
                 rows={this.state.loserRows}
               ></TablePage>
             </Col>
-            <Col  sm="12" md="6">
+            <Col  sm="12" md="7">
               <h1 className="turq-text text-center content-font">Latest News</h1>
               <Row className="justify-content-center">
+              {/* render the articles */}
                 {this.state.articleSearch.map((article, index) => (
                   <Article
                     key={index}

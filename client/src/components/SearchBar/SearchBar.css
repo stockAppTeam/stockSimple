@@ -100,3 +100,13 @@
 .list-group-item {
   background-color: rgb(29, 28, 28) !important; 
 }
+
+#search-stock-btn {
+  background-color: #127880 !important; 
+}
+
+#search-stock-btn:hover {
+    cursor: pointer; 
+    background-color: rgb(44, 44, 44); 
+    border: 2px solid  white;
+}
