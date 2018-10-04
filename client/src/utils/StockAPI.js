@@ -122,6 +122,11 @@ const StockAPI = {
 
                 });
         });
+    }, 
+
+    userStockSearch: function (queryInfo) {
+        return axios.post("/api/search", queryInfo)
+        console.log(queryInfo)
     }
 
 }

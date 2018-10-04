@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
 import ArticleFunction from '../../utils/ArticleData';
+import QueryStock from '../../utils/StockAPI';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
@@ -30,7 +31,7 @@ class Search extends Component {
       stockSearchMax: "",
       searchParam: "HTL",
       articleSearch: [],
-      badSearchMessage: "", 
+      badSearchMessage: "",
       date: moment().format("DD-MM-YYYY"),
       columns: [
         {
@@ -172,13 +173,16 @@ class Search extends Component {
 
   // method called when user queries a stock, values are retrieved from the state (which were set by stockQuery() and searchParam())
   stockQuery = (e) => {
-    let {stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam } = this.state; 
+    let { stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam } = this.state;
+    let queryObj = { stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam };
+
     if (!stockSearchName || !stockSearchTicker) {
       this.setState({
-        badSearchMessage : "Your query is incomplete. You need at least a name or ticker. Please Try again"
+        badSearchMessage: "Your query is incomplete. You need at least a name or ticker. Please Try again"
       })
     } else {
-      console.log(this.state)
+      console.log(this.state);
+      QueryStock.userStockSearch(queryObj);
     }
   }
 
@@ -193,7 +197,7 @@ class Search extends Component {
           collapse={this.state.collapse}
           pageName={'Stock Simple |'}
           logout={localStorage.getItem('jwtToken') && this.logout}
-          username={this.state.username}  
+          username={this.state.username}
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
@@ -215,39 +219,40 @@ class Search extends Component {
           />
           <div id="page-wrap">
           </div>
-          <Row className="w-100 m-0 justify-content-center" >
-            <Col sm="12" md="5">
+          <Row className="w-100 p-2 justify-content-center m-0">
+            <Col>
               <TablePage
                 title="Gainers"
                 columns={this.state.columns}
                 rows={this.state.gainerRows}
               ></TablePage>
+            </Col>
+            <Col>
               <TablePage
                 title="Losers"
                 columns={this.state.columns}
                 rows={this.state.loserRows}
               ></TablePage>
             </Col>
-            <Col  sm="12" md="7">
-              <h1 className="turq-text text-center content-font">Latest News</h1>
-              <Row className="justify-content-center">
-              {/* render the articles */}
-                {this.state.articleSearch.map((article, index) => (
-                  <Article
-                    key={index}
-                    imgLink={article.imgLink}
-                    title={article.title}
-                    desc={article.desc}
-                    action={'Save'}
-                    // site uses relative url so need to interpolate full url for link to work
-                    link={`https://www.investopedia.com/${article.link}`}
-                    date={this.state.date}
-                    actionBtn={() => this.saveArticle(index)}
-                  >
-                  </Article>
-                ))}
-              </Row>
-            </Col>
+          </Row>
+          <Row className="justify-content-center w-100">
+            <h1 className="turq-text text-center content-font">Latest News</h1>
+
+            {/* render the articles */}
+            {this.state.articleSearch.map((article, index) => (
+              <Article
+                key={index}
+                imgLink={article.imgLink}
+                title={article.title}
+                desc={article.desc}
+                action={'Save'}
+                // site uses relative url so need to interpolate full url for link to work
+                link={`https://www.investopedia.com/${article.link}`}
+                date={this.state.date}
+                actionBtn={() => this.saveArticle(index)}
+              >
+              </Article>
+            ))}
           </Row>
         </div>
       </div>
