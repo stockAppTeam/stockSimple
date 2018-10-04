@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
-import SearchFunction from '../../utils/ScrapeFunctions';
 import ArticleFunction from '../../utils/ArticleData';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
@@ -35,7 +34,7 @@ class Home extends Component {
       token: localStorage.getItem('jwtToken'),
       userID: localStorage.getItem('userID')
     }
-    this.scrapeMarketWatch();
+
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
         console.log(res.data)
@@ -78,14 +77,6 @@ class Home extends Component {
       })
   }
 
-// function for getting 'best and worst performant stocks. put results in the console
-// Search function imported from 'utils' which hits back end sraping route
-  scrapeMarketWatch = (e) => {
-    SearchFunction.marketWatch()
-      .then((movers) => {
-        console.log(movers)
-      })
-  }
 
   // clear the web token and email from local storage when the user logs out
   logout = () => {
@@ -107,7 +98,7 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
         />
-        <Row className="p-3">
+        <Row className="w-100 m-0 justify-content-center">
           <Col sm="12" md="6">
           </Col>
           <Col sm="12" md="6">
@@ -116,7 +107,7 @@ class Home extends Component {
             {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
               {this.state.savedArticles.map((article, index) => (
                 <Article
-                  key={article.id}
+                  key={index}
                   imgLink={article.imgLink}
                   title={article.title}
                   desc={article.desc}

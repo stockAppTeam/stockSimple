@@ -17,7 +17,7 @@ const StockAPI = {
             let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
             console.log('axios: About to GET from worldtradingdata');
-            let API_KEY = "demo";
+            let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
             axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
                 .then((res) => {
@@ -122,6 +122,11 @@ const StockAPI = {
 
                 });
         });
+    }, 
+
+    userStockSearch: function (queryInfo) {
+        return axios.post("/api/search", queryInfo)
+        console.log(queryInfo)
     }
 
 }

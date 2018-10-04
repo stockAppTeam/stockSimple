@@ -24,7 +24,6 @@ const MainNavbar = props => (
             </NavbarNav>
         </Collapse>
     </Navbar>
-
 );
 
-export default MainNavbar
+export default MainNavbar;
