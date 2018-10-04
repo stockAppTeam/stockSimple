@@ -4,12 +4,12 @@ let rp = require('request-promise');
 const stockAPIControllers = require("../../controllers/stockAPIControllers");
 
 // Matches with "/stockapi/"
-router
-    .route("/")
-    .get((req, res) => {
-        console.log(req);
-        return res.status(200).send({ success: true, msg: '/stockapi' });
-    });
+// router
+//     .route("/")
+//     .get((req, res) => {
+//         console.log(req);
+//         return res.status(200).send({ success: true, msg: '/stockapi' });
+//     });
 
 // This route will return the "latest" daily info for all of the user's stocks
 router

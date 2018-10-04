@@ -38,7 +38,7 @@ const StockAPI = {
 
     console.log(`axios: getHistoricalInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+    let API_KEY = "demo";
 
     if (startDate.length > 0) {
       startDate = `&date_from=${startDate}`;
@@ -77,7 +77,7 @@ const StockAPI = {
     return new Promise(function (resolve, reject) {
       console.log(`axios: getHistoricalInfoOneTicker - for ticker: ${tickerToFind}`);
 
-      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = "demo";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
@@ -162,7 +162,8 @@ const StockAPI = {
           resolve(res.data); // Pass the data back
 
         });
-    }, 
+    });
+  },
 
     userStockSearch: function (queryInfo) {
         return axios.post("/api/search", queryInfo)
