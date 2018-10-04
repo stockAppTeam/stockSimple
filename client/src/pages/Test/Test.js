@@ -200,21 +200,6 @@ class Test extends Component {
           {tickerList}
 
         </div>
-
-        <div>
-          <h2>Apple Inc.</h2>
-          <Line data={this.state.chartData} />
-        </div>
-
-        {/* <h2>Apple Inc. - Line component test</h2>
-        <LineChart chartData={this.state.chartData} />
-
-        <h2>Apple Inc. - Bar component test</h2>
-        <BarChart chartData={this.state.chartData} />
-
-        <h2>Pie component test - use to show percentage of investments</h2>
-        <PieChart chartData={this.state.chartData} /> */}
-
       </div>
     );
   }

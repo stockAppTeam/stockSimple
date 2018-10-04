@@ -48,11 +48,15 @@ router
                     let tableRow = {};
                     tableRow.company = $(element).children('td.tdCompany').children('a').text(); 
                     tableRow.symbol = $(element).children('td.tdSymbol').children('a').text(); 
-                    tableRow.changepct = $(element).children('td.tdChangePct').children('div').text(); 
-                    tableRow.change = $(element).children('td.tdChange').children('div').text(); 
+                    tableRow.changepct = parseFloat($(element).children('td.tdChangePct').children('div').text()).toFixed(2); 
+                    tableRow.change = $(element).children('td.tdChange').children('div').text().split("").slice(0, 6).join(""); 
                     // if the change percentage is bigger than 0 it is a gainer so push into gainers array
-                    // needed to convert the item to int because stored as a string on the website
-                   parseInt(tableRow.changepct) > 0 ? topGainers.push(tableRow) : topLosers.push(tableRow)
+                    // only pass  to the front end so the table is not too big
+                    if (topGainers.length < 5 && tableRow.changepct > 0 ) {
+                        topGainers.push(tableRow) 
+                    } else if (topLosers.length < 5 && tableRow.changepct < 0 ) {
+                        topLosers.push(tableRow)
+                    }       
                 }
             })
         })
