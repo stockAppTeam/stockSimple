@@ -14,8 +14,8 @@ const StockAPI = {
 
       let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
-      console.log('axios: About to GET from worldtradingdata');
-      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27" || "demo";
+      console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
+      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
         .then((res) => {
@@ -36,9 +36,9 @@ const StockAPI = {
   */
   getHistoricalInfoAllTickers: function (tickersToFind, startDate, endDate) {
 
-    console.log(`About to find historical info in getHistoricalInfoAllTickers for ${tickersToFind.length} tickers: ${tickersToFind}`);
+    console.log(`axios: getHistoricalInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27" || "demo";
+    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
     if (startDate.length > 0) {
       startDate = `&date_from=${startDate}`;
@@ -75,9 +75,9 @@ const StockAPI = {
 
     // returning a promise so that we can use .then
     return new Promise(function (resolve, reject) {
-      console.log(`About to find historical info in getHistoricalInfoOneTicker for ticker: ${tickerToFind}`);
+      console.log(`axios: getHistoricalInfoOneTicker - for ticker: ${tickerToFind}`);
 
-      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27" || "demo";
+      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
@@ -127,8 +127,8 @@ const StockAPI = {
 
     return new Promise(function (resolve, reject) {
 
-      console.log('axios: About to GET from AlphaVantage');
-      let API_KEY = process.env.ALPHAVANTAGE_API_KEY || "demo";
+      console.log('axios: getSectorPerformance');
+      let API_KEY = "demo";
 
       axios.get(`https://www.alphavantage.co/query?function=SECTOR&apikey=${API_KEY}`)
         .then((res) => {
@@ -149,8 +149,8 @@ const StockAPI = {
       let tickersToFind = ['AAPL', 'AMZN', 'MSFT']; // This would be the array of tickers from db User data
       let tickerString = tickersToFind.toString();  // Convert the array to a comma-separated string
 
-      console.log('axios: About to GET from Barchart');
-      let API_KEY = "" || "demo";
+      console.log('axios: getWatchListStockInfoFromBarchart');
+      let API_KEY = "demo";
 
       axios.get(`https://marketdata.websol.barchart.com/getQuote.json?apikey=${API_KEY}&symbols=${tickerString}&fields=fiftyTwoWkHigh%2CfiftyTwoWkHighDate%2CfiftyTwoWkLow%2CfiftyTwoWkLowDate`)
         .then((res) => {

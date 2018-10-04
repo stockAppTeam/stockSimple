@@ -2,30 +2,30 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './Test.css';
-import Authorize from '../../utils/Authorize'; // This is required so that I can get the user info, which includes the watchlists
+//import Authorize from '../../utils/Authorize'; // This is required so that I can get the user info, which includes the watchlists
 import StockAPI from '../../utils/StockAPI';
 import { Line } from 'react-chartjs-2';
-//import LineChart from '../../components/LineChart';
-//import BarChart from '../../components/BarChart';
-//import PieChart from '../../components/PieChart';
+// import LineChart from '../../components/LineChart';
+// import BarChart from '../../components/BarChart';
+// import PieChart from '../../components/PieChart';
 
 class Test extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      
-      userTickersFromDB: ['AAPL','MSFT','AMZN', 'GE'], // This would be obtained by a back-end call to get the user's list of tickers
-      
+
+      userTickersFromDB: ['AAPL', 'MSFT', 'AMZN', 'GE'], // This would be obtained by a back-end call to get the user's list of tickers
+
       latestTickerInfo: [], // For each ticker in the user's list of tickers, this is the latest data. Up to 50 can be read at a time with our paid API
-      
+
       allUserTickerHistoricalInfo: [], // an array of objects containg the historical info for each of the user's tickers
 
       allUserTickerCharts: [], // This holds an array of the "latest info" chartjs objects for the user's tickers
-      
+
       allUserTickerHistoricalCharts: [], // This holds an array of the historical chartjs objects for the user's tickers
-                                         // For the moment, the same date range is used for them all
-      
+      // For the moment, the same date range is used for them all
+
       // allInfoFromStockTickers: [], // An array of stock data objects
       // historicalInfoFromStockTickers: {}, // An array of historical data for each stock in our allInfoFromStockTickers list?
       sectorPerformanceData: [],    // In progress
@@ -89,7 +89,7 @@ class Test extends Component {
 
   componentDidMount() {
 
-    console.log("Test.js: componentDidMount");
+    //console.log("Test.js: componentDidMount");
 
     // Get the user info, so we know which watchlists and other stocks that we need to add
     // let userAuthInfo = {
@@ -122,7 +122,7 @@ class Test extends Component {
     // Requires: an array of tickers. This returns the latest stock info for all user tickers
     StockAPI.getLatestStockInfoAllTickers(this.state.userTickersFromDB)
       .then((stockInfo) => {
-        console.log("getLiveWatchListStockInfo: I've gotten the stock info from WorldTradingData:", stockInfo);
+        console.log("After API Read: getLatestStockInfoAllTickers .then:", stockInfo);
 
         this.setState({
           latestTickerInfo: stockInfo.data
@@ -134,25 +134,25 @@ class Test extends Component {
     // Requires: array of tickers, start date, end date
     StockAPI.getHistoricalInfoAllTickers(this.state.userTickersFromDB, "", "")
       .then((stockInfo) => {
-        console.log("I've gotten the historical stock info from WorldTradingData:", stockInfo);
+        console.log("After API Read: getHistoricalInfoAllTickers .then:", stockInfo);
 
         this.setState({
           allUserTickerHistoricalInfo: stockInfo // The api returns an array of objects
         });
       });
 
-    // Requires: one ticker, start date, end date
-    // Can probablt get rid of this, and combine it with the getHistoricalInfoAllTickers function
-    let ticker = "GE";
-    StockAPI.getHistoricalInfoOneTicker(ticker, "", "")
-      .then((stockInfo) => {
-        console.log("I've gotten the historical stock info from WorldTradingData:", stockInfo);
+    // // Requires: one ticker, start date, end date
+    // // Can probablt get rid of this, and combine it with the getHistoricalInfoAllTickers function
+    // let ticker = "GE";
+    // StockAPI.getHistoricalInfoOneTicker(ticker, "", "")
+    //   .then((stockInfo) => {
+    //     console.log("I've gotten the historical stock info from WorldTradingData:", stockInfo);
 
-        // this.setState({
-        //   historicalInfoFromStockTickers: stockInfo.history // You have to push in .data because it needs to be an array.
-        //   // Before, I was putting the entire object into an array, so of course I couldn't iterate over it
-        // });
-      });
+    //     // this.setState({
+    //     //   historicalInfoFromStockTickers: stockInfo.history // You have to push in .data because it needs to be an array.
+    //     //   // Before, I was putting the entire object into an array, so of course I couldn't iterate over it
+    //     // });
+    //   });
 
 
     // Oct 1: Commented out because I've gone over my allowed API calls for the day
@@ -175,14 +175,10 @@ class Test extends Component {
 
   render() {
 
-    console.log("Rendering Test.js");
-    console.log("State info:", this.state);
+    console.log("Rendering Test.js - State info:", this.state);
 
     // Build all the chart objects before we need to show them on the page
-    buildAllHistoricalChartObjects(this.state);
-
-
-
+    //buildAllHistoricalChartObjects(this.state);
 
 
     // Mapping will only work on an array. So I needed to make sure the propery was filled with an array of data above
@@ -191,16 +187,15 @@ class Test extends Component {
     ));
 
     //updateChartDataProps(this.state);
-    updateChartDataProps(this.state);
 
     return (
       <div className="container">
         <p>World Trading Data API Test</p>
         <div>
 
-          {/* {this.state.allInfoFromStockTickers.map((stock, index) => (
+          {/* {this.state.latestTickerInfo.map((stock, index) => (
             <div key={stock.symbol}>{stock.symbol}: ${stock.price} ${stock.change_pct}%</div>
-        ))} */}
+          ))} */}
 
           {tickerList}
 
@@ -228,12 +223,12 @@ class Test extends Component {
 
 // This function builds the array of historical chart objects, according to the 
 // state data which has first been updated with a call the stock API
-function buildAllHistoricalChartObjects(state){
+function buildAllHistoricalChartObjects(state) {
 
   console.log("buildAllHistoricalChartObjects:");
-  console.log("state.allUserTickerHistoricalInfo:",state.allUserTickerHistoricalInfo);
-  console.log("state.allUserTickerHistoricalInfo length:",state.allUserTickerHistoricalInfo.length);
-  console.log("state.allUserTickerHistoricalInfo typeof:",typeof(state.allUserTickerHistoricalInfo));
+  console.log("state.allUserTickerHistoricalInfo:", state.allUserTickerHistoricalInfo);
+  console.log("state.allUserTickerHistoricalInfo length:", state.allUserTickerHistoricalInfo.length);
+  console.log("state.allUserTickerHistoricalInfo typeof:", typeof (state.allUserTickerHistoricalInfo));
 
   // const values = Object.values(state.allUserTickerHistoricalInfo.ticker)
   // console.log(values);
@@ -248,7 +243,7 @@ function buildAllHistoricalChartObjects(state){
   // state.allUserTickerHistoricalInfo.forEach(tickerHistory => {
   //   console.log("tickerHistory: ",tickerHistory.ticker);
   // });
-  
+
   // state.allUserTickerHistoricalInfo.map(function (tickerHistory) {
   //   console.log("tickerHistory: ",tickerHistory);
   // });
@@ -258,18 +253,18 @@ function buildAllHistoricalChartObjects(state){
   //   console.log("tickerHistory: ",stock);
   // });
 
-  const keys = Object.keys(state.allUserTickerHistoricalInfo)
-  console.log(keys);
+  // const keys = Object.keys(state.allUserTickerHistoricalInfo)
+  // console.log(keys);
 
-  state.allUserTickerHistoricalInfo.map((tickerHistory) => {
-    console.log("tickerHistory: ");
-  });
+  // state.allUserTickerHistoricalInfo.map((tickerHistory) => {
+  //   console.log("tickerHistory: ");
+  // });
 
   //const keys = Object.keys(state.allUserTickerHistoricalCharts)
   //state.chartData.labels = keys;
 
   var myLineChart = {
-    labels: ['A','B'], // Dates within the specified range
+    labels: ['A', 'B'], // Dates within the specified range
     datasets: [
       {
         label: "Price per Share",
@@ -289,12 +284,12 @@ function buildAllHistoricalChartObjects(state){
         pointStrokeColor: "#fff",
         pointHighlightFill: "#fff",
         pointHighlightStroke: "rgba(151,187,205,1)",
-        data: [28, 48, 40, 19, 86, 27, 90] 
+        data: [28, 48, 40, 19, 86, 27, 90]
       }
     ]
   };
 
-  console.log("myLineChart: ",myLineChart);
+  console.log("myLineChart: ", myLineChart);
 
 }
 
@@ -349,7 +344,7 @@ function updateChartDataProps(state) {
   state.chartData.datasets[0].data = keys;
 
 
-console.log("state.chartData",state.chartData);
+  console.log("state.chartData", state.chartData);
 
 }
 
