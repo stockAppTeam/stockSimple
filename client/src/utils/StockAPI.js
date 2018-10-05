@@ -15,7 +15,7 @@ if(1){
       let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
       console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
-      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = "demo";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
         .then((res) => {
@@ -48,7 +48,7 @@ if(0){
 
     console.log(`axios: getHistoricalInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+    let API_KEY = "demo";
 
     if (startDate.length > 0) {
       startDate = `&date_from=${startDate}`;
@@ -87,7 +87,7 @@ if(0){
     return new Promise(function (resolve, reject) {
       console.log(`axios: getHistoricalInfoOneTicker - for ticker: ${tickerToFind}`);
 
-      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = "demo";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
