@@ -19,6 +19,10 @@ a {
     font-weight: 300;
 }
 
+.grey-bg{
+    background-color: rgb(44, 44, 44); 
+}
+
 .turq-bg {
     background-color:   #127880; 
 }

@@ -23,6 +23,7 @@ class Search extends Component {
     this.stockQuery = this.stockQuery.bind(this);
     this.handleParam = this.handleParam.bind(this);
     this.state = {
+      isLoading: true,
       username: "",
       collapse: false,
       isWideEnough: false,
@@ -78,8 +79,15 @@ class Search extends Component {
         this.setState({
           username: res.data.name
         })
-        this.scrapeMarketWatch();
+      })
+      .then(() => {
+        this.scrapeMarketWatch()
         this.scrapeInvestopedia();
+      })
+      .then(() => {
+        this.setState({
+          isLoading: false
+        })
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -208,7 +216,7 @@ class Search extends Component {
           navToggle={this.navToggle}
           isWideEnough={!this.state.isWideEnough}
           collapse={this.state.collapse}
-          pageName={'Stock Simple |'}
+          pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}
           pageSwitchName='Go to Home'
@@ -219,62 +227,71 @@ class Search extends Component {
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
         />
-        <div id="App">
-          <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
-            searchVal={this.searchVal}
-            stockQuery={this.stockQuery}
-            stockName={this.state.stockSearchName}
-            stockTicker={this.state.stockSearchTicker}
-            stockMin={this.state.stockSearchName}
-            stockMax={this.state.stockSearchName}
-            // 'High to Low, Low to High, and Market' - these are the props passed into the search component radio buttons that change the value of 'search Param' in the state
-            HTL={this.state.searchParam === "HTL"}
-            LTH={this.state.searchParam === "LTH"}
-            MKT={this.state.searchParam === "MKT"}
-            handleParam={this.handleParam}
-            // paragraph gets populated if the search value is empty
-            badSearch={this.state.badSearchMessage}
-          />
-          <div id="page-wrap">
+        {!this.state.isLoading ? (
+          <div id="App">
+            <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
+              searchVal={this.searchVal}
+              stockQuery={this.stockQuery}
+              stockName={this.state.stockSearchName}
+              stockTicker={this.state.stockSearchTicker}
+              stockMin={this.state.stockSearchName}
+              stockMax={this.state.stockSearchName}
+              // 'High to Low, Low to High, and Market' - these are the props passed into the search component radio buttons that change the value of 'search Param' in the state
+              HTL={this.state.searchParam === "HTL"}
+              LTH={this.state.searchParam === "LTH"}
+              MKT={this.state.searchParam === "MKT"}
+              handleParam={this.handleParam}
+              // paragraph gets populated if the search value is empty
+              badSearch={this.state.badSearchMessage}
+            />
+            <div id="page-wrap">
+            </div>
+            <Row className="w-100 p-3 justify-content-center m-0">
+              <Col>
+                <TablePage
+                  title="Gainers"
+                  columns={this.state.columns}
+                  rows={this.state.gainerRows}
+                ></TablePage>
+              </Col>
+              <Col>
+                <TablePage
+                  title="Losers"
+                  columns={this.state.columns}
+                  rows={this.state.loserRows}
+                ></TablePage>
+              </Col>
+            </Row>
+            <Row className="justify-content-center w-100">
+              <Col lg="12" className="mb-2 pl-4">
+                <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
+              </Col>
+              {/* render the articles */}
+              {this.state.articleSearch.map((article, index) => (
+                <Article
+                  key={index}
+                  imgLink={article.imgLink}
+                  title={article.title}
+                  desc={article.desc}
+                  action={'Save'}
+                  // site uses relative url so need to interpolate full url for link to work
+                  link={`https://www.investopedia.com/${article.link}`}
+                  date={this.state.date}
+                  actionBtn={() => this.saveArticle(index)}
+                  className="m-2"
+                >
+                </Article>
+              ))}
+            </Row>
           </div>
-          <Row className="w-100 p-3 justify-content-center m-0">
-            <Col>
-              <TablePage
-                title="Gainers"
-                columns={this.state.columns}
-                rows={this.state.gainerRows}
-              ></TablePage>
-            </Col>
-            <Col>
-              <TablePage
-                title="Losers"
-                columns={this.state.columns}
-                rows={this.state.loserRows}
-              ></TablePage>
-            </Col>
-          </Row>
-          <Row className="justify-content-center w-100">
-            <Col lg="12" className="mb-2 pl-4">
-              <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
-            </Col>
-            {/* render the articles */}
-            {this.state.articleSearch.map((article, index) => (
-              <Article
-                key={index}
-                imgLink={article.imgLink}
-                title={article.title}
-                desc={article.desc}
-                action={'Save'}
-                // site uses relative url so need to interpolate full url for link to work
-                link={`https://www.investopedia.com/${article.link}`}
-                date={this.state.date}
-                actionBtn={() => this.saveArticle(index)}
-                className="m-2"
-              >
-              </Article>
-            ))}
-          </Row>
-        </div>
+        ) : (
+            <div className="loading">
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+            </div>
+          )}
       </div>
     );
   }

@@ -12,18 +12,11 @@
     -o-background-size: cover;
     background-size: cover;
     opacity: 0.5; 
-    width: 75px; 
-    height: 75px;
+    width: 60px; 
+    height: 60px;
 }
 
 .nav-link:hover {
     transform: scale(1.05); 
     background-color: white;
 }
-
-
-@media only screen and (max-width: 768px) {
-    .nav-logo {
-        display: none; 
-    }
-  }
