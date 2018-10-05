@@ -1,37 +1,29 @@
-const axios = require('axios');
 
-const StockAPI = {
+
+
+// Defining methods for the stockAPIController
+module.exports = {
 
   /* getLatestStockInfoAllTickers:
       We could add a check for the present time of day, and only get live data during trading hours, but probably not necessary.
       We have a 1-month subscription to World Trading Data, which gives us 50,000 reads per day
       of up to 50 stock tickers at a time. If we were to go over that, we'd have to modify this function for multiple reads.
   */
- getLatestStockInfoAllTickers: function (tickersToFind) {
-if(1){
+  getLatestStockInfoAllTickers: function (tickersToFind) {
+
     // returning a promise so that we can use .then
     return new Promise(function (resolve, reject) {
 
       let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
-      console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
-      let API_KEY = "demo";
+      console.log('axios: About to GET from worldtradingdata');
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
         .then((res) => {
           resolve(res.data); // Pass the data back
         });
     });
-}
-
-if(0){
-    return axios.get("/stockapi/stockapi/getalllatest")
-    .then(()=>{
-
-      console.log("Yay!");
-    });
-  }
-
   },
 
   /* Historical information for each ticker
@@ -46,9 +38,9 @@ if(0){
   */
   getHistoricalInfoAllTickers: function (tickersToFind, startDate, endDate) {
 
-    console.log(`axios: getHistoricalInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
+    console.log(`About to find historical info in getHistoricalInfoAllTickers for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    let API_KEY = "demo";
+    let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
     if (startDate.length > 0) {
       startDate = `&date_from=${startDate}`;
@@ -85,9 +77,9 @@ if(0){
 
     // returning a promise so that we can use .then
     return new Promise(function (resolve, reject) {
-      console.log(`axios: getHistoricalInfoOneTicker - for ticker: ${tickerToFind}`);
+      console.log(`About to find historical info in getHistoricalInfoOneTicker for ticker: ${tickerToFind}`);
 
-      let API_KEY = "demo";
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
@@ -137,8 +129,8 @@ if(0){
 
     return new Promise(function (resolve, reject) {
 
-      console.log('axios: getSectorPerformance');
-      let API_KEY = "demo";
+      console.log('axios: About to GET from AlphaVantage');
+      let API_KEY = process.env.ALPHAVANTAGE_API_KEY || "demo";
 
       axios.get(`https://www.alphavantage.co/query?function=SECTOR&apikey=${API_KEY}`)
         .then((res) => {
@@ -159,8 +151,8 @@ if(0){
       let tickersToFind = ['AAPL', 'AMZN', 'MSFT']; // This would be the array of tickers from db User data
       let tickerString = tickersToFind.toString();  // Convert the array to a comma-separated string
 
-      console.log('axios: getWatchListStockInfoFromBarchart');
-      let API_KEY = "demo";
+      console.log('axios: About to GET from Barchart');
+      let API_KEY = process.env.BARCHART_API_KEY || "demo";
 
       axios.get(`https://marketdata.websol.barchart.com/getQuote.json?apikey=${API_KEY}&symbols=${tickerString}&fields=fiftyTwoWkHigh%2CfiftyTwoWkHighDate%2CfiftyTwoWkLow%2CfiftyTwoWkLowDate`)
         .then((res) => {
@@ -173,13 +165,5 @@ if(0){
 
         });
     });
-  },
-
-    userStockSearch: function (queryInfo) {
-        return axios.post("/api/search", queryInfo)
-        console.log(queryInfo)
-    }
-
+  }
 }
-
-export default StockAPI;
