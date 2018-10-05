@@ -118,3 +118,16 @@
   }
 
 }
+
+@media only screen and (max-height: 600px)  {
+    
+  .mobile-hidden {
+    display: none !important; 
+  }
+
+  .bm-menu {
+    padding-top: 0; 
+    overflow: scroll !important; 
+  }
+
+}

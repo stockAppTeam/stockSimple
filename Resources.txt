@@ -6,6 +6,7 @@ Stock API's
 
     - https://www.alphavantage.co/(this one has alot of historical data)
     - https://www.worldtradingdata.com/documentation#introduction 
+    - https://www.hooksdata.io/docs/api/datasources/stocktickers/ (uses web hook to update)
 
 Website for scraping articles
 
