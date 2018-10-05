@@ -8,6 +8,7 @@ import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
 import SearchBar from '../../components/SearchBar'
 import TablePage from "../../components/MoversTable"
+import ModalPage from "../../components/SideApiResult"
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
@@ -32,6 +33,8 @@ class Search extends Component {
       searchParam: "HTL",
       articleSearch: [],
       badSearchMessage: "",
+      modal6: false,
+      modal7: false,
       date: moment().format("DD-MM-YYYY"),
       columns: [
         {
@@ -76,7 +79,7 @@ class Search extends Component {
           username: res.data.name
         })
         this.scrapeMarketWatch();
-        this.scrapeInvestopedia(); 
+        this.scrapeInvestopedia();
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -182,13 +185,23 @@ class Search extends Component {
       })
     } else {
       console.log(this.state);
+      this.toggle(8)
       QueryStock.userStockSearch(queryObj);
     }
   }
 
 
-  render() {
+  // function to toggle the sideview div to display the api results
+  toggle(nr) {
+    let modalNumber = 'modal' + nr
+    this.setState({
+      [modalNumber]: !this.state[modalNumber]
+    });
+  }
 
+
+
+  render() {
     return (
       <div className="search-div">
         <MainNavbar
@@ -200,6 +213,11 @@ class Search extends Component {
           username={this.state.username}
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
+        />
+        <ModalPage
+          modal8={this.state.modal8}
+          toggleClick={() => this.toggle(8)}
+          toggleView={() => this.toggle(8)}
         />
         <div id="App">
           <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
@@ -219,7 +237,7 @@ class Search extends Component {
           />
           <div id="page-wrap">
           </div>
-          <Row className="w-100 p-2 justify-content-center m-0">
+          <Row className="w-100 p-3 justify-content-center m-0">
             <Col>
               <TablePage
                 title="Gainers"
@@ -236,8 +254,9 @@ class Search extends Component {
             </Col>
           </Row>
           <Row className="justify-content-center w-100">
-            <h1 className="turq-text text-center content-font">Latest News</h1>
-
+            <Col lg="12" className="mb-2 pl-4">
+              <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
+            </Col>
             {/* render the articles */}
             {this.state.articleSearch.map((article, index) => (
               <Article
@@ -250,6 +269,7 @@ class Search extends Component {
                 link={`https://www.investopedia.com/${article.link}`}
                 date={this.state.date}
                 actionBtn={() => this.saveArticle(index)}
+                className="m-2"
               >
               </Article>
             ))}

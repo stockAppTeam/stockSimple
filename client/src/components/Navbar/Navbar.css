@@ -1,5 +1,5 @@
 .navbar {
-    z-index: 0; 
+    z-index: 1000; 
 }
 .nav-bg {
     background-color: rgb(44, 44, 44); 
