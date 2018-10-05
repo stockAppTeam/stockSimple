@@ -8,20 +8,30 @@ const StockAPI = {
       of up to 50 stock tickers at a time. If we were to go over that, we'd have to modify this function for multiple reads.
   */
  getLatestStockInfoAllTickers: function (tickersToFind) {
-
+if(1){
     // returning a promise so that we can use .then
     return new Promise(function (resolve, reject) {
 
       let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
       console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
-      let API_KEY = "demo";
+      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
         .then((res) => {
           resolve(res.data); // Pass the data back
         });
     });
+}
+
+if(0){
+    return axios.get("/stockapi/stockapi/getalllatest")
+    .then(()=>{
+
+      console.log("Yay!");
+    });
+  }
+
   },
 
   /* Historical information for each ticker
@@ -38,7 +48,7 @@ const StockAPI = {
 
     console.log(`axios: getHistoricalInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    let API_KEY = "demo";
+    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
     if (startDate.length > 0) {
       startDate = `&date_from=${startDate}`;
@@ -77,7 +87,7 @@ const StockAPI = {
     return new Promise(function (resolve, reject) {
       console.log(`axios: getHistoricalInfoOneTicker - for ticker: ${tickerToFind}`);
 
-      let API_KEY = "demo";
+      let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
