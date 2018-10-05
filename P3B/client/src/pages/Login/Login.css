@@ -1,0 +1,164 @@
+.login-page { 
+  min-height: inherit; 
+  width: 100vw;
+  background: url('../../images/register-login-br.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.login-main {
+  align-items: center;
+  justify-content: center;  
+  flex-direction: column; 
+  display: flex; 
+}
+
+.login-card {
+  max-width: 500px; 
+  max-height: 450px; 
+  background: rgba(255, 255, 255, 0.1);  
+}
+
+.login-info {
+  font-size: 30px; 
+}
+
+.form input:focus {
+  color: white; 
+}
+
+.form input {
+  color: white; 
+}
+
+.heading-text{
+  text-align: right; 
+}
+
+
+.icon {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  width: 16em;
+  height: 16em;
+  transform: translate(-50%,-50%);
+}
+
+.login-row {
+  min-height: 70vh; 
+}
+
+/* Chart */
+
+.chart { color: white; }
+
+.chart::before,
+.chart::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 0.25em;
+  height: 8.125em;
+  margin: 0 0 0 -3.25em;
+  transform: translate(-50%,-50%);
+  background-color: currentColor;
+  border-radius: 0.125em;
+}
+
+.chart::after {
+  width: 8.125em;
+  height: 0.25em;
+  margin: 3.125em 0 0 -0.125em;
+}
+
+.chart i {
+  position: absolute;
+  bottom: 4.75em;
+  left: 9em;
+  box-sizing: border-box;
+  display: block;
+  width: 1.875em;
+  height: 0;
+  background-color:  #008385; 
+  box-shadow: inset 0 0 0 0.25em currentColor;
+}
+
+.chart i:first-child {
+  animation: chart1 0.999s infinite linear;
+}
+
+.chart i:nth-child(2) {
+  background-color: grey;
+  animation: chart2 0.999s 0.333s infinite linear;
+}
+
+.chart i:last-child {
+  background-color: white;
+  animation: chart3 0.999s 0.666s infinite linear;
+}
+
+@keyframes chart1 {
+  0% { height: 0; }
+  10% { height: 5.625em; }
+  70% { width: 1.875em; transform: translateX(-4.375em); }
+  99% { width: 0; height: 5.625em; transform: translateX(-4.375em); }
+  99.1% { height: 0; transform: translateX(0em); }
+  100% { height: 0; }
+}
+
+@keyframes chart2 {
+  0% { height: 0; }
+  10% { height: 2.375em; }
+  70% { width: 1.875em; transform: translateX(-4.375em); }
+  99% { width: 0; height: 2.375em; transform: translateX(-4.375em); }
+  99.1% { height: 0; transform: translateX(0em); }
+  100% { height: 0; }
+}
+
+@keyframes chart3 {
+  0% { height: 0; }
+  10% { height: 3.5625em; }
+  70% { width: 1.875em; transform: translateX(-4.375em); }
+  99% { width: 0; height: 3.5625em; transform: translateX(-4.375em); }
+  99.1% { height: 0; transform: translateX(0em); }
+  100% { height: 0; }
+}
+
+@media only screen and (max-width: 768px) {
+
+  .login-info {
+    font-size: 30px; 
+  }
+
+}
+
+@media only screen and (max-width: 425px) {
+
+  .icon {
+    display: none; 
+  }
+
+  .login-info {
+    font-size: 125%; 
+    display: flex; 
+    align-items: center; 
+  }
+
+  .login-row {
+    min-height: 95vh; 
+  }
+
+  .heading-text{
+    font-size: 30px; 
+    padding: 0 !important; 
+   text-align: center; 
+  }
+}
+
+
+  

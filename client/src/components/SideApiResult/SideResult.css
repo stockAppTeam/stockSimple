@@ -1,0 +1,9 @@
+.modal-content {
+    background-color: rgb(44,44,44) !important; 
+    color:#127880 !important; 
+    z-index: 10000; 
+}
+
+#close-search-btn {
+    background-color: #127880 !important; 
+  }

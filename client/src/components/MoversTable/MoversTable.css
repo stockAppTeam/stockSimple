@@ -1,7 +1,12 @@
 .table {
-    background-color: rgba(255, 255, 255, 0.1) !important;  
+    /* background-color: rgba(255, 255, 255, 0.1) !important;   */
+    background-color: rgb(189, 189, 189) !important;  
 }
 
-.tbody {
-    border-color: blue; 
+table td {
+    font-size: 1rem !important; 
+}
+
+table th {
+    font-size: 1.1rem !important; 
 }
