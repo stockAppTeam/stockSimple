@@ -27,14 +27,14 @@
   /* The rest copied directly from react-burger-menu docs */
   
   /* Position and sizing of burger button */
-  .bm-burger-button {
+    .bm-burger-button {
     position: fixed;
     background: url('../../images/srch-img.png'); 
     background-size: cover; 
     background-position: center; 
-    width: 50px;
-    height: 50px;
-    right: 160px;
+    width: 35px;
+    height: 35px;
+    right: 90px;
     top: 0px;
     border-radius: 85%;
     margin: 10px; 
@@ -114,8 +114,20 @@
     
   .bm-burger-button {
     position: fixed;
-    right: 10px;
-    top: 50px;
+    left: 70px;
+  }
+
+}
+
+@media only screen and (max-height: 600px)  {
+    
+  .mobile-hidden {
+    display: none !important; 
+  }
+
+  .bm-menu {
+    padding-top: 0; 
+    overflow: scroll !important; 
   }
 
 }

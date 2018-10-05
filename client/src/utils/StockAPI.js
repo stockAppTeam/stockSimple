@@ -7,30 +7,30 @@ const StockAPI = {
       We have a 1-month subscription to World Trading Data, which gives us 50,000 reads per day
       of up to 50 stock tickers at a time. If we were to go over that, we'd have to modify this function for multiple reads.
   */
- getLatestStockInfoAllTickers: function (tickersToFind) {
-if(1){
-    // returning a promise so that we can use .then
-    return new Promise(function (resolve, reject) {
+  getLatestStockInfoAllTickers: function (tickersToFind) {
+    if (1) {
+      // returning a promise so that we can use .then
+      return new Promise(function (resolve, reject) {
 
-      let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
+        let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
-      console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
-      let API_KEY = "demo";
+        console.log(`axios: getLatestStockInfoAllTickers - for ${tickersToFind.length} tickers: ${tickersToFind}`);
+        let API_KEY = "demo";
 
-      axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
-        .then((res) => {
-          resolve(res.data); // Pass the data back
+        axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
+          .then((res) => {
+            resolve(res.data); // Pass the data back
+          });
+      });
+    }
+
+    if (0) {
+      return axios.get("/stockapi/stockapi/getalllatest")
+        .then(() => {
+
+          console.log("Yay!");
         });
-    });
-}
-
-if(0){
-    return axios.get("/stockapi/stockapi/getalllatest")
-    .then(()=>{
-
-      console.log("Yay!");
-    });
-  }
+    }
 
   },
 
@@ -175,10 +175,18 @@ if(0){
     });
   },
 
-    userStockSearch: function (queryInfo) {
-        return axios.post("/api/search", queryInfo)
-        console.log(queryInfo)
+  userStockSearch: function (queryInfo) {
+    if (queryInfo.stockSearchName || queryInfo.stockSearchTicker) {
+      //make a variable that is going to be set to either a ticker or name based on the query type
+      let searchName;
+
+      // ternary to set the search name to either name or ticker based on the parameter sent from front end
+      queryInfo.stockSearchName ? searchName = queryInfo.stockSearchName : searchName = queryInfo.stockSearchTicker;
+
+      // hit the route that corresponds to the query type. either api/search/name or api/search/ticker
+      return axios.get(`api/search/${queryInfo.queryType}/${searchName}`)
     }
+  }
 
 }
 

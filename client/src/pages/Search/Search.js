@@ -20,16 +20,16 @@ class Search extends Component {
     this.saveArticle = this.saveArticle.bind(this);
     this.navToggle = this.navToggle.bind(this);
     this.searchVal = this.searchVal.bind(this);
-    this.stockQuery = this.stockQuery.bind(this);
+    this.stockQueryName = this.stockQueryName.bind(this);
+    this.stockQueryTicker = this.stockQueryTicker.bind(this);
     this.handleParam = this.handleParam.bind(this);
     this.state = {
+      isLoading: true,
       username: "",
       collapse: false,
       isWideEnough: false,
       stockSearchName: "",
       stockSearchTicker: "",
-      stockSearchMin: "",
-      stockSearchMax: "",
       searchParam: "HTL",
       articleSearch: [],
       badSearchMessage: "",
@@ -78,8 +78,15 @@ class Search extends Component {
         this.setState({
           username: res.data.name
         })
+      })
+      .then(() => {
         this.scrapeMarketWatch();
         this.scrapeInvestopedia();
+      })
+      .then(() => {
+        this.setState({
+          isLoading: false
+        })
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -174,19 +181,80 @@ class Search extends Component {
     })
   }
 
-  // method called when user queries a stock, values are retrieved from the state (which were set by stockQuery() and searchParam())
-  stockQuery = (e) => {
-    let { stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam } = this.state;
-    let queryObj = { stockSearchName, stockSearchTicker, stockSearchMin, stockSearchMax, searchParam };
+  // method called when user queries a stock by name
+  stockQueryName = (e) => {
+    // make an object of the search name, and search type based on which button was pressed
+    let { stockSearchName, searchParam } = this.state;
+    let queryObj = { stockSearchName };
+    queryObj.queryType = e.target.name;
 
-    if (!stockSearchName || !stockSearchTicker) {
+    if (!stockSearchName) {
       this.setState({
-        badSearchMessage: "Your query is incomplete. You need at least a name or ticker. Please Try again"
+        badSearchMessage: "Your query is incomplete. You need to include a name"
       })
     } else {
-      console.log(this.state);
+      // toggle function that opens the ight side div
       this.toggle(8)
-      QueryStock.userStockSearch(queryObj);
+      QueryStock.userStockSearch(queryObj)
+        .then((result) => {
+          // set the result array equal to a variable
+          let results = result.data.data;
+
+          // search param grabbed from the state when destructured at the beggining of the query
+          // 'LTH' === low to high, and 'HTL' === high to low
+          // API returns number as string so need to parse it
+          // sorting an array of objects, so need to sort by a property of that object
+          if (searchParam === 'HTL') {
+            results.sort(function (a, b) {
+              return parseFloat(a.price) - parseFloat(b.price)
+            })
+          } else {
+            results.sort(function (a, b) {
+              return parseFloat(b.price) - parseFloat(a.price)
+            })
+          }
+
+          // return the sorted array
+          return results;
+        })
+        .then((sortedResults) => {
+          // array of objects sorted based on price
+          console.log(sortedResults)
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({
+            badSearchMessage: "There is a problem on our end, please try again"
+          })
+        });
+    }
+  }
+
+  // method called when user queries a stock by ticker
+  stockQueryTicker = (e) => {
+    // make an object of the search ticker, and search type based on which button was pressed
+
+    let { stockSearchTicker } = this.state;
+    let queryObj = { stockSearchTicker };
+    queryObj.queryType = e.target.name;
+
+    if (!stockSearchTicker) {
+      this.setState({
+        badSearchMessage: "Your query is incomplete. You need to include a ticker"
+      })
+    } else {
+      this.toggle(8)
+      QueryStock.userStockSearch(queryObj)
+        .then((result) => {
+          // object with one stock ticker and related data
+          console.log(result)
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({
+            badSearchMessage: "There is a problem on our end, please try again"
+          })
+        });
     }
   }
 
@@ -208,7 +276,7 @@ class Search extends Component {
           navToggle={this.navToggle}
           isWideEnough={!this.state.isWideEnough}
           collapse={this.state.collapse}
-          pageName={'Stock Simple |'}
+          pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}
           pageSwitchName='Go to Home'
@@ -219,62 +287,70 @@ class Search extends Component {
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
         />
-        <div id="App">
-          <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
-            searchVal={this.searchVal}
-            stockQuery={this.stockQuery}
-            stockName={this.state.stockSearchName}
-            stockTicker={this.state.stockSearchTicker}
-            stockMin={this.state.stockSearchName}
-            stockMax={this.state.stockSearchName}
-            // 'High to Low, Low to High, and Market' - these are the props passed into the search component radio buttons that change the value of 'search Param' in the state
-            HTL={this.state.searchParam === "HTL"}
-            LTH={this.state.searchParam === "LTH"}
-            MKT={this.state.searchParam === "MKT"}
-            handleParam={this.handleParam}
-            // paragraph gets populated if the search value is empty
-            badSearch={this.state.badSearchMessage}
-          />
-          <div id="page-wrap">
+        {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
+        {!this.state.isLoading ? (
+          <div id="App">
+            <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
+              searchVal={this.searchVal}
+              stockQueryName={this.stockQueryName}
+              stockQueryTicker={this.stockQueryTicker}
+              stockName={this.state.stockSearchName}
+              stockTicker={this.state.stockSearchTicker}
+              // 'High to Low, Low to High, and Market' - these are the props passed into the search component radio buttons that change the value of 'search Param' in the state
+              HTL={this.state.searchParam === "HTL"}
+              LTH={this.state.searchParam === "LTH"}
+              handleParam={this.handleParam}
+              // paragraph gets populated if the search value is empty
+              badSearch={this.state.badSearchMessage}
+            />
+            <div id="page-wrap">
+            </div>
+            <Row className="w-100 p-3 justify-content-center m-0">
+              <Col>
+                <TablePage
+                  title="Gainers"
+                  columns={this.state.columns}
+                  rows={this.state.gainerRows}
+                ></TablePage>
+              </Col>
+              <Col>
+                <TablePage
+                  title="Losers"
+                  columns={this.state.columns}
+                  rows={this.state.loserRows}
+                ></TablePage>
+              </Col>
+            </Row>
+            <Row className="justify-content-center w-100">
+              <Col lg="12" className="mb-2 pl-4">
+                <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
+              </Col>
+              {/* render the articles */}
+              {this.state.articleSearch.map((article, index) => (
+                <Article
+                  key={index}
+                  imgLink={article.imgLink}
+                  title={article.title}
+                  desc={article.desc}
+                  action={'Save'}
+                  // site uses relative url so need to interpolate full url for link to work
+                  link={`https://www.investopedia.com/${article.link}`}
+                  date={this.state.date}
+                  actionBtn={() => this.saveArticle(index)}
+                  className="m-2"
+                >
+                </Article>
+              ))}
+            </Row>
           </div>
-          <Row className="w-100 p-3 justify-content-center m-0">
-            <Col>
-              <TablePage
-                title="Gainers"
-                columns={this.state.columns}
-                rows={this.state.gainerRows}
-              ></TablePage>
-            </Col>
-            <Col>
-              <TablePage
-                title="Losers"
-                columns={this.state.columns}
-                rows={this.state.loserRows}
-              ></TablePage>
-            </Col>
-          </Row>
-          <Row className="justify-content-center w-100">
-            <Col lg="12" className="mb-2 pl-4">
-              <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
-            </Col>
-            {/* render the articles */}
-            {this.state.articleSearch.map((article, index) => (
-              <Article
-                key={index}
-                imgLink={article.imgLink}
-                title={article.title}
-                desc={article.desc}
-                action={'Save'}
-                // site uses relative url so need to interpolate full url for link to work
-                link={`https://www.investopedia.com/${article.link}`}
-                date={this.state.date}
-                actionBtn={() => this.saveArticle(index)}
-                className="m-2"
-              >
-              </Article>
-            ))}
-          </Row>
-        </div>
+        ) : (
+            <div className="loading">
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+            </div>
+          )}
       </div>
     );
   }

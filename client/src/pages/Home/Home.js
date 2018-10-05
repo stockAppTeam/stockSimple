@@ -92,7 +92,7 @@ class Home extends Component {
           navToggle={this.navToggle}
           isWideEnough={!this.state.isWideEnough}
           collapse={this.state.collapse}
-          pageName={'Stock Simple |'}
+          pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}
           pageSwitchName='Go to Search'
