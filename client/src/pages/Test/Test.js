@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './Test.css';
-//import Authorize from '../../utils/Authorize'; // This is required so that I can get the user info, which includes the watchlists
 import StockAPI from '../../utils/StockAPI';
 import { Line } from 'react-chartjs-2';
 // import LineChart from '../../components/LineChart';
@@ -93,9 +92,8 @@ class Test extends Component {
     // Oct 5: Where should these date range values be obtained?
     StockAPI.getHistoricalInfoAllTickers()
       .then((stockInfo) => {
-        console.log("StockAPI.getHistoricalInfoAllTickers(): ",stockInfo)
         this.setState({
-          allUserTickerHistoricalInfo: stockInfo // The api returns an array of objects
+          allUserTickerHistoricalInfo: stockInfo // The api returns an array of objects of historical info for each ticker
         });
       });
 
@@ -104,8 +102,6 @@ class Test extends Component {
     // // Can probably get rid of this, and combine it with the getHistoricalInfoAllTickers function
     StockAPI.getHistoricalInfoOneTicker()
       .then((stockInfo) => {
-        console.log("StockAPI.getHistoricalInfoOneTicker(): ",stockInfo)
-
         // Will this route even be necessary?
       });
 
@@ -130,11 +126,10 @@ class Test extends Component {
 
   render() {
 
-    console.log("Rendering Test.js - State info:", this.state);
+    console.log("Rendering Page Test.js - State info:", this.state);
 
     // Build all the chart objects before we need to show them on the page
     //buildAllHistoricalChartObjects(this.state);
-
 
     // Mapping will only work on an array. So I needed to make sure the propery was filled with an array of data above
     let tickerList = this.state.latestTickerInfo.map((stock, index) => (
@@ -248,16 +243,11 @@ function buildAllHistoricalChartObjects(state) {
 
 }
 
-
-
-
 // Take in a data from the stock API and use it to update the chartData property values
 // so that we get the chart formatted exactly as we expect
 // function updateChartDataProps(xxx) {
 
 //   console.log("updateChartDataProps");
-
-
 //   xxx.chartData.labels = ['a','b','c'];
 
 //   xxx.chartData.labels.map(function(element ) { 
