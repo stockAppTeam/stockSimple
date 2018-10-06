@@ -21,7 +21,7 @@ router
                 content.imgLink = $(element).children('a').children('img').attr('src');
                 content.desc = $(element).children('div.item-description').text();
                 // only return 6 entries.
-                if (entries.length < 6) { 
+                if (entries.length < 8) { 
                     entries.push(content)
                 }
             })

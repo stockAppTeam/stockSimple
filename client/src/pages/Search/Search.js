@@ -6,9 +6,10 @@ import QueryStock from '../../utils/StockAPI';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
-import SearchBar from '../../components/SearchBar'
-import TablePage from "../../components/MoversTable"
-import ModalPage from "../../components/SideApiResult"
+import SearchBar from '../../components/SearchBar';
+import TablePage from "../../components/MoversTable";
+import ModalPage from "../../components/SideApiResult";
+import TickerResult from "../../components/TickerResult";
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
@@ -28,6 +29,7 @@ class Search extends Component {
       username: "",
       collapse: false,
       isWideEnough: false,
+      tickerSearchResult: {}, 
       stockSearchName: "",
       stockSearchTicker: "",
       searchParam: "HTL",
@@ -233,7 +235,6 @@ class Search extends Component {
   // method called when user queries a stock by ticker
   stockQueryTicker = (e) => {
     // make an object of the search ticker, and search type based on which button was pressed
-
     let { stockSearchTicker } = this.state;
     let queryObj = { stockSearchTicker };
     queryObj.queryType = e.target.name;
@@ -243,11 +244,16 @@ class Search extends Component {
         badSearchMessage: "Your query is incomplete. You need to include a ticker"
       })
     } else {
-      this.toggle(8)
+  
       QueryStock.userStockSearch(queryObj)
         .then((result) => {
           // object with one stock ticker and related data
-          console.log(result)
+          this.setState({
+            tickerSearchResult: result.data.data[0]
+          })
+        })
+        .then(() => {
+          this.toggle(8)
         })
         .catch((err) => {
           console.log(err);
@@ -286,11 +292,26 @@ class Search extends Component {
           modal8={this.state.modal8}
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
+        >
+        <TickerResult
+        name={this.state.tickerSearchResult.name}
+        symbol={this.state.tickerSearchResult.symbol}
+        price={this.state.tickerSearchResult.price}
+        exchange={this.state.tickerSearchResult.stock_exchange_short}
+        day_change={this.state.tickerSearchResult.day_change}
+        day_low={this.state.tickerSearchResult.day_low}
+        day_high={this.state.tickerSearchResult.day_high}
+        year_week_high={this.state.tickerSearchResult[`52_week_high`]}
+        year_week_low={this.state.tickerSearchResult[`52_week_low`]}
+        market_cap={this.state.tickerSearchResult.market_cap}
+        shares={this.state.tickerSearchResult.shares}
+        volume={this.state.tickerSearchResult.volume}
         />
+        </ModalPage>
         {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
-          <div id="App">
-            <SearchBar pageWrapId={"page-wrap"} outerContainerId={"App"}
+          <div id="SearchContainer">
+            <SearchBar pageWrapId={"page-wrap"} outerContainerId={"SearchContainer"}
               searchVal={this.searchVal}
               stockQueryName={this.stockQueryName}
               stockQueryTicker={this.stockQueryTicker}
@@ -321,7 +342,7 @@ class Search extends Component {
                 ></TablePage>
               </Col>
             </Row>
-            <Row className="justify-content-center w-100">
+            <Row className="justify-content-center p-2">
               <Col lg="12" className="mb-2 pl-4">
                 <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
               </Col>
