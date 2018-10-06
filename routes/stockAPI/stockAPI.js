@@ -4,6 +4,7 @@ let rp = require('request-promise');
 const axios = require("axios");
 const stockAPIControllers = require("../../controllers/stockAPIControllers");
 
+
 // Matches with "/stockapi/"
 
 // This route will return the "latest" daily info for all of the user's stocks
@@ -62,7 +63,7 @@ router
             return axios.get(`https://www.worldtradingdata.com/api/v1/history?symbol=${ticker}${startDate}${endDate}&sort=oldest&api_token=${API_KEY}`)
                 .then(function (data) {
                     // Each response of historical data for the stock gets added to the return array in a cleaner object, to make it easier on the front end
-                    arrayToReturn.push({ ticker: data.data.name, history: data.data.history });
+                    arrayToReturn.push({ symbol: data.data.name, history: data.data.history });
                 });
         });
 

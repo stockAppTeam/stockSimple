@@ -93,7 +93,7 @@ class Test extends Component {
     StockAPI.getHistoricalInfoAllTickers()
       .then((stockInfo) => {
         this.setState({
-          allUserTickerHistoricalInfo: stockInfo // The api returns an array of objects of historical info for each ticker
+          allUserTickerHistoricalInfo: stockInfo.data // The api returns an array of objects of historical info for each ticker
         });
       });
 
