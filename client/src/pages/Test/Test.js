@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './Test.css';
-//import Authorize from '../../utils/Authorize'; // This is required so that I can get the user info, which includes the watchlists
 import StockAPI from '../../utils/StockAPI';
 import { Line } from 'react-chartjs-2';
 // import LineChart from '../../components/LineChart';
@@ -16,23 +15,13 @@ class Test extends Component {
     this.state = {
 
       userTickersFromDB: ['AAPL', 'MSFT', 'AMZN', 'GE'], // This would be obtained by a back-end call to get the user's list of tickers
-
       latestTickerInfo: [], // For each ticker in the user's list of tickers, this is the latest data. Up to 50 can be read at a time with our paid API
-
       allUserTickerHistoricalInfo: [], // an array of objects containg the historical info for each of the user's tickers
-
       allUserTickerCharts: [], // This holds an array of the "latest info" chartjs objects for the user's tickers
-
       allUserTickerHistoricalCharts: [], // This holds an array of the historical chartjs objects for the user's tickers
       // For the moment, the same date range is used for them all
 
-      // allInfoFromStockTickers: [], // An array of stock data objects
-      // historicalInfoFromStockTickers: {}, // An array of historical data for each stock in our allInfoFromStockTickers list?
       sectorPerformanceData: [],    // In progress
-
-      // Required for user info. Oct 2, 2018: don't use for now. We need to do all the stocl API calls from the back end. Can't do from the front end or we get CORS issues
-      // username: "",
-      // savedArticles: [],
 
       // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
       chartData: {
@@ -89,70 +78,32 @@ class Test extends Component {
 
   componentDidMount() {
 
-    //console.log("Test.js: componentDidMount");
-
-    // Get the user info, so we know which watchlists and other stocks that we need to add
-    // let userAuthInfo = {
-    //   token: localStorage.getItem('jwtToken'),
-    //   userID: localStorage.getItem('userID')
-    // }
-
-    // Oct 2, 2018: Comment this out for now as we're getting CORS issues using axios on the front end
-    // We need to create routes and have the back end do all the axios calls to the stock APIs
-    // Authorize.authenticate(userAuthInfo)
-    //   .then((res) => {
-    //     console.log(res.data)
-    //     this.setState({
-    //       username: res.data.name,
-    //       savedArticles: res.data.articles
-    //       // To do: add the watchlists here. Need to create model, controller, etc.
-    //     })
-    //   })
-    //   .catch((error) => {
-    //     if (error.response.status === 401) {
-    //       this.props.history.push("/login");
-    //     }
-    //   });
-
-
-
-    // Should we retrieve the user's stock data here? How? Read from the back end?
-    // Should we then pass this array of tickers into the functions below which use the Stock API to get info based in the tickers?
-
-    // Requires: an array of tickers. This returns the latest stock info for all user tickers
-    StockAPI.getLatestStockInfoAllTickers(this.state.userTickersFromDB)
+    // the StockAPI file in utils calls the back end using an axios GET.
+    // The back end will do the actual query of the API from the stock website
+    StockAPI.getLatestStockInfoAllTickers()
       .then((stockInfo) => {
-        console.log("After API Read: getLatestStockInfoAllTickers .then:", stockInfo);
-
         this.setState({
-          latestTickerInfo: stockInfo.data
-          //allInfoFromStockTickers: stockInfo.data // In contrast, here you don't have to push in .data because it needs to be an object (defined up above as object).
-          // Before, I was putting the entire object into an array, so of course I couldn't iterate over it
+          latestTickerInfo: stockInfo.data.data
         });
       });
+
 
     // Requires: array of tickers, start date, end date
-    StockAPI.getHistoricalInfoAllTickers(this.state.userTickersFromDB, "", "")
+    // Oct 5: Where should these date range values be obtained?
+    StockAPI.getHistoricalInfoAllTickers()
       .then((stockInfo) => {
-        console.log("After API Read: getHistoricalInfoAllTickers .then:", stockInfo);
-
         this.setState({
-          allUserTickerHistoricalInfo: stockInfo // The api returns an array of objects
+          allUserTickerHistoricalInfo: stockInfo.data // The api returns an array of objects of historical info for each ticker
         });
       });
 
-    // // Requires: one ticker, start date, end date
-    // // Can probablt get rid of this, and combine it with the getHistoricalInfoAllTickers function
-    // let ticker = "GE";
-    // StockAPI.getHistoricalInfoOneTicker(ticker, "", "")
-    //   .then((stockInfo) => {
-    //     console.log("I've gotten the historical stock info from WorldTradingData:", stockInfo);
 
-    //     // this.setState({
-    //     //   historicalInfoFromStockTickers: stockInfo.history // You have to push in .data because it needs to be an array.
-    //     //   // Before, I was putting the entire object into an array, so of course I couldn't iterate over it
-    //     // });
-    //   });
+    // // Requires: one ticker, start date, end date
+    // // Can probably get rid of this, and combine it with the getHistoricalInfoAllTickers function
+    StockAPI.getHistoricalInfoOneTicker()
+      .then((stockInfo) => {
+        // Will this route even be necessary?
+      });
 
 
     // Oct 1: Commented out because I've gone over my allowed API calls for the day
@@ -175,11 +126,10 @@ class Test extends Component {
 
   render() {
 
-    console.log("Rendering Test.js - State info:", this.state);
+    console.log("Rendering Page Test.js - State info:", this.state);
 
     // Build all the chart objects before we need to show them on the page
     //buildAllHistoricalChartObjects(this.state);
-
 
     // Mapping will only work on an array. So I needed to make sure the propery was filled with an array of data above
     let tickerList = this.state.latestTickerInfo.map((stock, index) => (
@@ -199,12 +149,12 @@ class Test extends Component {
 
           {tickerList}
 
-        <div>
-          <h2>Apple Inc.</h2>
-          <Line data={this.state.chartData} />
-        </div>
+          <div>
+            <h2>Apple Inc.</h2>
+            <Line data={this.state.chartData} />
+          </div>
 
-        {/* <h2>Apple Inc. - Line component test</h2>
+          {/* <h2>Apple Inc. - Line component test</h2>
         <LineChart chartData={this.state.chartData} />
 
         <h2>Apple Inc. - Bar component test</h2>
@@ -293,16 +243,11 @@ function buildAllHistoricalChartObjects(state) {
 
 }
 
-
-
-
 // Take in a data from the stock API and use it to update the chartData property values
 // so that we get the chart formatted exactly as we expect
 // function updateChartDataProps(xxx) {
 
 //   console.log("updateChartDataProps");
-
-
 //   xxx.chartData.labels = ['a','b','c'];
 
 //   xxx.chartData.labels.map(function(element ) { 
