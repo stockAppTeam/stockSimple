@@ -10,6 +10,7 @@ import SearchBar from '../../components/SearchBar';
 import TablePage from "../../components/MoversTable";
 import ModalPage from "../../components/SideApiResult";
 import TickerResult from "../../components/TickerResult";
+import NameResult from "../../components/NameResult"
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
@@ -29,7 +30,8 @@ class Search extends Component {
       username: "",
       collapse: false,
       isWideEnough: false,
-      tickerSearchResult: {}, 
+      tickerSearchResult: {},
+      nameSearchResult: [],
       stockSearchName: "",
       stockSearchTicker: "",
       searchParam: "HTL",
@@ -196,7 +198,6 @@ class Search extends Component {
       })
     } else {
       // toggle function that opens the ight side div
-      this.toggle(8)
       QueryStock.userStockSearch(queryObj)
         .then((result) => {
           // set the result array equal to a variable
@@ -221,7 +222,13 @@ class Search extends Component {
         })
         .then((sortedResults) => {
           // array of objects sorted based on price
-          console.log(sortedResults)
+          this.setState({
+            nameSearchResult: sortedResults,
+            tickerSearchResult: []
+          })
+        })
+        .then(() => {
+          this.toggle(8)
         })
         .catch((err) => {
           console.log(err);
@@ -244,12 +251,13 @@ class Search extends Component {
         badSearchMessage: "Your query is incomplete. You need to include a ticker"
       })
     } else {
-  
+
       QueryStock.userStockSearch(queryObj)
         .then((result) => {
           // object with one stock ticker and related data
           this.setState({
-            tickerSearchResult: result.data.data[0]
+            tickerSearchResult: result.data.data[0],
+            nameSearchResult: []
           })
         })
         .then(() => {
@@ -293,20 +301,30 @@ class Search extends Component {
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
         >
-        <TickerResult
-        name={this.state.tickerSearchResult.name}
-        symbol={this.state.tickerSearchResult.symbol}
-        price={this.state.tickerSearchResult.price}
-        exchange={this.state.tickerSearchResult.stock_exchange_short}
-        day_change={this.state.tickerSearchResult.day_change}
-        day_low={this.state.tickerSearchResult.day_low}
-        day_high={this.state.tickerSearchResult.day_high}
-        year_week_high={this.state.tickerSearchResult[`52_week_high`]}
-        year_week_low={this.state.tickerSearchResult[`52_week_low`]}
-        market_cap={this.state.tickerSearchResult.market_cap}
-        shares={this.state.tickerSearchResult.shares}
-        volume={this.state.tickerSearchResult.volume}
-        />
+            <TickerResult
+              name={this.state.tickerSearchResult.name}
+              symbol={this.state.tickerSearchResult.symbol}
+              price={this.state.tickerSearchResult.price}
+              exchange={this.state.tickerSearchResult.stock_exchange_short}
+              day_change={this.state.tickerSearchResult.day_change}
+              day_low={this.state.tickerSearchResult.day_low}
+              day_high={this.state.tickerSearchResult.day_high}
+              year_week_high={this.state.tickerSearchResult[`52_week_high`]}
+              year_week_low={this.state.tickerSearchResult[`52_week_low`]}
+              market_cap={this.state.tickerSearchResult.market_cap}
+              shares={this.state.tickerSearchResult.shares}
+              volume={this.state.tickerSearchResult.volume}
+          />
+          {this.state.nameSearchResult.map((stock, index) => (
+            <NameResult
+              key={index}
+              name={stock.name}
+              ticker={stock.symbol}
+              price={stock.price}
+              currency={stock.currency}
+              stockExchange={stock.stock_exchange_short}
+            />
+          ))}
         </ModalPage>
         {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
