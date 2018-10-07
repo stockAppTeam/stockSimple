@@ -97,7 +97,7 @@ const StockAPI = {
       queryInfo.stockSearchName ? searchName = queryInfo.stockSearchName : searchName = queryInfo.stockSearchTicker;
 
       // hit the route that corresponds to the query type. either api/search/name or api/search/ticker
-      return axios.get(`api/search/${queryInfo.queryType}/${searchName}`)
+      return axios.get(`api/search/${queryInfo.queryType}/${searchName}`); 
     }
   }
 

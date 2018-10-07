@@ -1,9 +1,9 @@
 import React from 'react';
 import "./Article.css"
-import { Card, CardBody, CardImage, CardText, Fa } from 'mdbreact';
+import { Card, CardBody, CardImage, CardText, Fa} from 'mdbreact';
 
 const Article = props => (
-    <Card className="article-card m-2" cascade>
+    <Card className="article-card m-2 h-100" cascade>
         <CardImage cascade className="card-image w-100" src={props.imgLink} />
         <CardBody className="p-2" cascade>
             <h5 className="text-white">{props.title}</h5>

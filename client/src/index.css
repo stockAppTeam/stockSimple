@@ -31,5 +31,10 @@ a {
     color:   #127880;
 }
 
+.swal-button {
+    background-color: #127880 !important; 
+    color: white !important; 
+  }
+
   
    

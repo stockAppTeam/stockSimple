@@ -77,7 +77,12 @@ module.exports = {
           res.json({ success: true, msg: 'Sign up complete' });
         })
         .catch((err) => {
-          res.send({ success: false, msg: 'Server Error' });
+          // 11000 is the error code for no duplicates in MongoDB
+          if (err.code === 11000) {
+            res.send({ success: false, msg: 'That email is already in use' });
+          } else {
+            res.send({ success: false, msg: 'Server Error' });
+          }
         })
     }
   },

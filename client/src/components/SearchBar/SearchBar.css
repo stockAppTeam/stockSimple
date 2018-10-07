@@ -1,6 +1,6 @@
-#App {
+#SearchContainer {
     font-family: sans-serif;
-    /* Give app full page to work with */
+   
   }
   
   #page-wrap {
@@ -59,7 +59,7 @@
   /* General sidebar styles */
   .bm-menu {
     background-color: rgb(44, 44, 44); 
-    padding: 2.5em 1.5em 0;
+    padding: 2rem 0px;
     font-size: 1.15em;
     overflow: hidden !important; 
   }
@@ -113,8 +113,13 @@
 @media only screen and (max-width: 768px) {
     
   .bm-burger-button {
-    position: fixed;
-    left: 70px;
+    right: 50px;
+    top: 0px; 
+    margin: 2px 10px; 
+  }
+
+  .nav-logo {
+    display: none; 
   }
 
 }
