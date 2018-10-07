@@ -4,6 +4,34 @@
     z-index: 10000; 
 }
 
+.modal-title {
+    width: -webkit-fill-available; 
+}
+
 #close-search-btn {
     background-color: #127880 !important; 
+    margin-left: auto; 
+  }
+
+.side-result-header {
+    display: flex; 
+    justify-content: between; 
+}
+
+
+@media only screen and (max-width: 425px) {
+    .side-result-header {
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+    }
+
+    .side-result-title {
+        text-align: center; 
+        margin-bottom: 10px; 
+    }
+
+    #close-search-btn {
+        margin: auto; 
+      }
   }

@@ -14,6 +14,9 @@ import NameResult from "../../components/NameResult"
 import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact'
+
+
 
 class Search extends Component {
 
@@ -25,13 +28,20 @@ class Search extends Component {
     this.stockQueryName = this.stockQueryName.bind(this);
     this.stockQueryTicker = this.stockQueryTicker.bind(this);
     this.handleParam = this.handleParam.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
+    this.addToWatchlist = this.addToWatchlist.bind(this);
     this.state = {
       isLoading: true,
       username: "",
+      watchlists: [],
       collapse: false,
       isWideEnough: false,
+      nameSearchPopulated: false,
+      tickerSearchPopulated: false,
+      sideSearchOpen: false,
       tickerSearchResult: {},
       nameSearchResult: [],
+      nameSearchResultFilter: [],
       stockSearchName: "",
       stockSearchTicker: "",
       searchParam: "HTL",
@@ -80,8 +90,10 @@ class Search extends Component {
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
         this.setState({
-          username: res.data.name
+          username: res.data.name,
+          watchlists: [...res.data.watchlists]
         })
+        console.log(this.state)
       })
       .then(() => {
         this.scrapeMarketWatch();
@@ -113,7 +125,8 @@ class Search extends Component {
     });
   }
 
-  // scrapes the investopedia with the method from utils and logs the results
+
+  // scrapes the investopedia and populates the article search array of the state
   scrapeInvestopedia = (e) => {
     SearchFunction.investopedia()
       .then((articles) => {
@@ -128,7 +141,6 @@ class Search extends Component {
   scrapeMarketWatch = (e) => {
     SearchFunction.marketWatch()
       .then((movers) => {
-        console.log(movers)
         this.setState({
           gainerRows: movers.data.gainers,
           loserRows: movers.data.losers
@@ -153,7 +165,6 @@ class Search extends Component {
     })
       .then((response) => {
         console.log(response)
-        console.log(this.state)
         if (response.data.success) {
           this.setState({
             articleSearch: this.state.articleSearch.filter((_, i) => i !== index)
@@ -161,10 +172,10 @@ class Search extends Component {
           swal("Article Saved", "Its on your home page", "success");
         } else {
           swal({
-            title: "Could not delete, please try again",
+            title: response.data.msg,
             icon: "error",
             dangerMode: true,
-          })
+          });
         }
       })
   }
@@ -174,6 +185,7 @@ class Search extends Component {
   searchVal = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
+    state.sideSearchOpen = true;
     this.setState(state);
   }
 
@@ -224,16 +236,21 @@ class Search extends Component {
           // array of objects sorted based on price
           this.setState({
             nameSearchResult: sortedResults,
-            tickerSearchResult: []
+            nameSearchResultFilter: sortedResults,
+            nameSearchPopulated: true,
+            tickerSearchPopulated: false,
+            sideSearchOpen: false,
+            stockSearchName: ""
           })
         })
         .then(() => {
+          // toggle the side bar after the results have come back
           this.toggle(8)
         })
         .catch((err) => {
           console.log(err);
           this.setState({
-            badSearchMessage: "There is a problem on our end, please try again"
+            badSearchMessage: "That search returned zero results. Try again"
           })
         });
     }
@@ -251,27 +268,29 @@ class Search extends Component {
         badSearchMessage: "Your query is incomplete. You need to include a ticker"
       })
     } else {
-
       QueryStock.userStockSearch(queryObj)
         .then((result) => {
           // object with one stock ticker and related data
           this.setState({
             tickerSearchResult: result.data.data[0],
-            nameSearchResult: []
+            tickerSearchPopulated: true,
+            nameSearchPopulated: false,
+            sideSearchOpen: false,
+            stockSearchTicker: ""
           })
         })
         .then(() => {
+          // toggle the side bar after the results have come back
           this.toggle(8)
         })
         .catch((err) => {
           console.log(err);
           this.setState({
-            badSearchMessage: "There is a problem on our end, please try again"
+            badSearchMessage: "That search returned zero results. Try again"
           })
         });
     }
   }
-
 
   // function to toggle the sideview div to display the api results
   toggle(nr) {
@@ -281,6 +300,37 @@ class Search extends Component {
     });
   }
 
+  // filters the search and sets the results property of the state to the filtered version based on what the user types in the input
+  handleSearch(e) {
+    const condition = new RegExp(e.target.value, 'i');
+    const nameSearchResultFilter = this.state.nameSearchResult.filter(name => {
+      return condition.test(name.name);
+    });
+
+    this.setState({
+      nameSearchResultFilter
+    })
+  }
+
+  addToWatchlist = (name, watchlistId, stockInfo) => {
+    let addedStock = {name};
+        addedStock.user = localStorage.getItem('userID'); 
+        addedStock.watchListId = watchlistId; 
+    if (stockInfo === 'ticker') {
+      let symbol = this.state.tickerSearchResult.symbol;
+      addedStock.symbol = symbol;
+    } else {
+      addedStock.symbol = stockInfo.symbol;
+    }
+    
+    QueryStock.saveStockToWatchlist(addedStock)
+
+  }
+
+  //use regex to put commas on large numbers. used for stock market cap, available shares, and volume
+  addCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
 
 
   render() {
@@ -296,11 +346,15 @@ class Search extends Component {
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
         />
+
+        {/* Side Modal that displays results. Component displayed determined by which boolean in state is true */}
         <ModalPage
           modal8={this.state.modal8}
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
         >
+          {/* if the ticker search has been returned display this */}
+          {this.state.tickerSearchPopulated ? (
             <TickerResult
               name={this.state.tickerSearchResult.name}
               symbol={this.state.tickerSearchResult.symbol}
@@ -311,24 +365,64 @@ class Search extends Component {
               day_high={this.state.tickerSearchResult.day_high}
               year_week_high={this.state.tickerSearchResult[`52_week_high`]}
               year_week_low={this.state.tickerSearchResult[`52_week_low`]}
-              market_cap={this.state.tickerSearchResult.market_cap}
-              shares={this.state.tickerSearchResult.shares}
-              volume={this.state.tickerSearchResult.volume}
-          />
-          {this.state.nameSearchResult.map((stock, index) => (
-            <NameResult
-              key={index}
-              name={stock.name}
-              ticker={stock.symbol}
-              price={stock.price}
-              currency={stock.currency}
-              stockExchange={stock.stock_exchange_short}
-            />
-          ))}
+              market_cap={this.addCommas(this.state.tickerSearchResult.market_cap)}
+              shares={this.addCommas(this.state.tickerSearchResult.shares)}
+              volume={this.addCommas(this.state.tickerSearchResult.volume)}
+            >
+              <Dropdown className="dropdown">
+                <DropdownToggle caret color="grey">
+                  Add to Watchlist
+                    </DropdownToggle>
+                <DropdownMenu>
+                  {this.state.watchlists.map((watchlist, index) => (
+                    <DropdownItem onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, 'ticker')}>{watchlist.name}</DropdownItem>
+                  ))
+                  }
+                </DropdownMenu>
+              </Dropdown>
+            </TickerResult>
+          ) : false}
+
+          {/* if the name search has been returned display this */}
+          {this.state.nameSearchPopulated ? (
+            <div>
+              <input
+                className="search w-100"
+                placeholder="Filter results by name"
+                onChange={this.handleSearch}
+              />
+              {this.state.nameSearchResultFilter.map((stock, filterindex) => (
+                <NameResult
+                  key={filterindex}
+                  name={stock.name}
+                  ticker={stock.symbol}
+                  price={stock.price}
+                  currency={stock.currency}
+                  stockExchange={stock.stock_exchange_short}
+                >
+                  <Dropdown className="dropdown">
+                    <DropdownToggle caret color="grey">
+                      Add to Watchlist
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.state.watchlists.map((watchlist, index) => (
+                        <DropdownItem onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, stock)}>{watchlist.name}</DropdownItem>
+                      ))
+                      }
+                    </DropdownMenu>
+                  </Dropdown>
+                </NameResult>
+              ))
+              }
+            </div>
+          ) : false}
         </ModalPage>
+
+
         {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <div id="SearchContainer">
+
             <SearchBar pageWrapId={"page-wrap"} outerContainerId={"SearchContainer"}
               searchVal={this.searchVal}
               stockQueryName={this.stockQueryName}
@@ -341,9 +435,14 @@ class Search extends Component {
               handleParam={this.handleParam}
               // paragraph gets populated if the search value is empty
               badSearch={this.state.badSearchMessage}
+              open={this.state.sideSearchOpen}
             />
+
+            {/* empty div that covers the page when the side bar slides out */}
             <div id="page-wrap">
             </div>
+
+            {/* Tables showing top gainers and losers for the day */}
             <Row className="w-100 p-3 justify-content-center m-0">
               <Col>
                 <TablePage
@@ -360,28 +459,38 @@ class Search extends Component {
                 ></TablePage>
               </Col>
             </Row>
+
+            {/* Display the latest news articles */}
             <Row className="justify-content-center p-2">
               <Col lg="12" className="mb-2 pl-4">
                 <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
               </Col>
-              {/* render the articles */}
-              {this.state.articleSearch.map((article, index) => (
-                <Article
-                  key={index}
-                  imgLink={article.imgLink}
-                  title={article.title}
-                  desc={article.desc}
-                  action={'Save'}
-                  // site uses relative url so need to interpolate full url for link to work
-                  link={`https://www.investopedia.com/${article.link}`}
-                  date={this.state.date}
-                  actionBtn={() => this.saveArticle(index)}
-                  className="m-2"
-                >
-                </Article>
-              ))}
+
+              {/* render the articles and only return 5*/}
+              {this.state.articleSearch.map((article, index) => {
+                if (index < 5) {
+                  return (
+                    <div className="p-2">
+                      <Article
+                        key={index}
+                        imgLink={article.imgLink}
+                        title={article.title}
+                        desc={article.desc}
+                        action={'Save'}
+                        // site uses relative url so need to interpolate full url for link to work
+                        link={`https://www.investopedia.com/${article.link}`}
+                        date={this.state.date}
+                        actionBtn={() => this.saveArticle(index)}
+                        className="m-2"
+                      >
+                      </Article>
+                    </div>
+                  )
+                }
+              })}
             </Row>
           </div>
+          // end of the ternary, so display loading dots if page has not loaded
         ) : (
             <div className="loading">
               <div className="loading-dot"></div>

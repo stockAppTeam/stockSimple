@@ -6,7 +6,7 @@ const dataRoutes = require("./data");
 const apiRoutes = require("./api");
 const stockAPIRoutes = require("./stockAPI");
 
-// API Routes
+// All routes
 router.use("/auth", authRoutes);
 router.use("/scrape", scrapeRoutes);
 router.use("/data", dataRoutes);

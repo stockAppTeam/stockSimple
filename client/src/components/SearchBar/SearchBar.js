@@ -1,11 +1,11 @@
 import React from "react";
 import "./SearchBar.css";
 import { Row, Col, ListGroup, ListGroupItem, Button } from "mdbreact"
-import { slide as Menu } from "react-burger-menu";
+import { stack as Menu } from "react-burger-menu";
 
 const SearchBar = props => (
     // Pass on our props
-    <Menu  className="content-font justify-content-center"  {...props}>
+    <Menu isOpen={props.open}  className="content-font justify-content-center"  {...props}>
         <h3 className="turq-text text-center mobile-hidden"><i className="fa fa-bar-chart-o custom mr-3 search-header"></i>Search Stocks</h3>
         <hr className="bg-white mb-1 mt-4 p-0"></hr>
         {/* For each input, the 'name' is the property of the state that is changed when the user types something. onChange() handles that and changes and calls a function to change the state */}

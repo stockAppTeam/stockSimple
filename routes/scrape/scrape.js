@@ -20,10 +20,8 @@ router
                 content.link = $(element).children('a').attr('href');
                 content.imgLink = $(element).children('a').children('img').attr('src');
                 content.desc = $(element).children('div.item-description').text();
-                // only return 6 entries.
-                if (entries.length < 8) { 
-                    entries.push(content)
-                }
+                 entries.push(content)
+                
             })
         })
             .then(() => {

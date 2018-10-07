@@ -80,6 +80,8 @@ class Test extends Component {
 
     // the StockAPI file in utils calls the back end using an axios GET.
     // The back end will do the actual query of the API from the stock website
+    this.updateChartDataProps(); 
+
     StockAPI.getLatestStockInfoAllTickers()
       .then((stockInfo) => {
         this.setState({
@@ -122,6 +124,43 @@ class Test extends Component {
     });
     */
 
+  }
+
+  updateChartDataProps = (e) => {
+
+    // console.log("updateChartDataProps: labels");
+    // state.chartData.labels.map(function (element) {
+    //   console.log(element);
+    // });
+  
+    // // console.log("updateChartDataProps: tickers");
+    // // state.historicalInfoFromStockTickers.history.map(function (element) {
+    // //   console.log(element);
+    // // });
+  
+    // // const keys = Object.keys(fruits)
+    // // console.log(keys) // [apple, orange, pear]
+  
+  
+    // const keys = Object.keys(state.allUserTickerHistoricalCharts)
+    // console.log(keys);
+  
+    // state.chartData.labels = keys;
+  
+    // const values = Object.values(state.allUserTickerHistoricalCharts)
+    // console.log(values);
+  
+    // let valuesArray = [];
+    // values.map(function (value) {
+    //   console.log(`Close: ${value.close}`);
+    //   valuesArray.push(value.close);
+    // });
+    // state.chartData.datasets[0].data = keys;
+  
+  
+    // console.log("state.chartData", state.chartData);
+    console.log('state', this.state)
+  
   }
 
   render() {
@@ -257,40 +296,6 @@ function buildAllHistoricalChartObjects(state) {
 
 // How can I share "this" with this function without having to pass this.state?
 // https://frontarm.com/articles/when-to-use-arrow-functions/
-function updateChartDataProps(state) {
 
-  console.log("updateChartDataProps: labels");
-  state.chartData.labels.map(function (element) {
-    console.log(element);
-  });
-
-  // console.log("updateChartDataProps: tickers");
-  // state.historicalInfoFromStockTickers.history.map(function (element) {
-  //   console.log(element);
-  // });
-
-  // const keys = Object.keys(fruits)
-  // console.log(keys) // [apple, orange, pear]
-
-
-  const keys = Object.keys(state.allUserTickerHistoricalCharts)
-  console.log(keys);
-
-  state.chartData.labels = keys;
-
-  const values = Object.values(state.allUserTickerHistoricalCharts)
-  console.log(values);
-
-  let valuesArray = [];
-  values.map(function (value) {
-    console.log(`Close: ${value.close}`);
-    valuesArray.push(value.close);
-  });
-  state.chartData.datasets[0].data = keys;
-
-
-  console.log("state.chartData", state.chartData);
-
-}
 
 export default Test;
