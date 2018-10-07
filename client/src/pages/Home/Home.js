@@ -3,8 +3,9 @@ import Authorize from '../../utils/Authorize';
 import ArticleFunction from '../../utils/ArticleData';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
+import ModalPage from '../../components/SideApiResult';
 import Article from '../../components/Article';
-import { Row, Col } from 'mdbreact';
+import { Row, Col, Button } from 'mdbreact';
 import swal from 'sweetalert';
 
 class Home extends Component {
@@ -12,15 +13,20 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoading: true,
       username: "",
       collapse: false,
       isWideEnough: false,
-      savedArticles: []
+      modal6: false,
+      modal7: false,
+      savedArticles: [],
+      savedArticlesFilter: []
     };
     this.navToggle = this.navToggle.bind(this);
     this.deleteArticle = this.deleteArticle.bind(this);
   }
 
+  // collapses the navbar at medium viewport
   navToggle() {
     this.setState({
       collapse: !this.state.collapse,
@@ -40,8 +46,15 @@ class Home extends Component {
         console.log(res.data)
         this.setState({
           username: res.data.name,
-          savedArticles: res.data.articles
+          savedArticles: res.data.articles,
+          savedArticlesFilter: res.data.articles
         })
+      })
+      .then(() => {
+        this.setState({
+          isLoading: false
+        })
+        console.log(this.state.savedArticles)
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -85,9 +98,18 @@ class Home extends Component {
     window.location.reload();
   }
 
+  // function to toggle the side result
+  toggle(nr) {
+    let modalNumber = 'modal' + nr
+    this.setState({
+      [modalNumber]: !this.state[modalNumber]
+    });
+  }
+
   render() {
     return (
       <div className="home-div">
+        <Button onClick={() => this.toggle(8)} className="home-article-btn p-2"></Button>
         <MainNavbar
           navToggle={this.navToggle}
           isWideEnough={!this.state.isWideEnough}
@@ -98,13 +120,17 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
         />
-        <Row className="w-100 m-0 justify-content-center">
-          <Col sm="12" md="6">
-          </Col>
-          <Col sm="12" md="6">
-            <h1 className="turq-text text-center content-font">Saved Articles</h1>
+        <ModalPage
+          modal8={this.state.modal8}
+          toggleClick={() => this.toggle(8)}
+          toggleView={() => this.toggle(8)}
+          title={'Saved Articles'}
+        >
+          {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
+
+          <div>
+          {this.state.savedArticles.length ? (
             <Row className="justify-content-center">
-            {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
               {this.state.savedArticles.map((article, index) => (
                 <Article
                   key={index}
@@ -116,12 +142,29 @@ class Home extends Component {
                   link={`https://www.investopedia.com/${article.link}`}
                   date={article.date}
                   actionBtn={() => this.deleteArticle(index)}
+                  className="mx-auto bg-dark"
                 >
                 </Article>
               ))}
             </Row>
-          </Col>
-        </Row>
+            ) : (
+              <h4 className="content-font text-white">No Articles Saved</h4>
+            )}
+          </div>
+        </ModalPage>
+        {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
+        {!this.state.isLoading ? (
+          <Row className="w-100 m-0 justify-content-center">
+
+          </Row>
+        ) : (
+            <div className="loading">
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+              <div className="loading-dot"></div>
+            </div>
+          )}
       </div>
     );
   }

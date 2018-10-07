@@ -6,7 +6,7 @@ const axios = require("axios");
 router
     .route("/:searchType/:searchVal")
     .get((req, res) => {
-        let key = 'demo';
+        let key = '3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27';
         let query = { searchType, searchVal} = req.params;
 
         // search type is based on the parameter sent in. For name, query by name, else query by ticker
