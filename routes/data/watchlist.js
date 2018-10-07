@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const axios = require("axios");
-const stockControllers = require("../../controllers/stockAPIControllers");
+const watchlistControllers = require("../../controllers/watchlistControllers");
 
 
 // Matches with "/data/stock"
 router
     .route("/")
-    .post(stockControllers.addStockToWatchlist)
+    .post(watchlistControllers.addStockToWatchlist)
 
 
 module.exports = router;

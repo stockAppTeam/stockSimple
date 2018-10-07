@@ -3,6 +3,7 @@ import Authorize from '../../utils/Authorize';
 import SearchFunction from '../../utils/ScrapeFunctions';
 import ArticleFunction from '../../utils/ArticleData';
 import QueryStock from '../../utils/StockAPI';
+import WatchlistAdd from '../../utils/Watchlists';
 import './Search.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
@@ -93,7 +94,6 @@ class Search extends Component {
           username: res.data.name,
           watchlists: [...res.data.watchlists]
         })
-        console.log(this.state)
       })
       .then(() => {
         this.scrapeMarketWatch();
@@ -136,7 +136,7 @@ class Search extends Component {
       })
   }
 
-  // function for getting 'best and worst performant stocks
+  // function for getting best and worst performant stocks
   // Search function imported from 'utils' which hits back end sraping route
   scrapeMarketWatch = (e) => {
     SearchFunction.marketWatch()
@@ -164,7 +164,6 @@ class Search extends Component {
       date
     })
       .then((response) => {
-        console.log(response)
         if (response.data.success) {
           this.setState({
             articleSearch: this.state.articleSearch.filter((_, i) => i !== index)
@@ -181,7 +180,7 @@ class Search extends Component {
   }
 
 
-  // this function changes the state of the search paramaters for the 'search side navgation' based on what is being typed in the input
+  // this function changes the state of the search inputs for the 'search side navgation' based on what is being typed in the input
   searchVal = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
@@ -209,7 +208,6 @@ class Search extends Component {
         badSearchMessage: "Your query is incomplete. You need to include a name"
       })
     } else {
-      // toggle function that opens the ight side div
       QueryStock.userStockSearch(queryObj)
         .then((result) => {
           // set the result array equal to a variable
@@ -312,9 +310,11 @@ class Search extends Component {
     })
   }
 
+  // adds a stock to a watchlist - in either the 'search by name' or 'search by ticker' results
+  // the buttons are made by mapping the users 'watchlists' in the state and the id is passed into the 'on click' function
+  // if condition used to check where the request came from because the state stores the 'search by ticker' and search by name resulst separately
   addToWatchlist = (name, watchlistId, stockInfo) => {
     let addedStock = {name};
-        addedStock.user = localStorage.getItem('userID'); 
         addedStock.watchListId = watchlistId; 
     if (stockInfo === 'ticker') {
       let symbol = this.state.tickerSearchResult.symbol;
@@ -323,7 +323,25 @@ class Search extends Component {
       addedStock.symbol = stockInfo.symbol;
     }
     
-    QueryStock.saveStockToWatchlist(addedStock)
+   WatchlistAdd.saveStockToWatchlist(addedStock)
+   .then((res) => {
+     if (res.data.success) {
+      swal({
+        title: "Complete",
+        text: res.data.message,
+        icon: "success",
+      });
+     } else {
+      swal({
+        title: "Could not add. Please try again",
+        icon: "error",
+        dangerMode: true,
+      });
+     }
+   })
+   .catch((err) => {
+     console.log(err)
+   })
 
   }
 
@@ -352,6 +370,7 @@ class Search extends Component {
           modal8={this.state.modal8}
           toggleClick={() => this.toggle(8)}
           toggleView={() => this.toggle(8)}
+          title={'Market Results'}
         >
           {/* if the ticker search has been returned display this */}
           {this.state.tickerSearchPopulated ? (

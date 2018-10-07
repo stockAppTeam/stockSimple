@@ -166,25 +166,5 @@ module.exports = {
 
         });
     });
-  },
-
-  addStockToWatchlist: function (stockInfo) {
-    // db.User.findById(stockInfo.body.user, function (err, user) {
-    //     console.log(user)
-    // });
-
-
-    db.User.find({ _id: stockInfo.body.user })
-    .populate('watchlists', '_id')
-      .exec(function (err, doc) {
-        if (err) {
-          throw err;
-        }
-        else {
-          // create an object of user info and pass it into the front end with 'send' function
-          console.log[0]
-        }
-      });
-
   }
 }
