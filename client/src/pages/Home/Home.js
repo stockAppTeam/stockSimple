@@ -12,6 +12,9 @@ class Home extends Component {
 
   constructor(props) {
     super(props);
+    this.navToggle = this.navToggle.bind(this);
+    this.deleteArticle = this.deleteArticle.bind(this);
+    this.handleArticleFilter = this.handleArticleFilter.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -22,8 +25,6 @@ class Home extends Component {
       savedArticles: [],
       savedArticlesFilter: []
     };
-    this.navToggle = this.navToggle.bind(this);
-    this.deleteArticle = this.deleteArticle.bind(this);
   }
 
   // collapses the navbar at medium viewport
@@ -43,7 +44,6 @@ class Home extends Component {
 
     Authorize.authenticate(userAuthInfo)
       .then((res) => {
-        console.log(res.data)
         this.setState({
           username: res.data.name,
           savedArticles: res.data.articles,
@@ -54,7 +54,6 @@ class Home extends Component {
         this.setState({
           isLoading: false
         })
-        console.log(this.state.savedArticles)
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -72,8 +71,12 @@ class Home extends Component {
     ArticleFunction.deleteArticle(_id)
       .then((response) => {
         if (response.data.success) {
+
+          let {savedArticles} = this.state; 
+            savedArticles = savedArticles.slice(0, index).concat(savedArticles.slice(index+1)); 
           this.setState({
-            savedArticles: this.state.savedArticles.filter((_, i) => i !== index)
+            savedArticlesFilter: savedArticles,
+            savedArticles: savedArticles
           });
           swal({
             title: "Article Deleted!",
@@ -88,6 +91,17 @@ class Home extends Component {
           })
         }
       })
+  }
+
+  handleArticleFilter(e) {
+    const condition = new RegExp(e.target.value, 'i');
+    const savedArticlesFilter = this.state.savedArticles.filter(name => {
+      return condition.test(name.title);
+    });
+
+    this.setState({
+      savedArticlesFilter
+    })
   }
 
 
@@ -129,27 +143,32 @@ class Home extends Component {
           {/* after importing 'Article' element, map the saved articles in the state and make an article for each one */}
 
           <div>
-          {this.state.savedArticles.length ? (
-            <Row className="justify-content-center">
-              {this.state.savedArticles.map((article, index) => (
-                <Article
-                  key={index}
-                  imgLink={article.imgLink}
-                  title={article.title}
-                  desc={article.desc}
-                  action={'Delete'}
-                  // site uses relative url so need to interpolate full url for link to work
-                  link={`https://www.investopedia.com/${article.link}`}
-                  date={article.date}
-                  actionBtn={() => this.deleteArticle(index)}
-                  className="mx-auto bg-dark"
-                >
-                </Article>
-              ))}
-            </Row>
+            <input
+              className="search w-100 m-2"
+              placeholder="Filter results by name"
+              onChange={this.handleArticleFilter}
+            />
+            {this.state.savedArticlesFilter.length ? (
+              <Row className="justify-content-center bg-dark h-100">
+                {this.state.savedArticlesFilter.map((article, index) => (
+                  <Article
+                    key={index}
+                    imgLink={article.imgLink}
+                    title={article.title}
+                    desc={article.desc}
+                    action={'Delete'}
+                    // site uses relative url so need to interpolate full url for link to work
+                    link={`https://www.investopedia.com/${article.link}`}
+                    date={article.date}
+                    actionBtn={() => this.deleteArticle(index)}
+                    className="mx-auto bg-dark"
+                  >
+                  </Article>
+                ))}
+              </Row>
             ) : (
-              <h4 className="content-font text-white">No Articles Saved</h4>
-            )}
+                <h4 className="content-font text-white">No Articles Saved</h4>
+              )}
           </div>
         </ModalPage>
         {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
