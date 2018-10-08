@@ -1,0 +1,12 @@
+.accordion {
+    border-radius: 0px !important; 
+}
+
+.accordion .accordion-item .title {
+    background-color: rgb(44, 44, 44) !important; 
+    border: 0px; 
+    border-radius: 0px; 
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    color:  #127880 !important; 
+}

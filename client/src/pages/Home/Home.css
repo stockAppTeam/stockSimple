@@ -23,6 +23,20 @@
     margin-top: 60px; 
 }
 
+#add-stock-drop {
+    background-color:   #127880 !important; 
+}
+
+.investments-col {
+    border-right: 1px solid rgb(44, 44, 44); 
+    height: 500px; 
+}
+
+.drop-down-btn:hover {
+    background-color:   #127880 !important; 
+    cursor: pointer; 
+}
+
 @media only screen and (max-width: 768px) {
     .home-article-btn {
         width: 30px; 
