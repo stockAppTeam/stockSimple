@@ -132,7 +132,7 @@ module.exports = {
           userInfo.watchlists = doc[0].watchlists;
           res.send(userInfo);
         }
-      });
+      }); 
 
   }
 }

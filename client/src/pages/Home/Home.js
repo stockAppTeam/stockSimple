@@ -22,6 +22,7 @@ class Home extends Component {
     this.addInvestmentVal = this.addInvestmentVal.bind(this);
     this.addStockInvestment = this.addStockInvestment.bind(this);
     this.deleteInvestment = this.deleteInvestment.bind(this);
+    this.getAllUserData = this.getAllUserData.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -31,7 +32,7 @@ class Home extends Component {
       modal7: false,
       savedArticles: [],
       savedArticlesFilter: [],
-      investments: [], 
+      investments: [],
       addStockName: "",
       addStockTicker: "",
       addStockShares: "",
@@ -50,33 +51,76 @@ class Home extends Component {
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
   componentDidMount() {
+    this.getAllUserData('all')
+  }
+
+  // gets the user data, returns specific data based on parameter passed in
+  getAllUserData(update) {
     let userAuthInfo = {
       token: localStorage.getItem('jwtToken'),
       userID: localStorage.getItem('userID')
     }
-
-    Authorize.authenticate(userAuthInfo)
-      .then((res) => {
-        this.setState({
-          username: res.data.name,
-          savedArticles: res.data.articles,
-          savedArticlesFilter: res.data.articles, 
-          investments: res.data.investments
-        })
-        console.log(res)
-      })
-      .then(() => {
-        this.setState({
-          isLoading: false
-        })
-      })
-      .catch((error) => {
-        if (error.response.status === 401) {
-          this.props.history.push("/login");
-        }
-      });
-
+    switch (update) {
+      case 'all':
+        Authorize.authenticate(userAuthInfo)
+          .then((res) => {
+            this.setState({
+              username: res.data.name,
+              savedArticles: res.data.articles,
+              savedArticlesFilter: res.data.articles,
+              investments: res.data.investments
+            })
+          })
+          .then(() => {
+            this.setState({
+              isLoading: false
+            })
+          })
+          .catch((error) => {
+            if (error.response.status === 401) {
+              this.props.history.push("/login");
+            }
+          });
+        break;
+      case 'investments':
+        Authorize.authenticate(userAuthInfo)
+          .then((res) => {
+            this.setState({
+              investments: res.data.investments
+            })
+          })
+          .catch((error) => {
+            swal({
+              title: "Error. Please refresh page",
+              icon: "error",
+              dangerMode: true,
+            })
+          });
+        break;
+      case 'watchlists':
+        Authorize.authenticate(userAuthInfo)
+          .then((res) => {
+            this.setState({
+              watchlists: res.data.watchlists
+            })
+          })
+          .catch((error) => {
+            swal({
+              title: "Error. Please refresh page",
+              icon: "error",
+              dangerMode: true,
+            })
+          });
+        break;
+    }
   }
+
+    // clear the web token and email from local storage when the user logs out
+    logout = () => {
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('userID');
+      window.location.reload();
+    }
 
   // grab theindex of the article clicked and pass it into delete function
   // if the server responds with success than display a message (swal) and remove the element from the state
@@ -108,24 +152,17 @@ class Home extends Component {
       })
   }
 
+  //  parses the article search bar and filters articles that match
   handleArticleFilter(e) {
     const condition = new RegExp(e.target.value, 'i');
     const savedArticlesFilter = this.state.savedArticles.filter(name => {
       return condition.test(name.title);
     });
-
     this.setState({
       savedArticlesFilter
     })
   }
 
-
-  // clear the web token and email from local storage when the user logs out
-  logout = () => {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('userID');
-    window.location.reload();
-  }
 
   // function to toggle the side result
   toggle(nr) {
@@ -135,18 +172,18 @@ class Home extends Component {
     });
   }
 
-  // sets the state to whatever is being searched
+  // sets the state to the values of the inputs being used to add stocks
   addInvestmentVal = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
     this.setState(state);
   }
 
-  // function to add a stock to their portfolio
+  // function to add a stock to users portfolio
   addStockInvestment = (e) => {
-    let {addStockName, addStockPrice, addStockShares, addStockTicker, date}  = this.state; 
-    let userID  =  localStorage.getItem('userID'); 
-    if (!addStockName || !addStockPrice ||  !addStockShares || !addStockTicker) {
+    let { addStockName, addStockPrice, addStockShares, addStockTicker, date } = this.state;
+    let userID = localStorage.getItem('userID');
+    if (!addStockName || !addStockPrice || !addStockShares || !addStockTicker) {
       swal({
         title: "You must fill all fields",
         icon: "error",
@@ -159,18 +196,26 @@ class Home extends Component {
         dangerMode: true,
       })
     } else {
-      let stockAdded = {addStockName, addStockPrice, addStockShares, addStockTicker, userID, date}
+      let stockAdded = { addStockName, addStockPrice, addStockShares, addStockTicker, userID, date }
       Investment.addStock(stockAdded)
-      .then ((result) => {
-         this.setState({
-           investments: result.data.investments
-         })
-      })
+        .then((result) => {
+          if (result.data.success) {
+            swal("Investment added", "Best of luck", "success");
+            this.getAllUserData('investments')
+          }
+        })
     }
   }
 
+  // deletes a stock from the users investment portfolio
   deleteInvestment = (e) => {
-    console.log(e.target.name)
+    Investment.deleteStock(e.target.name)
+      .then((result) => {
+        if (result.data.success) {
+          swal("Investment deleted", "Sorry it didnt work out", "success");
+          this.getAllUserData('investments')
+        }
+      })
   }
 
   render() {
@@ -187,6 +232,7 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
         />
+        {/* Modal that toggles and displays all saved articles */}
         <ModalPage
           modal8={this.state.modal8}
           toggleClick={() => this.toggle(8)}
@@ -224,15 +270,16 @@ class Home extends Component {
               )}
           </div>
         </ModalPage>
-        {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
+
+        {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <Row className="w-100 m-0 justify-content-center">
             <Col md="6" className="investments-col">
-              <h4 className="content-font turq-text ml-2">Watchlists</h4>
+              <h4 className="content-font turq-text ml-3">Watchlists</h4>
             </Col>
             <Col md="6" className="p-2">
               <div className="d-flex justify-content-between">
-                <h4 className="content-font turq-text ml-2 d-inline">Investments</h4>
+                <h4 className="content-font turq-text ml-3 d-inline">Investments</h4>
                 <Dropdown size="sm" className="mr-3">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Stock
@@ -273,19 +320,22 @@ class Home extends Component {
                       </li>
                     </ul>
                     <DropdownItem divider />
-                    <DropdownItem 
-                    className="content-font p-2 drop-down-btn"
-                    onClick={this.addStockInvestment}
+                    <DropdownItem
+                      className="content-font p-2 drop-down-btn"
+                      onClick={this.addStockInvestment}
                     >
                       Add to investments
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <InvestAccordion 
-              investments={this.state.investments}
-              deleteInvestment={this.deleteInvestment}
-              />
+              
+              {/* Investment accordion component */}
+              <InvestAccordion
+                investments={this.state.investments}
+                deleteInvestment={this.deleteInvestment}
+              >
+              </InvestAccordion>
             </Col>
           </Row>
         ) : (

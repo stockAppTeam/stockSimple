@@ -3,7 +3,7 @@ const articleData = require("./articles");
 const watchlistData = require("./watchlist");
 const investmentData = require("./investment");
 
-// routes for deleting and saving articles
+// routes for changing user data
 router.use("/articledata", articleData);
 router.use("/watchlist", watchlistData);
 router.use("/investment", investmentData);

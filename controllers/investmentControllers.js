@@ -27,15 +27,8 @@ module.exports = {
             }
           });
         })
-        .then (() => {
-          db.User.find({ _id: userID })  
-          .populate("investments")
-          .then((data) => {
-            res.json({ success: true, msg: 'Stock added', investments: data[0].investments });
-          })
-          .catch((err) => {
-            res.status(404).send({ success: false, msg: 'Internal Error' });
-          })
+        .then(() => {
+          res.json({ success: true, msg: 'Stock added' });
         })
         .catch((err) => {
           if (err.code === 11000) {
@@ -49,5 +42,14 @@ module.exports = {
       res.status(404).send({ success: false, msg: 'Incomplete Request' });
     }
 
+  },
+
+  deleteStock: function (req, res) {
+    console.log(req.params.deleteId)
+    Investment
+      .findById({ _id: req.params.deleteId })
+      .then(dbArticle => dbArticle.remove())
+      .then(success => res.send({ success: true, message: 'Successfully deleted' }))
+      .catch(err => res.status(422).json(err))
   }
 }
