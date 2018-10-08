@@ -22,7 +22,7 @@ const StockAPI = {
       If the date_to parameter is not included, then it uses today's date
   */
   getHistoricalInfoAllTickers: function () {
-    return axios.get("/stockapi/stockapi/getallhistoric/2018-09-01/2018-09-10");
+    return axios.get("/stockapi/stockapi/getallhistoric/2018-09-01/2018-10-01");
   },
 
   // This will return the historical information for one ticker only
