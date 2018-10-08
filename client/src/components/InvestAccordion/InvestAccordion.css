@@ -2,6 +2,14 @@
     border-radius: 0px !important; 
 }
 
+#delete-stock-btn {
+    background-color: red !important; 
+    color: white !important; 
+}
+
+.up-arrow {
+    color: green; 
+}
 .accordion .accordion-item .title {
     background-color: rgb(44, 44, 44) !important; 
     border: 0px; 

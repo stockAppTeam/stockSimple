@@ -21,6 +21,7 @@ class Home extends Component {
     this.handleArticleFilter = this.handleArticleFilter.bind(this);
     this.addInvestmentVal = this.addInvestmentVal.bind(this);
     this.addStockInvestment = this.addStockInvestment.bind(this);
+    this.deleteInvestment = this.deleteInvestment.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -30,6 +31,7 @@ class Home extends Component {
       modal7: false,
       savedArticles: [],
       savedArticlesFilter: [],
+      investments: [], 
       addStockName: "",
       addStockTicker: "",
       addStockShares: "",
@@ -58,8 +60,10 @@ class Home extends Component {
         this.setState({
           username: res.data.name,
           savedArticles: res.data.articles,
-          savedArticlesFilter: res.data.articles
+          savedArticlesFilter: res.data.articles, 
+          investments: res.data.investments
         })
+        console.log(res)
       })
       .then(() => {
         this.setState({
@@ -140,7 +144,7 @@ class Home extends Component {
 
   // function to add a stock to their portfolio
   addStockInvestment = (e) => {
-    let {addStockName, addStockPrice, addStockShares, addStockTicker}  = this.state; 
+    let {addStockName, addStockPrice, addStockShares, addStockTicker, date}  = this.state; 
     let userID  =  localStorage.getItem('userID'); 
     if (!addStockName || !addStockPrice ||  !addStockShares || !addStockTicker) {
       swal({
@@ -155,9 +159,18 @@ class Home extends Component {
         dangerMode: true,
       })
     } else {
-      let stockAdded = {addStockName, addStockPrice, addStockShares, addStockTicker, userID}
+      let stockAdded = {addStockName, addStockPrice, addStockShares, addStockTicker, userID, date}
       Investment.addStock(stockAdded)
+      .then ((result) => {
+         this.setState({
+           investments: result.data.investments
+         })
+      })
     }
+  }
+
+  deleteInvestment = (e) => {
+    console.log(e.target.name)
   }
 
   render() {
@@ -269,7 +282,10 @@ class Home extends Component {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <InvestAccordion></InvestAccordion>
+              <InvestAccordion 
+              investments={this.state.investments}
+              deleteInvestment={this.deleteInvestment}
+              />
             </Col>
           </Row>
         ) : (
