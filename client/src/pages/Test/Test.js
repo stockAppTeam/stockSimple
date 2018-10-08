@@ -19,7 +19,7 @@ class Test extends Component {
       allUserTickerHistoricalInfo: [], // an array of objects containg the historical info for each of the user's tickers
       allUserTickerCharts: [], // This holds an array of the "latest info" chartjs objects for the user's tickers
       allUserTickerHistoricalCharts: [], // This holds an array of the historical chartjs objects for the user's tickers
-      // For the moment, the same date range is used for them all
+      // For the moment, the same date range is used for them all. We need to be able to pass a date range somehow
 
       sectorPerformanceData: []    // In progress
 
@@ -30,13 +30,10 @@ class Test extends Component {
 
     // the StockAPI file in utils calls the back end using an axios GET.
     // The back end will do the actual query of the API from the stock website
-    this.updateChartDataProps();
-
 
     // These have been set up as promises so that they are completed before we update the chart info
     let p1 = StockAPI.getLatestStockInfoAllTickers()
       .then((stockInfo) => {
-        console.log(stockInfo);
         this.setState({
           latestTickerInfo: stockInfo.data.data
         });
@@ -46,20 +43,19 @@ class Test extends Component {
     // Oct 5: Where should these date range values be obtained?
     let p2 = StockAPI.getHistoricalInfoAllTickers()
       .then((stockInfo) => {
-        console.log(stockInfo);
         this.setState({
           allUserTickerHistoricalInfo: stockInfo.data // The api returns an array of objects of historical info for each ticker
         });
       });
 
     // We have the information from the stock api, now build the chart objects with that data
-      Promise.all([p1, p2])
+    Promise.all([p1, p2])
       .then(() => {
-        this.updateChartDataProps();
+        this.updateHistoricalCharts();
       });
 
 
-
+    // Oct 8: The following items may be needed in the future, but aren't right now
 
     // // Requires: one ticker, start date, end date
     // // Can probably get rid of this, and combine it with the getHistoricalInfoAllTickers function
@@ -86,10 +82,12 @@ class Test extends Component {
 
   }
 
+  // In order to use the proper "this":
   // https://frontarm.com/articles/when-to-use-arrow-functions/
-  updateChartDataProps = (e) => {
-
-    console.log("history!: ", this.state.allUserTickerHistoricalInfo);
+  // This function is used to take the data that has been obtained from the stock API and
+  // create objects according to the structure required by chart.js
+  // This could definitely be made cleaner
+  updateHistoricalCharts = (e) => {
 
     // const keys = Object.keys(this.state.allUserTickerHistoricalInfo)
     // console.log(keys);
@@ -101,17 +99,18 @@ class Test extends Component {
 
       // For each of the historical items, build a chart object
       this.state.allUserTickerHistoricalInfo.map(function (ticker) {
-        console.log(ticker.symbol);
+
 
         let newHistoryObject = {};
+        newHistoryObject.ticker = ticker.symbol;
+
+        // Define the properties in the object as arrays, so that we can use array.push later
         newHistoryObject.historyDates = [];
         newHistoryObject.historyOpen = [];
         newHistoryObject.historyClose = [];
         newHistoryObject.historyHigh = [];
         newHistoryObject.historyLow = [];
         newHistoryObject.historyVolume = [];
-
-        newHistoryObject.ticker = ticker.symbol;
 
         // Obtain the dates from the historical objects. They come from the object property name
         // get the date values
@@ -141,9 +140,6 @@ class Test extends Component {
 
       // For each of the properties (which is the ticker/symbol) in the chartObjects, build a chart
       Object.keys(chartObjects).forEach(function (ticker) {
-
-        //console.log(chartObject);
-        //console.log(chartObjects[chartObject].historyDates);
 
         // a new chart object, to be added with the object property value being the ticker
         // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
@@ -235,12 +231,8 @@ class Test extends Component {
           //   }
           // }          
         };
-
-        //allCharts.push(newChart);
-
       });
 
-      console.log("allCharts in P2: ", allCharts);
       resolve();
     });
 
@@ -257,10 +249,7 @@ class Test extends Component {
 
   render() {
 
-    console.log("Rendering Page Test.js - State info:", this.state);
-
-    // Build all the chart objects before we need to show them on the page
-    //buildAllHistoricalChartObjects(this.state);
+    console.log("Rendering Page Test.js - this.state:", this.state);
 
     // Mapping will only work on an array. So I needed to make sure the propery was filled with an array of data above
     let tickerList = this.state.latestTickerInfo.map((stock, index) => (
@@ -281,17 +270,17 @@ class Test extends Component {
             data={this.state.allUserTickerHistoricalCharts[ticker]}
           />
         </div>]);
-
     }
-
 
     return (
       <div className="container">
         <p>World Trading Data API Test</p>
         <div>
 
-          {tickerList}
-          {chartList}
+          <div>
+            {tickerList}
+            {chartList}
+          </div>
 
           {/* <h2>Apple Inc. - Line component test</h2>
         <LineChart chartData={this.state.chartData} />
@@ -301,7 +290,6 @@ class Test extends Component {
 
         <h2>Pie component test - use to show percentage of investments</h2>
         <PieChart chartData={this.state.chartData} /> */}
-
 
         </div>
       </div>
