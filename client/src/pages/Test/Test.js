@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import './Test.css';
 import StockAPI from '../../utils/StockAPI';
 import { Line } from 'react-chartjs-2';
-// import LineChart from '../../components/LineChart';
+import LineChart from '../../components/LineChart';
 // import BarChart from '../../components/BarChart';
 // import PieChart from '../../components/PieChart';
 
@@ -81,7 +81,37 @@ class Test extends Component {
     // the StockAPI file in utils calls the back end using an axios GET.
     // The back end will do the actual query of the API from the stock website
     this.updateChartDataProps(); 
+    
+    
+    let p1 = StockAPI.getLatestStockInfoAllTickers()
+      .then((stockInfo) => {
+        console.log(stockInfo);
+        this.setState({
+          latestTickerInfo: stockInfo.data.data
+        });
+      });
 
+    // Requires: array of tickers, start date, end date
+    // Oct 5: Where should these date range values be obtained?
+    let p2 = StockAPI.getHistoricalInfoAllTickers()
+      .then((stockInfo) => {
+        console.log(stockInfo);
+        this.setState({
+          allUserTickerHistoricalInfo: stockInfo.data // The api returns an array of objects of historical info for each ticker
+        });
+      });
+
+    Promise.all([p1, p2])
+      .then(() => {
+        console.log("p1 and p2 done in Test.js", this.state.latestTickerInfo, this.state.allUserTickerHistoricalInfo);
+        this.updateChartDataProps();
+      });
+
+
+
+
+
+if(0){
     StockAPI.getLatestStockInfoAllTickers()
       .then((stockInfo) => {
         this.setState({
@@ -106,7 +136,7 @@ class Test extends Component {
       .then((stockInfo) => {
         // Will this route even be necessary?
       });
-
+}
 
     // Oct 1: Commented out because I've gone over my allowed API calls for the day
     // This is another one that we could potentially cache the information for during non-trading hours
@@ -128,39 +158,199 @@ class Test extends Component {
 
   updateChartDataProps = (e) => {
 
-    // console.log("updateChartDataProps: labels");
-    // state.chartData.labels.map(function (element) {
-    //   console.log(element);
-    // });
-  
-    // // console.log("updateChartDataProps: tickers");
-    // // state.historicalInfoFromStockTickers.history.map(function (element) {
-    // //   console.log(element);
-    // // });
-  
-    // // const keys = Object.keys(fruits)
-    // // console.log(keys) // [apple, orange, pear]
-  
-  
-    // const keys = Object.keys(state.allUserTickerHistoricalCharts)
+    console.log("history!: ", this.state.allUserTickerHistoricalInfo);
+
+    // const keys = Object.keys(this.state.allUserTickerHistoricalInfo)
     // console.log(keys);
-  
-    // state.chartData.labels = keys;
-  
-    // const values = Object.values(state.allUserTickerHistoricalCharts)
-    // console.log(values);
-  
-    // let valuesArray = [];
-    // values.map(function (value) {
-    //   console.log(`Close: ${value.close}`);
-    //   valuesArray.push(value.close);
-    // });
-    // state.chartData.datasets[0].data = keys;
-  
-  
-    // console.log("state.chartData", state.chartData);
-    console.log('state', this.state)
-  
+
+    let chartObjects = [];
+    let allCharts = [];
+    let p1 = new Promise((resolve, reject) => {
+
+      // For each of the historical items, build a chart object
+      //let chartObjects = [];
+      this.state.allUserTickerHistoricalInfo.map(function (ticker) {
+        console.log(ticker.symbol);
+
+        let newHistoryObject = {};
+        newHistoryObject.historyDates = [];
+        newHistoryObject.historyOpen = [];
+        newHistoryObject.historyClose = [];
+        newHistoryObject.historyHigh = [];
+        newHistoryObject.historyLow = [];
+        newHistoryObject.historyVolume = [];
+
+        newHistoryObject.ticker = ticker.symbol;
+
+        // Obtain the dates from the historical objects. They come from the object property name
+        // const keys = Object.keys(ticker.history);
+        // newHistoryObject.historyDates = keys;
+
+        console.log("-------");
+        // Object.keys(ticker.history).forEach(function (ticker) {
+        //   console.log(ticker); // key
+        //   console.log(ticker.history); // value
+        // });
+
+        // get the date values
+        Object.keys(ticker.history).forEach(function (tickerDate) {
+          // console.log(tickerDate); // key
+          // console.log(ticker); // value
+
+          newHistoryObject.historyDates.push(tickerDate);
+        });
+
+        // Get the daily historical values
+        Object.values(ticker.history).forEach(function (tickerHistoryData) {
+          //console.log(tickerHistoryData.close); // value
+          newHistoryObject.historyOpen.push(tickerHistoryData.open);
+          newHistoryObject.historyClose.push(tickerHistoryData.close);
+          newHistoryObject.historyHigh.push(tickerHistoryData.high);
+          newHistoryObject.historyLow.push(tickerHistoryData.low);
+          newHistoryObject.historyVolume.push(tickerHistoryData.volume);
+        });
+
+        // Add it to the array of objects, with the object property being the ticker
+        chartObjects[ticker.symbol] = newHistoryObject;
+      });
+
+      console.log("chartObjects in P1: ", chartObjects);
+      resolve();
+    });
+
+
+
+    let p2 = new Promise((resolve, reject) => {
+
+      console.log("chartObjects: ", chartObjects);
+
+      // Now build the chart objects
+      //this.state.allUserTickerHistoricalCharts
+
+      //console.log(typeof (chartObjects));
+      // chartObjects.forEach(function (chartobject) {
+      //   console.log("chartobject: ", chartobject);
+      // });
+
+      // For each of the properties (which is the ticker/symbol) in the chartObjects, build a chart
+      Object.values(chartObjects).forEach(function (chartObject) {
+
+        //console.log(chartObject);
+        //console.log(chartObjects[chartObject].historyDates);
+
+        // a new chart object, to be added with the object property value being the ticker
+        let newChart = {
+          labels: chartObject.historyDates, // date info from historyDates
+          datasets: [
+            {
+              label: 'Open',
+              //yAxisID: 'stockPriceAxis',
+              fill: false,
+              lineTension: 0.1,
+              backgroundColor: 'rgba(75,192,192,0.4)',
+              borderColor: 'rgba(75,192,192,1)',
+              borderCapStyle: 'butt',
+              borderDash: [],
+              borderDashOffset: 0.0,
+              borderJoinStyle: 'miter',
+              pointBorderColor: 'rgba(75,192,192,1)',
+              pointBackgroundColor: '#fff',
+              pointBorderWidth: 1,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+              pointHoverBorderColor: 'rgba(220,220,220,1)',
+              pointHoverBorderWidth: 2,
+              pointRadius: 1,
+              pointHitRadius: 10,
+              data: chartObject.historyOpen // from historyOpen
+            },
+            {
+              label: 'Close',
+              //yAxisID: 'stockPriceAxis',
+              fill: false,
+              lineTension: 0.1,
+              backgroundColor: 'rgba(127, 63, 191)',
+              borderColor: 'rgba(75,192,192,1)',
+              borderCapStyle: 'butt',
+              borderDash: [],
+              borderDashOffset: 0.0,
+              borderJoinStyle: 'miter',
+              pointBorderColor: 'rgba(75,192,192,1)',
+              pointBackgroundColor: '#fff',
+              pointBorderWidth: 1,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+              pointHoverBorderColor: 'rgba(220,220,220,1)',
+              pointHoverBorderWidth: 2,
+              pointRadius: 1,
+              pointHitRadius: 10,
+              data: chartObject.historyClose // from historyClose
+            }
+            //{
+            //   label: 'Volume',
+            //   yAxisID: 'stockVolumeAxis',
+            //   fill: false,
+            //   lineTension: 0.1,
+            //   backgroundColor: 'rgba(127, 63, 191)',
+            //   borderColor: 'rgba(75,192,192,1)',
+            //   borderCapStyle: 'butt',
+            //   borderDash: [],
+            //   borderDashOffset: 0.0,
+            //   borderJoinStyle: 'miter',
+            //   pointBorderColor: 'rgba(75,192,192,1)',
+            //   pointBackgroundColor: '#fff',
+            //   pointBorderWidth: 1,
+            //   pointHoverRadius: 5,
+            //   pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+            //   pointHoverBorderColor: 'rgba(220,220,220,1)',
+            //   pointHoverBorderWidth: 2,
+            //   pointRadius: 1,
+            //   pointHitRadius: 10,
+            //   data: chartObject.historyVolume // from historyVolume
+            // }
+          ]
+          // options: {
+          //   scales: {
+          //     yAxes: [{
+          //       id: 'stockPriceAxis',
+          //       type: 'linear',
+          //       position: 'left',
+          //     }, {
+          //       id: 'stockVolumeAxis',
+          //       type: 'linear',
+          //       position: 'right',
+          //       ticks: {
+          //         max: 10,
+          //         min: 0
+          //       }
+          //     }]
+          //   }
+          // }          
+        };
+
+        allCharts.push(newChart);
+      });
+
+      console.log("allCharts in P2: ", allCharts);
+      resolve();
+    });
+
+
+    p1
+      .then(p2)
+      .then(() => {
+
+        //return new Promise((resolve, reject) => {
+
+          console.log("Both promises finished", allCharts);
+
+          this.setState({
+            allUserTickerHistoricalCharts: allCharts
+          });
+
+        });
+      //});
+
   }
 
   render() {
@@ -176,6 +366,13 @@ class Test extends Component {
     ));
 
     //updateChartDataProps(this.state);
+    // generate charts for all the chart objects
+    let chartList = this.state.allUserTickerHistoricalCharts.map((stock, index) => (
+      <div>
+        <h2>Stock Name Goes Here</h2>
+        <Line data={stock} />
+      </div>
+    ));    
 
     return (
       <div className="container">
@@ -192,6 +389,8 @@ class Test extends Component {
             <h2>Apple Inc.</h2>
             <Line data={this.state.chartData} />
           </div>
+
+          {chartList}
 
           {/* <h2>Apple Inc. - Line component test</h2>
         <LineChart chartData={this.state.chartData} />
