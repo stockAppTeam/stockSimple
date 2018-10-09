@@ -33,6 +33,10 @@
     height: 500px; 
 }
 
+.drop-down-btn {
+    transition: all 0.5s;
+}
+
 .drop-down-btn:hover {
     background-color:   #127880 !important; 
     cursor: pointer; 
@@ -42,7 +46,7 @@
     .home-article-btn {
         width: 30px; 
         height: 30px; 
-        right: 50px;
+        right: 80px;
         top: 1px;
     }
     .modal-content {

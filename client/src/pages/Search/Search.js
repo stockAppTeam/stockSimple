@@ -24,7 +24,6 @@ class Search extends Component {
   constructor(props) {
     super(props);
     this.saveArticle = this.saveArticle.bind(this);
-    this.navToggle = this.navToggle.bind(this);
     this.searchVal = this.searchVal.bind(this);
     this.stockQueryName = this.stockQueryName.bind(this);
     this.stockQueryTicker = this.stockQueryTicker.bind(this);
@@ -35,8 +34,6 @@ class Search extends Component {
       isLoading: true,
       username: "",
       watchlists: [],
-      collapse: false,
-      isWideEnough: false,
       nameSearchPopulated: false,
       tickerSearchPopulated: false,
       sideSearchOpen: false,
@@ -116,13 +113,6 @@ class Search extends Component {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userID');
     window.location.reload();
-  }
-
-  // function for toggling the navbar on smaller viewports
-  navToggle() {
-    this.setState({
-      collapse: !this.state.collapse,
-    });
   }
 
 
@@ -367,8 +357,6 @@ class Search extends Component {
       <div className="search-div">
         <MainNavbar
           navToggle={this.navToggle}
-          isWideEnough={!this.state.isWideEnough}
-          collapse={this.state.collapse}
           pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}

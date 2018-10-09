@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import ArticleFunction from '../../utils/ArticleData';
 import Investment from '../../utils/InvestmentData';
+import WatchlistAdd from '../../utils/Watchlists';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
 import ModalPage from '../../components/SideApiResult';
 import Article from '../../components/Article';
 import InvestAccordion from '../../components/InvestAccordion';
+import WatchlistTab from '../../components/WatchlistTabs';
 import { Row, Col, Button } from 'mdbreact';
 import swal from 'sweetalert';
 import moment from 'moment';
@@ -16,7 +18,6 @@ class Home extends Component {
 
   constructor(props) {
     super(props);
-    this.navToggle = this.navToggle.bind(this);
     this.deleteArticle = this.deleteArticle.bind(this);
     this.handleArticleFilter = this.handleArticleFilter.bind(this);
     this.addInvestmentVal = this.addInvestmentVal.bind(this);
@@ -24,6 +25,9 @@ class Home extends Component {
     this.deleteInvestment = this.deleteInvestment.bind(this);
     this.getAllUserData = this.getAllUserData.bind(this);
     this.getInvestmentTotals = this.getInvestmentTotals.bind(this);
+    this.addFullWatchlist = this.addFullWatchlist.bind(this);
+    this.addWatchlistVal = this.addWatchlistVal.bind(this);
+    this.deleteWatchlist = this.deleteWatchlist.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -34,25 +38,21 @@ class Home extends Component {
       savedArticles: [],
       savedArticlesFilter: [],
       investments: [],
+      watchlists: [],
       addStockName: "",
       addStockTicker: "",
       addStockShares: "",
       addStockPrice: "",
+      addWatchlistName: "",
       date: moment().format("DD-MM-YYYY"),
     };
   }
 
-  // collapses the navbar at medium viewport
-  navToggle() {
-    this.setState({
-      collapse: !this.state.collapse,
-    });
-  }
   // when the page loads grab the token and userID from local storage
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
   componentDidMount() {
-    this.getAllUserData('all'); 
+    this.getAllUserData('all');
   }
 
   // gets the user data, returns specific data based on parameter passed in
@@ -69,14 +69,16 @@ class Home extends Component {
               username: res.data.name,
               savedArticles: res.data.articles,
               savedArticlesFilter: res.data.articles,
-              investments: res.data.investments
+              investments: res.data.investments,
+              watchlists: res.data.watchlists
             })
+            console.log(this.state.watchlists)
           })
           .then(() => {
             this.setState({
               isLoading: false
             })
-            this.getInvestmentTotals(); 
+            this.getInvestmentTotals();
           })
           .catch((error) => {
             if (error.response.status === 401) {
@@ -117,12 +119,12 @@ class Home extends Component {
     }
   }
 
-    // clear the web token and email from local storage when the user logs out
-    logout = () => {
-      localStorage.removeItem('jwtToken');
-      localStorage.removeItem('userID');
-      window.location.reload();
-    }
+  // clear the web token and email from local storage when the user logs out
+  logout = () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('userID');
+    window.location.reload();
+  }
 
   // grab theindex of the article clicked and pass it into delete function
   // if the server responds with success than display a message (swal) and remove the element from the state
@@ -181,6 +183,34 @@ class Home extends Component {
     this.setState(state);
   }
 
+  addWatchlistVal = (e) => {
+    const state = this.state
+    state[e.target.name] = e.target.value;
+    this.setState(state);
+  }
+
+  addFullWatchlist = (e) => {
+    let userId = localStorage.getItem('userID'); 
+    let { addWatchlistName } = this.state
+    if (addWatchlistName) {
+      WatchlistAdd.addFullWatchlist({addWatchlistName, userId})
+      .then ((res) => {
+        swal("Watchlist added", "Remember to watch for market changes", "success");
+        this.getAllUserData('watchlists')
+      })
+    } else {
+      swal({
+        title: "Cannot add empty value",
+        icon: "error",
+        dangerMode: true,
+      })
+    }
+  }
+
+  deleteWatchlist = (e) => {
+    console.log(e.target.name); 
+  }
+
   // function to add a stock to users portfolio
   addStockInvestment = (e) => {
     let { addStockName, addStockPrice, addStockShares, addStockTicker, date } = this.state;
@@ -202,7 +232,7 @@ class Home extends Component {
       Investment.addStock(stockAdded)
         .then((result) => {
           if (result.data.success) {
-            swal("Investment added", "Best of luck", "success");
+            swal("Stock added", "Best of luck", "success");
             this.getAllUserData('investments')
           }
         })
@@ -221,18 +251,18 @@ class Home extends Component {
   }
 
   getInvestmentTotals = (e) => {
-    let investedMoney = []; 
-    let moneyMade = []; 
-    let singleStockVal = []; 
+    let investedMoney = [];
+    let moneyMade = [];
+    let singleStockVal = [];
     this.state.investments.forEach((investment) => {
-      if(investment.currentPrice) {
-        let name = investment.name; 
+      if (investment.currentPrice) {
+        let name = investment.name;
         let startingVal = investment.sharesPurchased * investment.pricePurchased;
-        let currentVal = investment.sharesPurchased * investment.currentPrice; 
-        let singleStock = {name, startingVal, currentVal}; 
-        singleStockVal.push (singleStock); 
-        investedMoney.push(investment.sharesPurchased * investment.pricePurchased); 
-        moneyMade.push(investment.sharesPurchased * investment.currentPrice); 
+        let currentVal = investment.sharesPurchased * investment.currentPrice;
+        let singleStock = { name, startingVal, currentVal };
+        singleStockVal.push(singleStock);
+        investedMoney.push(investment.sharesPurchased * investment.pricePurchased);
+        moneyMade.push(investment.sharesPurchased * investment.currentPrice);
       }
     })
     console.log(singleStockVal)
@@ -246,9 +276,6 @@ class Home extends Component {
       <div className="home-div">
         <Button onClick={() => this.toggle(8)} className="home-article-btn p-2"></Button>
         <MainNavbar
-          navToggle={this.navToggle}
-          isWideEnough={!this.state.isWideEnough}
-          collapse={this.state.collapse}
           pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}
@@ -297,8 +324,38 @@ class Home extends Component {
         {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <Row className="w-100 m-0 justify-content-center">
-            <Col md="6" className="investments-col">
-              <h4 className="content-font turq-text ml-3">Watchlists</h4>
+            <Col md="6" className="investments-col p-2">
+              <div className="d-flex justify-content-between">
+                <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
+                <Dropdown size="sm">
+                  <DropdownToggle caret id="add-stock-drop">
+                    Add Watchlist
+                    </DropdownToggle>
+                  <DropdownMenu className="mr-5">
+                    <ul className="list-unstyled p-2 mb-0">
+                      <li>
+                        <input
+                          name="addWatchlistName"
+                          className="search w-100 mb-2 p-2 border-rounded"
+                          placeholder="Name"
+                          onChange={this.addWatchlistVal}
+                        />
+                      </li>
+                    </ul>
+                    <DropdownItem divider />
+                    <DropdownItem
+                      className="content-font p-2 drop-down-btn"
+                      onClick={this.addFullWatchlist}
+                    >
+                      Add a watchlist
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+              <WatchlistTab
+                watchlists={this.state.watchlists}
+                deleteWatchlist = {this.deleteWatchlist}
+              />
             </Col>
             <Col md="6" className="p-2">
               <div className="d-flex justify-content-between">

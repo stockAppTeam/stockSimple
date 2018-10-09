@@ -8,5 +8,9 @@ router
     .route("/")
     .post(watchlistControllers.addStockToWatchlist)
 
+router
+    .route("/addfull")
+    .post(watchlistControllers.addFullWatchlist)
+
 
 module.exports = router;
