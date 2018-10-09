@@ -72,7 +72,6 @@ class Home extends Component {
               investments: res.data.investments,
               watchlists: res.data.watchlists
             })
-            console.log(this.state.watchlists)
           })
           .then(() => {
             this.setState({

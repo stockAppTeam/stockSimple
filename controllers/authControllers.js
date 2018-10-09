@@ -116,13 +116,16 @@ module.exports = {
   },
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
-    let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+    let API_KEY = "";
 
+    // read from database and get all user info
     db.User.find({ _id: req.params.userID })
       .populate("articles")
       .populate("investments")
       .populate("watchlists")
       .then((data) => {
+        // watchlist info
+        console.log(data[0].watchlists)
         let tickerString = [];
         // if the user has any investments, populate and array with their ticker value 
         // return the array joined to a string and the user id
@@ -164,9 +167,10 @@ module.exports = {
               res.send(userInfo);
             })
             .catch((err) => {
-              res.send({ success: false, msg: 'Internal Error.' });
+              res.send({ success: false, msg: ' Authentication Internal Error.' });
             });
 
+            // if no investments, than return the user info as is from the db
         } else {
           let userInfo = {};
           userInfo.name = tickerString.userInfo[0].name;
