@@ -8,6 +8,7 @@ const router = express.Router();
 const User = require("../models/Users");
 const Watchlist = require("../models/Watchlists");
 const db = require('../models');
+const axios = require('axios');
 
 //helper function to check for valid email
 function validateEmail(email) {
@@ -54,22 +55,22 @@ module.exports = {
       newUser.save()
         .then(result => {
 
-        //loop over default watchlists, create one for each value and push the id of default watchlist into the new users 'watchlist' property as a reference
+          //loop over default watchlists, create one for each value and push the id of default watchlist into the new users 'watchlist' property as a reference
           defaultWatchlists.forEach((watchlists) => {
-            
-          let newWatchlist = new Watchlist({
+
+            let newWatchlist = new Watchlist({
               name: watchlists.name,
               stocks: watchlists.stocks
             });
 
             newWatchlist.save()
-            .then(newWatchId => {
-              db.User.findOneAndUpdate({ _id: result._id  }, { $push: { watchlists: newWatchId._id } }, { new: true }, function(err, res) {
-                if(err) {
-                  console.log(err)
-                }
-              });
-            })
+              .then(newWatchId => {
+                db.User.findOneAndUpdate({ _id: result._id }, { $push: { watchlists: newWatchId._id } }, { new: true }, function (err, res) {
+                  if (err) {
+                    console.log(err)
+                  }
+                });
+              })
           })
 
         })
@@ -115,24 +116,74 @@ module.exports = {
   },
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
+    let API_KEY = "";
+
+    // read from database and get all user info
     db.User.find({ _id: req.params.userID })
       .populate("articles")
       .populate("investments")
       .populate("watchlists")
-      .exec(function (err, doc) {
-        if (err) {
-          throw err;
+      .then((data) => {
+        // watchlist info
+        console.log(data[0].watchlists)
+        let tickerString = [];
+        // if the user has any investments, populate and array with their ticker value 
+        // return the array joined to a string and the user id
+        if (data[0].investments.length) {
+          data[0].investments.forEach((investment) => {
+            tickerString.push(investment.ticker)
+          })
+          return { tickerString: tickerString.join(), userInfo: data }
+
+        } else {
+          return { userInfo: data }
         }
-        else {
-          // create an object of user info and pass it into the front end with 'send' function
+      })
+      .then((tickerString) => {
+        // if the user has investments, use the returned string to generate a query
+        if (tickerString.tickerString) {
+          axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString.tickerString}&api_token=${API_KEY}`)
+            .then((stock) => {
+              let currentPriceArray = [];
+                  // make an array of objects with the ticker value and price  of ech returned stock
+              stock.data.data.forEach((stock) => {
+                currentPriceArray.push({ currentPrice: stock.price, ticker: stock.symbol })
+              })
+
+            // add the current price to the investment object passed back to the user
+              for (let i = 0; i < currentPriceArray.length; i++) {
+                for (let j = 0; j < tickerString.userInfo[0].investments.length; j++) {
+                  if (currentPriceArray[i].ticker === tickerString.userInfo[0].investments[j].ticker) {
+                    tickerString.userInfo[0].investments[j].currentPrice = currentPriceArray[i].currentPrice
+                  }
+                }
+              }
+
+              let userInfo = {};
+              userInfo.name = tickerString.userInfo[0].name;
+              userInfo.investments = tickerString.userInfo[0].investments;
+              userInfo.articles = tickerString.userInfo[0].articles;
+              userInfo.watchlists = tickerString.userInfo[0].watchlists;
+              res.send(userInfo);
+            })
+            .catch((err) => {
+              res.send({ success: false, msg: ' Authentication Internal Error.' });
+            });
+
+            // if no investments, than return the user info as is from the db
+        } else {
           let userInfo = {};
-          userInfo.name = doc[0].name; 
-          userInfo.investments = doc[0].investments;
-          userInfo.articles = doc[0].articles;
-          userInfo.watchlists = doc[0].watchlists;
+          userInfo.name = tickerString.userInfo[0].name;
+          userInfo.investments = tickerString.userInfo[0].investments;
+          userInfo.articles = tickerString.userInfo[0].articles;
+          userInfo.watchlists = tickerString.userInfo[0].watchlists;
           res.send(userInfo);
         }
-      });
+      })
+      .catch((err) => {
+        res.send({ success: false, msg: 'Server Error' });
+      })
 
   }
 }
+

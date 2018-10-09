@@ -4,10 +4,14 @@ let Schema = mongoose.Schema;
 
 // make new investment schema
 let InvestmentSchema = new Schema({
-    ticker : {
+    ticker: {
         type: String,
         unique: true,
         dropDups: true,
+        required: true
+    },
+    name: {
+        type: String,
         required: true
     },
     dateInvested: {
@@ -21,6 +25,9 @@ let InvestmentSchema = new Schema({
     pricePurchased: {
         type: Number,
         required: true
+    }, 
+    currentPrice : {
+        type: Number,
     }
 
 });

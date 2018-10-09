@@ -6,7 +6,7 @@ const axios = require("axios");
 router
     .route("/:searchType/:searchVal")
     .get((req, res) => {
-        let key = 'demo';
+        let key = '';
         let query = { searchType, searchVal} = req.params;
 
         // search type is based on the parameter sent in. For name, query by name, else query by ticker
@@ -16,7 +16,7 @@ router
                     res.send(data.data)
                 })
                 .catch((err) => {
-                    res.status(404).send({ success: false, msg: 'Internal Error.' });
+                    res.status(404).send({ success: false, msg: ' axios Internal Error.' });
                 });
         } else {
             axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${searchVal}&api_token=${key}`)
@@ -24,7 +24,7 @@ router
                     res.send(data.data)     
                 })
                 .catch((err) => {
-                    res.status(404).send({ success: false, msg: 'Internal Error.' });
+                    res.status(404).send({ success: false, msg: ' axios Internal Error.' });
                 });;
         }
 

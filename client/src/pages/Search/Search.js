@@ -24,7 +24,6 @@ class Search extends Component {
   constructor(props) {
     super(props);
     this.saveArticle = this.saveArticle.bind(this);
-    this.navToggle = this.navToggle.bind(this);
     this.searchVal = this.searchVal.bind(this);
     this.stockQueryName = this.stockQueryName.bind(this);
     this.stockQueryTicker = this.stockQueryTicker.bind(this);
@@ -35,8 +34,6 @@ class Search extends Component {
       isLoading: true,
       username: "",
       watchlists: [],
-      collapse: false,
-      isWideEnough: false,
       nameSearchPopulated: false,
       tickerSearchPopulated: false,
       sideSearchOpen: false,
@@ -116,13 +113,6 @@ class Search extends Component {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userID');
     window.location.reload();
-  }
-
-  // function for toggling the navbar on smaller viewports
-  navToggle() {
-    this.setState({
-      collapse: !this.state.collapse,
-    });
   }
 
 
@@ -205,7 +195,8 @@ class Search extends Component {
 
     if (!stockSearchName) {
       this.setState({
-        badSearchMessage: "Your query is incomplete. You need to include a name"
+        badSearchMessage: "Your query is incomplete. You need to include a name",
+        sideSearchOpen: true
       })
     } else {
       QueryStock.userStockSearch(queryObj)
@@ -217,7 +208,7 @@ class Search extends Component {
           // 'LTH' === low to high, and 'HTL' === high to low
           // API returns number as string so need to parse it
           // sorting an array of objects, so need to sort by a property of that object
-          if (searchParam === 'HTL') {
+          if (searchParam === 'LTH') {
             results.sort(function (a, b) {
               return parseFloat(a.price) - parseFloat(b.price)
             })
@@ -231,22 +222,33 @@ class Search extends Component {
           return results;
         })
         .then((sortedResults) => {
+
           // array of objects sorted based on price
-          this.setState({
-            nameSearchResult: sortedResults,
-            nameSearchResultFilter: sortedResults,
-            nameSearchPopulated: true,
-            tickerSearchPopulated: false,
-            sideSearchOpen: false,
-            stockSearchName: ""
-          })
+          if (sortedResults.length) {
+            this.setState({
+              nameSearchResult: sortedResults,
+              nameSearchResultFilter: sortedResults,
+              nameSearchPopulated: true,
+              tickerSearchPopulated: false,
+              sideSearchOpen: false,
+              stockSearchName: ""
+            })
+          } else {
+            this.setState({
+              sideSearchOpen: true,
+              badSearchMessage: "That search returned zero results. Try again"
+            })
+          }
+            return sortedResults.length
         })
-        .then(() => {
+        .then((length) => {
           // toggle the side bar after the results have come back
-          this.toggle(8)
+          console.log(length)
+          if (length) {
+            this.toggle(8)
+          }
         })
         .catch((err) => {
-          console.log(err);
           this.setState({
             badSearchMessage: "That search returned zero results. Try again"
           })
@@ -282,7 +284,6 @@ class Search extends Component {
           this.toggle(8)
         })
         .catch((err) => {
-          console.log(err);
           this.setState({
             badSearchMessage: "That search returned zero results. Try again"
           })
@@ -314,34 +315,34 @@ class Search extends Component {
   // the buttons are made by mapping the users 'watchlists' in the state and the id is passed into the 'on click' function
   // if condition used to check where the request came from because the state stores the 'search by ticker' and search by name resulst separately
   addToWatchlist = (name, watchlistId, stockInfo) => {
-    let addedStock = {name};
-        addedStock.watchListId = watchlistId; 
+    let addedStock = { name };
+    addedStock.watchListId = watchlistId;
     if (stockInfo === 'ticker') {
       let symbol = this.state.tickerSearchResult.symbol;
       addedStock.symbol = symbol;
     } else {
       addedStock.symbol = stockInfo.symbol;
     }
-    
-   WatchlistAdd.saveStockToWatchlist(addedStock)
-   .then((res) => {
-     if (res.data.success) {
-      swal({
-        title: "Complete",
-        text: res.data.message,
-        icon: "success",
-      });
-     } else {
-      swal({
-        title: "Could not add. Please try again",
-        icon: "error",
-        dangerMode: true,
-      });
-     }
-   })
-   .catch((err) => {
-     console.log(err)
-   })
+
+    WatchlistAdd.saveStockToWatchlist(addedStock)
+      .then((res) => {
+        if (res.data.success) {
+          swal({
+            title: "Complete",
+            text: res.data.message,
+            icon: "success",
+          });
+        } else {
+          swal({
+            title: "Could not add. Please try again",
+            icon: "error",
+            dangerMode: true,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
 
   }
 
@@ -356,8 +357,6 @@ class Search extends Component {
       <div className="search-div">
         <MainNavbar
           navToggle={this.navToggle}
-          isWideEnough={!this.state.isWideEnough}
-          collapse={this.state.collapse}
           pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}

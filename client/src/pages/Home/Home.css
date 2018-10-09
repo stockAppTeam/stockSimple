@@ -3,3 +3,58 @@
     min-height: inherit; 
     margin-top: 100px; 
 }
+
+.home-article-btn {
+    position: fixed;
+    width: 40px; 
+    height: 40px; 
+    right: 90px;
+    top: 5px;
+    padding: 1px; 
+    cursor: pointer;
+    z-index: 10000; 
+    background: url('../../images/article-btn.png'); 
+    background-size: cover; 
+    background-position: center; 
+    border-radius: 90% !important;
+}
+
+.modal-content {
+    margin-top: 60px; 
+}
+
+#add-stock-drop {
+    background-color:   #127880 !important; 
+    font-size: 12px; 
+}
+
+.investments-col {
+    border-right: 1px solid rgb(44, 44, 44); 
+    height: 500px; 
+}
+
+.drop-down-btn {
+    transition: all 0.5s;
+}
+
+.drop-down-btn:hover {
+    background-color:   #127880 !important; 
+    cursor: pointer; 
+}
+
+@media only screen and (max-width: 768px) {
+    .home-article-btn {
+        width: 30px; 
+        height: 30px; 
+        right: 80px;
+        top: 1px;
+    }
+    .modal-content {
+        margin-top: 50px; 
+    }
+    .investments-col {
+        border-bottom: 1px solid rgb(44, 44, 44); 
+        border-right: 0px; 
+        height: 500px; 
+    }
+  }
