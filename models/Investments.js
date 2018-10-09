@@ -25,6 +25,9 @@ let InvestmentSchema = new Schema({
     pricePurchased: {
         type: Number,
         required: true
+    }, 
+    currentPrice : {
+        type: Number,
     }
 
 });

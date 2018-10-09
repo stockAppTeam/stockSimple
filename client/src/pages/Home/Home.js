@@ -23,6 +23,7 @@ class Home extends Component {
     this.addStockInvestment = this.addStockInvestment.bind(this);
     this.deleteInvestment = this.deleteInvestment.bind(this);
     this.getAllUserData = this.getAllUserData.bind(this);
+    this.getInvestmentTotals = this.getInvestmentTotals.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -51,7 +52,7 @@ class Home extends Component {
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
   componentDidMount() {
-    this.getAllUserData('all')
+    this.getAllUserData('all'); 
   }
 
   // gets the user data, returns specific data based on parameter passed in
@@ -75,6 +76,7 @@ class Home extends Component {
             this.setState({
               isLoading: false
             })
+            this.getInvestmentTotals(); 
           })
           .catch((error) => {
             if (error.response.status === 401) {
@@ -218,6 +220,27 @@ class Home extends Component {
       })
   }
 
+  getInvestmentTotals = (e) => {
+    let investedMoney = []; 
+    let moneyMade = []; 
+    let singleStockVal = []; 
+    this.state.investments.forEach((investment) => {
+      if(investment.currentPrice) {
+        let name = investment.name; 
+        let startingVal = investment.sharesPurchased * investment.pricePurchased;
+        let currentVal = investment.sharesPurchased * investment.currentPrice; 
+        let singleStock = {name, startingVal, currentVal}; 
+        singleStockVal.push (singleStock); 
+        investedMoney.push(investment.sharesPurchased * investment.pricePurchased); 
+        moneyMade.push(investment.sharesPurchased * investment.currentPrice); 
+      }
+    })
+    console.log(singleStockVal)
+    console.log(investedMoney)
+    console.log(moneyMade)
+  }
+
+
   render() {
     return (
       <div className="home-div">
@@ -247,7 +270,7 @@ class Home extends Component {
               placeholder="Filter results by name"
               onChange={this.handleArticleFilter}
             />
-            {this.state.savedArticlesFilter.length ? (
+            {this.state.savedArticles.length ? (
               <Row className="justify-content-center bg-dark h-100">
                 {this.state.savedArticlesFilter.map((article, index) => (
                   <Article
@@ -266,7 +289,7 @@ class Home extends Component {
                 ))}
               </Row>
             ) : (
-                <h4 className="content-font text-white">No Articles Saved</h4>
+                <h4 className="content-font text-white text-center">No Articles Saved</h4>
               )}
           </div>
         </ModalPage>
@@ -329,7 +352,7 @@ class Home extends Component {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              
+
               {/* Investment accordion component */}
               <InvestAccordion
                 investments={this.state.investments}

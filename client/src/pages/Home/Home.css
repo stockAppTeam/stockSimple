@@ -25,6 +25,7 @@
 
 #add-stock-drop {
     background-color:   #127880 !important; 
+    font-size: 12px; 
 }
 
 .investments-col {
@@ -46,5 +47,10 @@
     }
     .modal-content {
         margin-top: 50px; 
+    }
+    .investments-col {
+        border-bottom: 1px solid rgb(44, 44, 44); 
+        border-right: 0px; 
+        height: 500px; 
     }
   }
