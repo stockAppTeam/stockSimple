@@ -1,6 +1,6 @@
 import React from "react";
 import "./Navbar.css";
-import { Navbar, NavbarNav, NavbarToggler, Collapse, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
+import { Navbar, NavbarNav, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
 
 const MainNavbar = props => (
     <Navbar className="nav-bg text-white content-font pt-0 pb-0 pr-2 pl-2 fixed-top" dark expand="md" scrolling>

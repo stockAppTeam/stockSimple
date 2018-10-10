@@ -4,6 +4,7 @@
     margin-top: 100px; 
 }
 
+
 .home-article-btn {
     position: fixed;
     width: 40px; 
@@ -30,7 +31,6 @@
 
 .investments-col {
     border-right: 1px solid rgb(44, 44, 44); 
-    height: 500px; 
 }
 
 .drop-down-btn {
@@ -55,6 +55,5 @@
     .investments-col {
         border-bottom: 1px solid rgb(44, 44, 44); 
         border-right: 0px; 
-        height: 500px; 
     }
   }

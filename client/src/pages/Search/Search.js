@@ -239,11 +239,10 @@ class Search extends Component {
               badSearchMessage: "That search returned zero results. Try again"
             })
           }
-            return sortedResults.length
+          return sortedResults.length
         })
         .then((length) => {
           // toggle the side bar after the results have come back
-          console.log(length)
           if (length) {
             this.toggle(8)
           }
@@ -315,16 +314,16 @@ class Search extends Component {
   // the buttons are made by mapping the users 'watchlists' in the state and the id is passed into the 'on click' function
   // if condition used to check where the request came from because the state stores the 'search by ticker' and search by name resulst separately
   addToWatchlist = (name, watchlistId, stockInfo) => {
-    let addedStock = { name };
-    addedStock.watchListId = watchlistId;
+    let addedStock =  {};
+    addedStock.id = watchlistId;
     if (stockInfo === 'ticker') {
       let symbol = this.state.tickerSearchResult.symbol;
-      addedStock.symbol = symbol;
+      addedStock.addStockToWatchListVal = symbol;
     } else {
-      addedStock.symbol = stockInfo.symbol;
+      addedStock.addStockToWatchListVal = stockInfo.symbol;
     }
 
-    WatchlistAdd.saveStockToWatchlist(addedStock)
+    WatchlistAdd.addStockToWatchList(addedStock)
       .then((res) => {
         if (res.data.success) {
           swal({
@@ -481,16 +480,15 @@ class Search extends Component {
             {/* Display the latest news articles */}
             <Row className="justify-content-center p-2">
               <Col lg="12" className="mb-2 pl-4">
-                <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
+                <h2 className="turq-text text-center content-font d-block">Latest News</h2>
               </Col>
 
               {/* render the articles and only return 5*/}
               {this.state.articleSearch.map((article, index) => {
                 if (index < 5) {
                   return (
-                    <div className="p-2">
+                    <div key={index} className="p-2">
                       <Article
-                        key={index}
                         imgLink={article.imgLink}
                         title={article.title}
                         desc={article.desc}

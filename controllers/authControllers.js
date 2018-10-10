@@ -116,7 +116,7 @@ module.exports = {
   },
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
-    let API_KEY = "";
+    let API_KEY = process.env.WORLDTRADINGDATA_API_KEY
 
     // read from database and get all user info
     db.User.find({ _id: req.params.userID })
@@ -125,7 +125,6 @@ module.exports = {
       .populate("watchlists")
       .then((data) => {
         // watchlist info
-        console.log(data[0].watchlists)
         let tickerString = [];
         // if the user has any investments, populate and array with their ticker value 
         // return the array joined to a string and the user id

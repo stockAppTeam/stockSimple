@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import ArticleFunction from '../../utils/ArticleData';
 import Investment from '../../utils/InvestmentData';
-import WatchlistAdd from '../../utils/Watchlists';
+import WatchlistFunction from '../../utils/Watchlists';
 import './Home.css';
 import MainNavbar from '../../components/Navbar';
 import ModalPage from '../../components/SideApiResult';
@@ -20,14 +20,15 @@ class Home extends Component {
     super(props);
     this.deleteArticle = this.deleteArticle.bind(this);
     this.handleArticleFilter = this.handleArticleFilter.bind(this);
-    this.addInvestmentVal = this.addInvestmentVal.bind(this);
+    this.inputVal = this.inputVal.bind(this);
     this.addStockInvestment = this.addStockInvestment.bind(this);
     this.deleteInvestment = this.deleteInvestment.bind(this);
     this.getAllUserData = this.getAllUserData.bind(this);
     this.getInvestmentTotals = this.getInvestmentTotals.bind(this);
     this.addFullWatchlist = this.addFullWatchlist.bind(this);
-    this.addWatchlistVal = this.addWatchlistVal.bind(this);
     this.deleteWatchlist = this.deleteWatchlist.bind(this);
+    this.deleteStockFromWatchlist = this.deleteStockFromWatchlist.bind(this);
+    this.addStockToWatchList = this.addStockToWatchList.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -44,6 +45,7 @@ class Home extends Component {
       addStockShares: "",
       addStockPrice: "",
       addWatchlistName: "",
+      addStockToWatchListVal: "",
       date: moment().format("DD-MM-YYYY"),
     };
   }
@@ -80,6 +82,7 @@ class Home extends Component {
             this.getInvestmentTotals();
           })
           .catch((error) => {
+            console.log(error)
             if (error.response.status === 401) {
               this.props.history.push("/login");
             }
@@ -176,27 +179,21 @@ class Home extends Component {
   }
 
   // sets the state to the values of the inputs being used to add stocks
-  addInvestmentVal = (e) => {
-    const state = this.state
-    state[e.target.name] = e.target.value;
-    this.setState(state);
-  }
-
-  addWatchlistVal = (e) => {
+  inputVal = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
     this.setState(state);
   }
 
   addFullWatchlist = (e) => {
-    let userId = localStorage.getItem('userID'); 
+    let userId = localStorage.getItem('userID');
     let { addWatchlistName } = this.state
     if (addWatchlistName) {
-      WatchlistAdd.addFullWatchlist({addWatchlistName, userId})
-      .then ((res) => {
-        swal("Watchlist added", "Remember to watch for market changes", "success");
-        this.getAllUserData('watchlists')
-      })
+      WatchlistFunction.addFullWatchlist({ addWatchlistName, userId })
+        .then((res) => {
+          swal("Watchlist added", "Remember to watch for market changes", "success");
+          this.getAllUserData('watchlists')
+        })
     } else {
       swal({
         title: "Cannot add empty value",
@@ -207,8 +204,63 @@ class Home extends Component {
   }
 
   deleteWatchlist = (e) => {
-    console.log(e.target.name); 
+    WatchlistFunction.deleteFullWatchList(e.target.name)
+      .then((res) => {
+        if (res.data.success) {
+          swal("Watchlist deleted", "You will no loner have access to this data", "success");
+          this.getAllUserData('watchlists')
+        } else {
+          swal({
+            title: "Could not delete please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      });
   }
+
+  deleteStockFromWatchlist = (id, stock) => {
+    WatchlistFunction.deleteStockFromWatchlist({ id, stock })
+      .then((res) => {
+        if (res.data.success) {
+          swal("Stock deleted", "You will no loner have access to this data", "success");
+          this.getAllUserData('watchlists')
+        } else {
+          swal({
+            title: "Could not delete please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      })
+  }
+
+  addStockToWatchList = (id) => {
+    let { addStockToWatchListVal } = this.state;
+    if (addStockToWatchListVal) {
+      WatchlistFunction.addStockToWatchList({ addStockToWatchListVal, id })
+        .then((res) => {
+          if (res.data.success) {
+            swal("Stock added", "Best of luck", "success");
+            this.getAllUserData('watchlists')
+          } else {
+            swal({
+              title: "Could not add please try again",
+              icon: "error",
+              dangerMode: true,
+            })
+          }
+        })
+    } else {
+      swal({
+        title: "You must enter a value",
+        icon: "error",
+        dangerMode: true,
+      })
+    }
+
+  }
+
 
   // function to add a stock to users portfolio
   addStockInvestment = (e) => {
@@ -264,9 +316,6 @@ class Home extends Component {
         moneyMade.push(investment.sharesPurchased * investment.currentPrice);
       }
     })
-    console.log(singleStockVal)
-    console.log(investedMoney)
-    console.log(moneyMade)
   }
 
 
@@ -322,7 +371,7 @@ class Home extends Component {
 
         {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
-          <Row className="w-100 m-0 justify-content-center">
+          <Row className="w-100 m-0 justify-content-center home-page-row">
             <Col md="6" className="investments-col p-2">
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
@@ -337,7 +386,7 @@ class Home extends Component {
                           name="addWatchlistName"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Name"
-                          onChange={this.addWatchlistVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                     </ul>
@@ -353,7 +402,11 @@ class Home extends Component {
               </div>
               <WatchlistTab
                 watchlists={this.state.watchlists}
-                deleteWatchlist = {this.deleteWatchlist}
+                deleteWatchlist={this.deleteWatchlist}
+                deleteStock={this.deleteStockFromWatchlist}
+                addStockToWatchList={this.addStockToWatchList}
+                addStockToWatchListInput={this.inputVal}
+                name={'addStockToWatchListVal'}
               />
             </Col>
             <Col md="6" className="p-2">
@@ -370,7 +423,7 @@ class Home extends Component {
                           name="addStockName"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Name"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -378,7 +431,7 @@ class Home extends Component {
                           name="addStockTicker"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Stock ticker"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -386,7 +439,7 @@ class Home extends Component {
                           name="addStockShares"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="# of shares"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -394,7 +447,7 @@ class Home extends Component {
                           name="addStockPrice"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Price"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                     </ul>

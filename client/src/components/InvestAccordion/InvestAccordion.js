@@ -5,7 +5,7 @@ import 'react-light-accordion/demo/css/index.css';
 import { ListGroup, ListGroupItem, Badge, Button } from 'mdbreact'
 
 const InvestAccordion = props => (
-    <div className="mt-4 p-3">
+    <div className="mt-1 p-3">
         {props.investments.length ? (
             <Accordion className="p-3" atomic={true}>
                 {props.investments.map((investment, index) => (

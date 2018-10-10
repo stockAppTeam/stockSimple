@@ -8,11 +8,11 @@ const SideResult = props => (
     <Modal isOpen={props.modal8} toggle={props.toggleview} fullHeight position="right">
       <ModalHeader className="w-100">
         <div className="side-result-header">
-          <div className="pt-3 side-result-title">
-          {props.title}
+          <div className="pt-3 side-result-title d-flex justify-content-between align-items-center">
+            {props.title}
+            <Button id="close-search-btn" className="turq-bg text-white" onClick={props.toggleClick}>Close</Button>
           </div>
-          <Button id="close-search-btn" className="turq-bg text-white" onClick={props.toggleClick}>Close</Button>
-      </div>
+        </div>
       </ModalHeader>
       <ModalBody>
         {props.children}
