@@ -19,7 +19,7 @@ module.exports = {
       let tickerString = tickersToFind.toString(); // Convert the array to a comma-separated string
 
       console.log('axios: About to GET from worldtradingdata');
-      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
         .then((res) => {
@@ -44,7 +44,7 @@ module.exports = {
 
       console.log(`About to find historical info in getHistoricalInfoAllTickers for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;
@@ -91,7 +91,7 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       console.log(`About to find historical info in getHistoricalInfoOneTicker for ticker: ${tickerToFind}`);
 
-      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       if (startDate.length > 0) {
         startDate = `&date_from=${startDate}`;

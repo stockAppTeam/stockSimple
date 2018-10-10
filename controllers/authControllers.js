@@ -207,8 +207,6 @@ module.exports = {
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
 
-    //let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
-
     // read from database and get all user info
     db.User.find({ _id: req.params.userID })
       .populate("articles")
@@ -256,7 +254,10 @@ module.exports = {
 
           })
           .then((nicelyFormattedData) => {
-            console.log("nicelyFormattedData", nicelyFormattedData);
+            
+            // Oct 10, 8am: To do: pass this information, along with the investments data below, to the next .then in this chain
+            // and then to the front end.
+            console.log("nicelyFormattedData from recent + historical stockAPI queries: ", nicelyFormattedData);
           });
 
 
