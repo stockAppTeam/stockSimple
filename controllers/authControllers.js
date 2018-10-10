@@ -111,11 +111,7 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
   let allHistoricalCharts = [];
 
   for (let ticker in arrayOfNicelyFormattedData) {
-    console.log(ticker);
-    //console.log(arrayOfNicelyFormattedData);
-
-    //let {} = 
-
+    //console.log(ticker);
 
     // a new chart object, to be added with the object property value being the ticker
     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
@@ -363,28 +359,32 @@ module.exports = {
           })
           .then((nicelyFormattedData) => {
 
+            let historicalChartData = createHistoricalChartData(nicelyFormattedData);
+            return { historicalChartData: historicalChartData, nicelyFormattedData: nicelyFormattedData };
+          })
+          .then((summarizedData) => {
 
-            let x = createHistoricalChartData(nicelyFormattedData);
-            console.log(x);
-            // Oct 10, 8am: To do: pass this information, along with the investments data below, to the next .then in this chain
-            // and then to the front end.
-            //console.log("nicelyFormattedData from recent + historical stockAPI queries: ", nicelyFormattedData);
+            // investment info
+            let tickerString = [];
+            // if the user has any investments, populate and array with their ticker value 
+            // return the array joined to a string and the user id
+            if (userDBInfo[0].investments.length) {
+              userDBInfo[0].investments.forEach((investment) => {
+                tickerString.push(investment.ticker)
+              });
+              return { tickerString: tickerString.join(), 
+                       userInfo: userDBInfo, 
+                       historicalChartData: summarizedData.historicalChartData, 
+                       nicelyFormattedData: summarizedData.nicelyFormattedData }
+
+            } else {
+              return { userInfo: userDBInfo }
+            }
+
+
           });
 
 
-        // investment info
-        let tickerString = [];
-        // if the user has any investments, populate and array with their ticker value 
-        // return the array joined to a string and the user id
-        if (userDBInfo[0].investments.length) {
-          userDBInfo[0].investments.forEach((investment) => {
-            tickerString.push(investment.ticker)
-          })
-          return { tickerString: tickerString.join(), userInfo: userDBInfo }
-
-        } else {
-          return { userInfo: userDBInfo }
-        }
       })
 
       // Oct 9: the code below has not yet been modified to pass the full recent/historical data for each ticker
