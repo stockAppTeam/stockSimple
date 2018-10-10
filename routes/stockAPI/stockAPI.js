@@ -16,7 +16,7 @@ router
         // Oct 5: The tickers will eventually need to come from the user information in the database
         // We will need to add the database access to a stockAPI controller
         let tickerString = "AAPL,MSFT,AMZN,GE"; // Convert the array to a comma-separated string
-        let API_KEY = "demo";
+        let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
         axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
             .then((data) => {
@@ -42,7 +42,7 @@ router
         //let endDate = "";
         let tickersToFind = ['AAPL', 'MSFT', 'AMZN', 'GE'];
         let tickerString = "AAPL,MSFT,AMZN,GE";          // Convert the array to a comma-separated string
-        let API_KEY = "demo";
+        let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
         if (startDate.length > 0) {
             startDate = `&date_from=${startDate}`;
@@ -94,7 +94,7 @@ router
             tickerToFind = "AAPL"; // If I don't pass a parameter, just use apple for now
         }
 
-        let API_KEY = "demo";
+        let API_KEY = "3whtIE7gSVsKL2UEDgl0dBbE3b1jbMcvJOYjSu2fxcHSZwWTw15yGeEMwo27";
 
         if (startDate.length > 0) {
             startDate = `&date_from=${startDate}`;
