@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const User = require("../models/Users");
 const Watchlist = require("../models/Watchlists");
+const Investment = require("../models/Investments");
+const Article = require("../models/Articles");
 const db = require("../models");
 const axios = require("axios");
 
@@ -179,6 +181,51 @@ module.exports = {
       })
       .catch(err => {
         res.send({ success: false, msg: "Server Error" });
+      });
+  },
+
+  deleteProfile: function (req, res) {
+    let { userId } = req.params;
+    db.User.find({ _id: userId })
+      .populate("articles")
+      .populate("investments")
+      .populate("watchlists")
+      .then(data => {
+        // when this returns, delete all the users data
+        if (data[0].watchlists.length) {
+          data[0].watchlists.forEach((watchlist) => {
+            Watchlist.findByIdAndRemove(watchlist._id, (err, watchlist) => {
+              if (err) throw (err)
+            });
+          })
+        }
+
+        if (data[0].investments.length) {
+          data[0].investments.forEach((investments) => {
+            Investment.findByIdAndRemove(investments._id, (err, investment) => {
+              if (err) throw (err)
+            });
+          })
+        }
+
+        if (data[0].articles.length) {
+          data[0].articles.forEach((articles) => {
+            Article.findByIdAndRemove(articles._id, (err, article) => {
+              if (err) throw (err)
+            });
+          })
+        }
+      })
+      .then(() => {
+        db.User.findByIdAndRemove(userId, (err, user) => {
+          if (err) throw (err)
+        });
+      })
+      .then((data) => {
+        res.send({ success: true, msg: "User successully deleted" });
+      })
+      .catch(err => {
+        res.send({ success: false, msg: "Could not delete" });
       });
   }
 };

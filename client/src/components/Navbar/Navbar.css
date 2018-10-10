@@ -5,6 +5,20 @@
     background-color: rgb(44, 44, 44); 
 }
 
+#page-switch-link {
+    color:  #127880 !important; 
+}
+
+.nav-dropdown {
+    padding: 10px; 
+    transition: all 0.5s; 
+}
+.nav-dropdown:hover, #page-switch-link:hover  {
+    cursor: pointer; 
+    background-color:  #127880 !important; 
+    color: white !important; 
+}
+
 .nav-logo {
     background: url('../../images/navbarLogo.png');
     -webkit-background-size: cover;
@@ -16,7 +30,3 @@
     height: 60px;
 }
 
-.nav-link:hover {
-    transform: scale(1.05); 
-    background-color: white;
-}

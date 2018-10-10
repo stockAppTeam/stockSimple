@@ -10,7 +10,7 @@ router
     .post(investmentControllers.addStock);
 
 //delete a stock from investment portfolio
-router.route("/:deleteId")
+router.route("/:deleteId/:userId")
     .delete(investmentControllers.deleteStock); 
 
 

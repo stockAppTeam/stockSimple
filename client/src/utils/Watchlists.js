@@ -9,8 +9,8 @@ const Watchlists = {
   },
 
   // delete an entire watchlist
-  deleteFullWatchList: function (watchlistId) {
-    return axios.delete(`data/watchlist/${watchlistId}`)
+  deleteFullWatchList: function (watchlistId, userId) {
+    return axios.delete(`data/watchlist/${watchlistId}/${userId}`)
   },
   // delete one of the stocks from a single watchlist
   deleteStockFromWatchlist: function (stockInfo) {

@@ -11,12 +11,12 @@ const MainNavbar = props => (
                 <NavItem className="d-flex align-items-center">
                     <Dropdown>
                         <DropdownToggle nav caret>Admin</DropdownToggle>
-                        <DropdownMenu className="mr-5">
-                            <DropdownItem>
-                                <NavLink to={props.pageSwitchLink} className="nav-link p-0">{props.pageSwitchName}</NavLink>
+                        <DropdownMenu className="mr-5 p-2">
+                            <DropdownItem className="nav-dropdown mx-auto">
+                                <NavLink id="page-switch-link" to={props.pageSwitchLink} className="p-0 nav-dropdown turq-text">{props.pageSwitchName}</NavLink>
                             </DropdownItem>
-                            <DropdownItem >Delete Profile</DropdownItem>
-                            <DropdownItem onClick={props.logout}>Log Out</DropdownItem>
+                            <DropdownItem className="nav-dropdown turq-text mx-auto" onClick={props.deleteProfile} >Delete Profile</DropdownItem>
+                            <DropdownItem className="nav-dropdown turq-text mx-auto" onClick={props.logout}>Log Out</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 </NavItem>

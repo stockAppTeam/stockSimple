@@ -17,10 +17,10 @@ router
 
 // delete an entire watchlist
 router
-    .route("/:deleteId")
+    .route("/:watchlistId/:userId")
     .delete(watchlistControllers.deleteFullWatchlist);
 
-
+//delete oe stock from a watchlist
 router
     .route("/:deleteStockId/:deleteStockName")
     .delete(watchlistControllers.deleteStockFromWatchlist);

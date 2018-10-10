@@ -28,11 +28,22 @@ module.exports = {
 
   //delete an entire watchlist using the id
   deleteFullWatchlist: function (req, res) {
-    let { deleteId } = req.params;
-
-    if (deleteId) {
-      Watchlist.findById({ _id: deleteId })
-        .then(dbWatchlist => dbWatchlist.remove())
+    let { watchlistId, userId } = req.params;
+    console.log(watchlistId)
+    if (watchlistId) {
+      Watchlist.findById({ _id: watchlistId })
+        .then((dbWatchlist) => {
+          dbWatchlist.remove()
+          .then(() => {
+            // once an investment is delete need to delete the id reference in the database
+            db.User.findOneAndUpdate({ _id: userId }, { $pull: { watchlists: watchlistId } }, { new: true },
+              function (err, res) {
+                if (err) throw err;
+              }
+            );
+          })
+          .catch(err => res.status(422).json(err)); 
+        })
         .then(success => res.send({ success: true, message: "Successfully deleted" }))
         .catch(err => res.status(422).json(err));
     } else {
@@ -42,11 +53,11 @@ module.exports = {
 
   // deletea stock from a single watchlist using the name of the ticker and watchlist id
   deleteStockFromWatchlist: function (req, res) {
-    let { deleteStockId, deleteStockName } = req.params;
+    let { deleteStockId, deleteStockName} = req.params;
 
     if (deleteStockId && deleteStockName) {
       Watchlist.findOneAndUpdate({ _id: deleteStockId }, { $pull: { stocks: deleteStockName } }, { new: true })
-        .then(success => res.send({ success: true, message: "Successfully deleted" }))
+        .then((success) => res.send({ success: true, message: "Successfully deleted" }))
         .catch(err => res.status(422).json(err));
     } else {
       res.send({ success: false, message: "Unable to delete stock from watchlist" });

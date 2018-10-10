@@ -46,11 +46,22 @@ module.exports = {
 
   // find the id of a stock and then delete it
   deleteStock: function (req, res) {
-    let { deleteId } = req.params;
-
+    let { deleteId, userId } = req.params;
+    console.log(req.params)
     if (deleteId) {
       Investment.findById({ _id: deleteId })
-        .then(dbArticle => dbArticle.remove())
+        .then((dbStock) => {
+          dbStock.remove()
+            .then(() => {
+              // once an article is delete need to delete the id reference in the database
+              db.User.findOneAndUpdate({ _id: userId }, { $pull: { investments: deleteId } }, { new: true },
+                function (err, res) {
+                  if (err) throw err;
+                }
+              );
+            })
+            .catch(err => res.status(422).json(err));
+        })
         .then(success => res.send({ success: true, message: "Successfully deleted" }))
         .catch(err => res.status(422).json(err));
     } else {

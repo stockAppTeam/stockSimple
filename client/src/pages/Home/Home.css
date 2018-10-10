@@ -40,6 +40,7 @@
 .drop-down-btn:hover {
     background-color:   #127880 !important; 
     cursor: pointer; 
+    color: white; 
 }
 
 @media only screen and (max-width: 768px) {

@@ -14,6 +14,11 @@ const auth = {
         // the token is grabbed from local storage and then used to configure the headers
         axios.defaults.headers.common['Authorization'] = authUser.token; 
         return axios.get(`auth/users/authenticate/${authUser.userID}`)
+    }, 
+
+    deleteProfile: function (deleteUser) {
+        axios.defaults.headers.common['Authorization'] = deleteUser.token; 
+        return axios.delete(`auth/users/delete/${deleteUser.userID}/${deleteUser.token}`)
     }
 }
 

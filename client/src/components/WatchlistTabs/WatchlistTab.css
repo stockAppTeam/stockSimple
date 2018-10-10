@@ -18,10 +18,12 @@
  
  .add-stock-watchlist-btn {
     transition: all 1s; 
+    text-align: center; 
  }
 
  .add-stock-watchlist-btn:hover {
     background-color: green !important; 
+    color: white; 
  }
  
 .tab-bg {

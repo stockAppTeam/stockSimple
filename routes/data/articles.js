@@ -10,7 +10,7 @@ router
     .post(articleControllers.saveArticle);
 
 // delete saveda article from database
-router.route("/:deleteId")
+router.route("/:articleId/:userId")
     .delete(articleControllers.deleteArticle);
 
 module.exports = router;

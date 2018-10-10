@@ -21,20 +21,32 @@ module.exports = {
 
       newArticle.save()
         .then(result => {
-          db.User.findOneAndUpdate({ _id: req.body.user }, { $push: { articles: result._id } }, { new: true })      
-          .then(success => res.send({success: true, message: 'Article sucessfully saved'}))
-          .catch(err => res.status(422).json(err))
+          db.User.findOneAndUpdate({ _id: req.body.user }, { $push: { articles: result._id } }, { new: true })
+            .then(success => res.send({ success: true, message: 'Article sucessfully saved' }))
+            .catch(err => res.status(422).json(err))
         })
-        .catch(err => res.send({ success: false, msg: 'You already have that saved' })); 
+        .catch(err => res.send({ success: false, msg: 'You already have that saved' }));
     }
   },
 
   deleteArticle: function (req, res) {
-   //delete and article and respond with success if it worked, otherwise throw an error
+    //delete and article and respond with success if it worked, otherwise throw an error
+    let { userId, articleId } = req.params;
     Article
-    .findById({ _id: req.params.deleteId})
-    .then(dbArticle => dbArticle.remove())       
-    .then(success => res.send({success: true, message: 'Sucessfully deleted'}))
-    .catch(err => res.status(422).json(err))
+      .findById({ _id: articleId })
+      .then((dbArticle) => {
+        dbArticle.remove()
+          .then(() => {
+            // once an article is delete need to delete the id reference in the database
+            db.User.findOneAndUpdate({ _id: userId }, { $pull: { articles: articleId } }, { new: true },
+              function (err, res) {
+                if (err) throw err;
+              }
+            );
+          })
+          .catch(err => res.status(422).json(err)); 
+      })
+      .then(success => res.send({ success: true, message: 'Sucessfully deleted' }))
+      .catch(err => res.status(422).json(err)); 
   }
 }

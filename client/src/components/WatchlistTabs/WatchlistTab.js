@@ -24,6 +24,7 @@ const WatchlistTab = props => (
                                 (() => {
                                     if (watchlist.stocks.length) {
                                         return <div>
+                                            <h6 className="content-font text-white m-1 pb-2">Currently tracking in {watchlist.name}</h6>
                                             {watchlist.stocks.map((stock, index) => (
                                                 <ListGroupItem key={index} className="d-flex justify-content-betweeen turq-text">
                                                     {stock}
@@ -45,7 +46,7 @@ const WatchlistTab = props => (
                                     <DropdownToggle caret id="add-stock-watchlist-drop">
                                         Add Stock
                                     </DropdownToggle>
-                                    <DropdownMenu className="mr-5">
+                                    <DropdownMenu className="mr-5 p-2">
                                         <ul className="list-unstyled p-2 mb-0">
                                             <li>
                                                 <input

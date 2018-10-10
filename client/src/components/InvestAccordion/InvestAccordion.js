@@ -51,7 +51,7 @@ const InvestAccordion = props => (
             </Accordion>
 
         ) : (
-                <div className="turq-text contentfont grey p-4">
+                <div className="turq-text contentfont grey p-4 mt-3">
                     <h4> No investments made </h4>
                     <p> Head over to the search page to look for stocks</p>
                 </div>

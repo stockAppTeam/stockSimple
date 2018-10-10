@@ -8,7 +8,7 @@ import ModalPage from '../../components/SideApiResult';
 import Article from '../../components/Article';
 import InvestAccordion from '../../components/InvestAccordion';
 import WatchlistTab from '../../components/WatchlistTabs';
-import { Row, Col, Button,  Dropdown, DropdownToggle, DropdownMenu, DropdownItem  } from 'mdbreact';
+import { Row, Col, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
 import swal from 'sweetalert';
 import moment from 'moment';
 import './Home.css';
@@ -28,6 +28,7 @@ class Home extends Component {
     this.deleteWatchlist = this.deleteWatchlist.bind(this);
     this.deleteStockFromWatchlist = this.deleteStockFromWatchlist.bind(this);
     this.addStockToWatchList = this.addStockToWatchList.bind(this);
+    this.deleteProfile = this.deleteProfile.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -120,6 +121,40 @@ class Home extends Component {
     }
   }
 
+  // delete the entire users portfolio
+  deleteProfile = (e) => {
+    let userAuthInfo = {
+      token: localStorage.getItem('jwtToken'),
+      userID: localStorage.getItem('userID')
+    }
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will lose all your data Forever",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          Authorize.deleteProfile(userAuthInfo)
+            .then((res) => {
+              if (res.data.success) {
+                this.logout()
+              } else {
+                swal({
+                  title: "Could not delete, Please Try again",
+                  icon: "error",
+                  dangerMode: true,
+                })
+              }
+            })
+        } else {
+          swal("Good choice!");
+        }
+      });
+
+  }
+
   // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
@@ -132,7 +167,9 @@ class Home extends Component {
   // Article function imported from 'utils' which hits back end sraping route
   deleteArticle = index => {
     let { _id } = this.state.savedArticles[index];
-    ArticleFunction.deleteArticle(_id)
+    let userId = localStorage.getItem('userID');
+
+    ArticleFunction.deleteArticle(_id, userId)
       .then((response) => {
         if (response.data.success) {
           let { savedArticles } = this.state;
@@ -202,7 +239,9 @@ class Home extends Component {
   }
 
   deleteWatchlist = (e) => {
-    WatchlistFunction.deleteFullWatchList(e.target.name)
+    let userId = localStorage.getItem('userID');
+    // e.target.name is the id of the watchlist. the watchlist id is set to the 'name' property of each button so that it can be retrieved on click
+    WatchlistFunction.deleteFullWatchList(e.target.name, userId)
       .then((res) => {
         if (res.data.success) {
           swal("Watchlist deleted", "You will no loner have access to this data", "success");
@@ -296,7 +335,10 @@ class Home extends Component {
 
   // deletes a stock from the users investment portfolio
   deleteInvestment = (e) => {
-    Investment.deleteStock(e.target.name)
+    let userId = localStorage.getItem('userID');
+    console.log(e.target.name)
+    // e.target.name is the id of the watchlist. the watchlist id is set to the 'name' property of each button so that it can be retrieved on click
+    Investment.deleteStock(e.target.name, userId)
       .then((result) => {
         if (result.data.success) {
           swal("Investment deleted", "Sorry it didnt work out", "success");
@@ -337,6 +379,7 @@ class Home extends Component {
           username={this.state.username}
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
+          deleteProfile={this.deleteProfile}
         />
         {/* Modal that toggles and displays all saved articles */}
         <ModalPage
@@ -380,7 +423,7 @@ class Home extends Component {
         {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <Row className="w-100 m-0 justify-content-center home-page-row">
-          {/* first column shows all users watchlists */}
+            {/* first column shows all users watchlists */}
             <Col md="6" className="investments-col p-2">
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
@@ -388,7 +431,7 @@ class Home extends Component {
                   <DropdownToggle caret id="add-stock-drop">
                     Add Watchlist
                   </DropdownToggle>
-                  <DropdownMenu className="mr-5">
+                  <DropdownMenu className="mr-5 p-2">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
                         <input
@@ -420,14 +463,14 @@ class Home extends Component {
               />
             </Col>
             <Col md="6" className="p-2">
-            {/* second columns shows all users investments */}
+              {/* second columns shows all users investments */}
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Investments</h4>
                 <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Stock
                   </DropdownToggle>
-                  <DropdownMenu className="mr-5">
+                  <DropdownMenu className="mr-5 p-2">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
                         <input

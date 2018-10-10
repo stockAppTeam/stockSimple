@@ -6,8 +6,8 @@ const investment = {
        return axios.post("/data/investment/", info)
     }, 
 
-    deleteStock: function (id) {
-        return axios.delete(`/data/investment/${id}`)
+    deleteStock: function (investmentId, userId) {
+        return axios.delete(`/data/investment/${investmentId}/${userId}`)
     }
 
 }

@@ -30,6 +30,7 @@ class Search extends Component {
     this.handleParam = this.handleParam.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.addToWatchlist = this.addToWatchlist.bind(this);
+    this.deleteProfile = this.deleteProfile.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -108,6 +109,40 @@ class Search extends Component {
           this.props.history.push("/login");
         }
       });
+  }
+
+  // delete the entire users portfolio
+  deleteProfile = (e) => {
+    let userAuthInfo = {
+      token: localStorage.getItem('jwtToken'),
+      userID: localStorage.getItem('userID')
+    }
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will lose all your data Forever",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          Authorize.deleteProfile(userAuthInfo)
+            .then((res) => {
+              if (res.data.success) {
+                this.logout()
+              } else {
+                swal({
+                  title: "Could not delete, Please Try again",
+                  icon: "error",
+                  dangerMode: true,
+                })
+              }
+            })
+        } else {
+          swal("Good choice!");
+        }
+      });
+
   }
 
   // clear the web token and email from local storage when the user logs out
@@ -361,6 +396,7 @@ class Search extends Component {
           username={this.state.username}
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
+          deleteProfile={this.deleteProfile}
         />
 
         {/* Side Modal that displays results. Component displayed determined by which boolean in state is true */}
