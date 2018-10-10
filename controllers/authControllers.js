@@ -18,7 +18,7 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-// Takes in an array of stock tickers. Returns an array with any duplicate entries removed from the inputs array.
+// Takes in an array of stock tickers which may contain duplicates. Returns an array with any duplicate entries removed.
 // This is used to obtain new info for all of the tickers used in the user's watchlists, to optimize the api calls to the stock website
 function removeDuplicatesFromArray(allTickers) {
   var result_array = [];
@@ -38,6 +38,73 @@ function removeDuplicatesFromArray(allTickers) {
 
   return result_array;
 }
+
+// This function will take recent and historical stock API data, and convert it to an array of objects to return to the front end.
+// The formatting of the object data returned from here will make the code much cleaner on the front end.
+// Oct 9 Note: It may be better/cleaner to move this function to the stockAPI controller and just call it like stockAPIControllers.createStockSummaryData()
+// https://zellwk.com/blog/looping-through-js-objects/
+function createStockSummaryData(recentData, historicalData) {
+
+  let arrayOfNicelyFormattedData = [];
+  let arrayOfTickers = []; // holds all the tickers that we are dealing with. Used later to combine the objects
+
+  let { data: recent } = recentData;
+
+  // For each recent data object
+  recent.map(function (recentTicker) {
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+    //arrayOfNicelyFormattedData[recentTicker.symbol] = Object.assign(newNicelyFormattedObject, recentTicker);
+    arrayOfNicelyFormattedData[recentTicker.symbol] = recentTicker;
+    arrayOfTickers.push(recentTicker.symbol);
+  });
+
+  // Now we need to loop through the historical data and build something nice
+  let allHistoryObjects = [];
+  for (let ticker in historicalData) {
+
+    let newHistoryObject = {};
+
+    // Define the properties in the object as arrays, so that we can use array.push later
+    newHistoryObject.historyDates = [];
+    newHistoryObject.historyOpen = [];
+    newHistoryObject.historyClose = [];
+    newHistoryObject.historyHigh = [];
+    newHistoryObject.historyLow = [];
+    newHistoryObject.historyVolume = [];
+
+    // Each object in the history property of the returned API data is a day in the date range
+    // each day property contains an object with open, close, etc. (see below)
+    // In order to use chart.js on the front end, the data must be in arrays, so we convert it accordingly below
+    for (let tickerDate in historicalData[ticker].history) {
+
+      newHistoryObject.ticker = historicalData[ticker].ticker;
+      newHistoryObject.historyDates.push(tickerDate);
+      newHistoryObject.historyOpen.push(historicalData[ticker].history[tickerDate].open);
+      newHistoryObject.historyClose.push(historicalData[ticker].history[tickerDate].close);
+      newHistoryObject.historyHigh.push(historicalData[ticker].history[tickerDate].high);
+      newHistoryObject.historyLow.push(historicalData[ticker].history[tickerDate].low);
+      newHistoryObject.historyVolume.push(historicalData[ticker].history[tickerDate].volume);
+    }
+
+    allHistoryObjects[historicalData[ticker].ticker] = newHistoryObject;
+  }
+
+  // Now we combine the objects created into one for each ticker. They data can be later accessed from this array by using the ticker as the key
+  for (let symbol in arrayOfTickers){
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyDates = allHistoryObjects[arrayOfTickers[symbol]].historyDates;
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyOpen = allHistoryObjects[arrayOfTickers[symbol]].historyOpen;
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyClose = allHistoryObjects[arrayOfTickers[symbol]].historyClose;
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyHigh = allHistoryObjects[arrayOfTickers[symbol]].historyHigh;
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyLow = allHistoryObjects[arrayOfTickers[symbol]].historyLow;
+    arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyVolume = allHistoryObjects[arrayOfTickers[symbol]].historyVolume;
+  }
+
+  //console.log("allHistoryObjects: ", arrayOfNicelyFormattedData);
+
+  return arrayOfNicelyFormattedData;
+}
+
 
 // Defining methods for the authorizeController
 module.exports = {
@@ -150,15 +217,16 @@ module.exports = {
       .then((userDBInfo) => {
 
         // There are two types of data that we're retrieving here: watchlists and investments; they will be handled separately.
-        // For watchlists, we get a list of all the user's watchlists and the associated tickers, and
+        // For watchlists, we get a list of all the user's watchlists and the associated tickers/symbols, and
         // then create an array of unique entries which will be used to query the stock API. There's no need to query the same ticker multiple times. Efficiency!
 
-        // watchlist info
+        // watchlist info. Iterate through each watchlist and add the assigned tickers to the allWatchlistTickers array
         let allWatchlistTickers = [];
         if (userDBInfo[0].watchlists.length) {
           userDBInfo[0].watchlists.forEach((watchlist) => {
             //console.log("watchlist stocks: ", watchlist.stocks); // gives each watchlist array, like: ["V","MA","AXP","BAC","RY"]
-            allWatchlistTickers = [...watchlist.stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one array
+            allWatchlistTickers = [...watchlist.stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
+            // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
           });
         }
 
@@ -167,21 +235,29 @@ module.exports = {
         //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
 
 
-        // Now we will create variables to hold the results of the axios calls (which return a promise), and call promise.all below so that we can be sure all the results have been obtained
-        let readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers);
+        // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
+        // so that we can be sure all the results have been obtained before continuing
+        let readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
 
         // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
         // By leaving the end date empty, it will show the stock into up to the current date
         let startDate = "2018-09-01";
         let endDate = "";
-        let readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate);
+        let readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise
 
         // Using Promise.all, we wait until the recent and historical stock queries have completed,
         // then we combine that data into an easy-to-use array of objects that the front end can take care of displaying
+        // https://stackoverflow.com/questions/28250680/how-do-i-access-previous-promise-results-in-a-then-chain
         Promise.all([readRecentStockInfo, readHistoricalStockInfo])
-        .then(([resultRecentStockInfo, resultHistoricalStockInfo])=>{
-          console.log("Here are the results of my two axios calls:", resultRecentStockInfo, resultHistoricalStockInfo);
-        })
+          .then(([resultRecentStockInfo, resultHistoricalStockInfo]) => {
+
+            // call a function which puts the two results into an array of objects that is easier to consume on the front end
+            return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
+
+          })
+          .then((nicelyFormattedData) => {
+            console.log("nicelyFormattedData", nicelyFormattedData);
+          });
 
 
         // investment info
@@ -199,12 +275,9 @@ module.exports = {
         }
       })
 
-
-
-
+      // Oct 9: the code below has not yet been modified to pass the ful recent/historical data for each ticker
+      // Do this on Oct 10th
       .then((tickerString) => {
-
-        console.log("xxxxxxxxxxxxxxxxx Tickerstring", tickerString);
 
         // if the user has investments, use the returned string to generate a query
         if (tickerString.tickerString) {
