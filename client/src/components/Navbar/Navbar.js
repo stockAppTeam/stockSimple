@@ -2,10 +2,11 @@ import React from "react";
 import "./Navbar.css";
 import { Navbar, NavbarNav, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
 
+// component is used for the navbar on both the home page and the search page
 const MainNavbar = props => (
     <Navbar className="nav-bg text-white content-font pt-0 pb-0 pr-2 pl-2 fixed-top" dark expand="md" scrolling>
         <div className="nav-logo mr-2"></div>
-        <h3 className="content-font h3 turq-text mr-2 d-inline">{props.username}</h3>
+        <h4 className="content-font h3 turq-text mr-2 d-inline">{props.username}</h4>
             <NavbarNav right>
                 <NavItem className="d-flex align-items-center">
                     <Dropdown>

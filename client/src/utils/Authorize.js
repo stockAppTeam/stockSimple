@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 const auth = {
-    // pass user object to backend to crate user. front end kicks to login when this completes
+    // pass user object to backend to create user. front end kicks to login when this completes
     register: function (newUser) {
         return axios.post("/auth/users/register", newUser)
     },

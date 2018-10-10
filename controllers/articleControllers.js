@@ -22,7 +22,7 @@ module.exports = {
       newArticle.save()
         .then(result => {
           db.User.findOneAndUpdate({ _id: req.body.user }, { $push: { articles: result._id } }, { new: true })      
-          .then(success => res.send({success: true, message: 'Sucessfully deleted'}))
+          .then(success => res.send({success: true, message: 'Article sucessfully saved'}))
           .catch(err => res.status(422).json(err))
         })
         .catch(err => res.send({ success: false, msg: 'You already have that saved' })); 

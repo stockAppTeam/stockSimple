@@ -4,16 +4,19 @@ const passport = require('passport');
 require('../../config/passport')(passport);
 
 // Matches with "/auth/users"
+
+    // route for first time user registers
 router
     .route("/register")
     .post(authControllers.create);
 
+    // route for current users logging in
 router
     .route("/login")
     .post(authControllers.login);
 
+    // this is the route hit after logging in that authenticates the user and gets all of their data
 router
-// this is the route hit after logging in that authenticates the user and gets all of their data
     .route("/authenticate/:userID")
     .get(passport.authenticate('jwt', { session: false }), function (req, res) {
         let token = getToken(req.headers);

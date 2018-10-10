@@ -1,98 +1,99 @@
-#SearchContainer {
+
+#searchContainer {
     font-family: sans-serif;
    
-  }
+}
   
-  #page-wrap {
-    text-align: center;
-  
-    /* Prevent sidebar from showing a scrollbar on page */
-    overflow: auto;
-  }
+#page-wrap {
+  text-align: center;
+
+  /* Prevent sidebar from showing a scrollbar on page */
+  overflow: auto;
+}
   
   /* Individual item */
-  .bm-item {
-    display: inline-block;
-    /* Our sidebar item styling */
-    text-decoration: none;
-    margin-bottom: 10px;
-    transition: color 0.2s;
-  }
-  
-  /* Change color on hover */
-  .bm-item:hover {
-    color: white;
-  }
-  
-  
-  /* Position and sizing of burger button */
-    .bm-burger-button {
-    position: fixed;
-    background: url('../../images/srch-img.png'); 
-    background-size: cover; 
-    background-position: center; 
-    width: 35px;
-    height: 35px;
-    right: 90px;
-    top: 0px;
-    border-radius: 85%;
-    margin: 10px; 
-  }
-
-  /* Color/shape of burger icon bars */
-  .bm-burger-bars {
-    display: none; 
-  }
-  
-  /* Position and sizing of clickable cross button */
-  .bm-cross-button {
-    height: 24px;
-    width: 24px;
-  }
-  
-  /* Color/shape of close button cross */
-  .bm-cross {
-    background: #bdc3c7;
-  }
-  
-  /* General sidebar styles */
-  .bm-menu {
-    background-color: rgb(44, 44, 44); 
-    padding: 2rem 0px;
-    font-size: 1.15em;
-    overflow: hidden !important; 
-  }
-
-  .bm-menu-wrap {
-      z-index: 2; 
-      position: fixed; 
-      top: 0; 
-  }
-  
-  /* Morph shape necessary with bubble or elastic */
-  .bm-morph-shape {
-    fill: #373a47;
-  }
-  
-  /* Wrapper for item list */
-  .bm-item-list {
-    color: #b8b7ad;
-  }
-  
-  /* Styling of overlay */
-  .bm-overlay {
-    position: fixed; 
-    top: 0; 
-  }
-
-  .active-cyan-4 input[type=text]:focus:not([readonly]) {
-    border: 2px solid  #127880;
-    box-shadow: 0 0 0 2px  #127880;
+.bm-item {
+  display: inline-block;
+  /* Our sidebar item styling */
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.2s;
 }
 
-  .active-cyan-3 input[type=text] {
-    border: 2px solid  #127880;
-    box-shadow: 0 0 0 2px  #127880;
+/* Change color on hover */
+.bm-item:hover {
+  color: white;
+}
+
+
+/* Position and sizing of burger button */
+  .bm-burger-button {
+  position: fixed;
+  background: url('../../images/srch-img.png'); 
+  background-size: cover; 
+  background-position: center; 
+  width: 35px;
+  height: 35px;
+  right: 90px;
+  top: 0px;
+  border-radius: 85%;
+  margin: 10px; 
+}
+
+/* Color/shape of burger icon bars */
+.bm-burger-bars {
+  display: none; 
+}
+
+/* Position and sizing of clickable cross button */
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+}
+
+/* Color/shape of close button cross */
+.bm-cross {
+  background: #bdc3c7;
+}
+
+/* General sidebar styles */
+.bm-menu {
+  background-color: rgb(44, 44, 44); 
+  padding: 2rem 0px;
+  font-size: 1.15em;
+  overflow: hidden !important; 
+}
+
+.bm-menu-wrap {
+    z-index: 2; 
+    position: fixed; 
+    top: 0; 
+}
+
+/* Morph shape necessary with bubble or elastic */
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+/* Wrapper for item list */
+.bm-item-list {
+  color: #b8b7ad;
+}
+
+/* Styling of overlay */
+.bm-overlay {
+  position: fixed; 
+  top: 0; 
+}
+
+.active-cyan-4 input[type=text]:focus:not([readonly]) {
+  border: 2px solid  #127880;
+  box-shadow: 0 0 0 2px  #127880;
+}
+
+.active-cyan-3 input[type=text] {
+  border: 2px solid  #127880;
+  box-shadow: 0 0 0 2px  #127880;
 }
 
 .list-group-item {
@@ -107,6 +108,11 @@
     cursor: pointer; 
     background-color: rgb(44, 44, 44); 
     border: 2px solid  white;
+}
+
+.search-row {
+  position: relative; 
+  top: 30px; 
 }
 
 @media only screen and (max-width: 768px) {
@@ -150,15 +156,47 @@
 @media only screen and (max-width: 500px)  {
 
   .bm-menu-wrap {
-    z-index: 2; 
-    position: fixed; 
-    top: 0; 
-    margin-top: 0px; 
-}
+      z-index: 2; 
+      position: fixed; 
+      top: 0; 
+      margin-top: 0px; 
+  }
 
-.search-bar-font {
-  font-size: 20px !important; 
-}
+  .search-bar-font {
+    font-size: 20px !important; 
+  }
+
+  .bm-item {
+    padding: 0px !important; 
+  }
+
+  .search-bar-font {
+    font-size: 18px !important; 
+  }
+
+  .list-group-item {
+    padding: 5px !important; 
+  }
    
+  .form-control {
+    padding: 0px 5px !important; 
+  }
 
+  #search-stock-btn {
+    height: 30px !important; 
+    padding: 0px; 
+    margin: 1px !important; 
+  }
+
+  .search-error-msg {
+    font-size: 15px; 
+  }
+
+  .search-row {
+    top: 0px; 
+  }
+
+  .modal-content {
+    margin-top: 5px !important; 
+  }
 }

@@ -23,3 +23,7 @@
  .add-stock-watchlist-btn:hover {
     background-color: green !important; 
  }
+ 
+.tab-bg {
+    border: 1px solid white; 
+}

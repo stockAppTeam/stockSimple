@@ -2,6 +2,8 @@ import React from 'react';
 import "./NameResult.css";
 import { Card, CardHeader, CardBody, Row } from 'mdbreact';
 
+// this is the component for the 'search by name' results on the search page
+//it is iterated over and one is rendered per result
 const NameResult = props => (
     <Card className="mt-4 mb-4">
             <CardHeader className="turq-bg content-font text-white h5">{props.name}</CardHeader>

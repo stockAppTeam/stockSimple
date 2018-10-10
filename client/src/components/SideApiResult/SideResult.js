@@ -2,7 +2,8 @@ import React from 'react';
 import "./SideResult.css"
 import { Container, Button, Modal, ModalBody, ModalHeader } from 'mdbreact';
 
-
+// this is the componenet for rendering the results of a 'search' query on the search page
+// different children are passed in based on whether it is a search by ticker or by name
 const SideResult = props => (
   <Container className="content-font">
     <Modal isOpen={props.modal8} toggle={props.toggleview} fullHeight position="right">

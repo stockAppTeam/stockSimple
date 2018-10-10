@@ -1,51 +1,68 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Watchlist = require("../models/Watchlists");
-const db = require("../models")
-
+const db = require("../models");
 
 // Method for controlling watchlist data
 module.exports = {
-
-
+  // add entire watchlist, use the name and user id passed in from route
   addFullWatchlist: function (req, res) {
     let { addWatchlistName, userId } = req.body;
+
     if (addWatchlistName && userId) {
       let newWatchlist = new Watchlist({
         name: addWatchlistName
       });
 
-      newWatchlist.save()
+      newWatchlist
+        .save()
         .then(result => {
           db.User.findOneAndUpdate({ _id: userId }, { $push: { watchlists: result._id } }, { new: true })
-            .then(success => res.send({ success: true, message: 'Sucessfully added watchlist' }))
-            .catch(err => res.status(422).json(err))
+            .then(success => res.send({ success: true, message: "Successfully added watchlist" }))
+            .catch(err => res.status(422).json(err));
         })
-        .catch(err => res.send({ success: false, msg: 'You already have that saved' }));
+        .catch(err => res.send({ success: false, msg: "You already have that saved" }));
+    } else {
+      res.send({ success: false, message: "Unable to add watchlist" });
     }
   },
 
+  //delete an entire watchlist using the id
   deleteFullWatchlist: function (req, res) {
-    Watchlist
-      .findById({ _id: req.params.deleteId })
-      .then(dbWatchlist => dbWatchlist.remove())
-      .then(success => res.send({ success: true, message: 'Sucessfully deleted' }))
-      .catch(err => res.status(422).json(err))
+    let { deleteId } = req.params;
+
+    if (deleteId) {
+      Watchlist.findById({ _id: deleteId })
+        .then(dbWatchlist => dbWatchlist.remove())
+        .then(success => res.send({ success: true, message: "Successfully deleted" }))
+        .catch(err => res.status(422).json(err));
+    } else {
+      res.send({ success: false, message: "Unable to delete watchlist" });
+    }
   },
 
+  // deletea stock from a single watchlist using the name of the ticker and watchlist id
   deleteStockFromWatchlist: function (req, res) {
-    console.log(req.params)
-    Watchlist.findOneAndUpdate({ _id: req.params.deleteStockId }, { $pull: { stocks: req.params.deleteStockName } }, { new: true })
-      .then(success => res.send({ success: true, message: 'Sucessfully deleted' }))
-      .catch(err => res.status(422).json(err))
+    let { deleteStockId, deleteStockName } = req.params;
+
+    if (deleteStockId && deleteStockName) {
+      Watchlist.findOneAndUpdate({ _id: deleteStockId }, { $pull: { stocks: deleteStockName } }, { new: true })
+        .then(success => res.send({ success: true, message: "Successfully deleted" }))
+        .catch(err => res.status(422).json(err));
+    } else {
+      res.send({ success: false, message: "Unable to delete stock from watchlist" });
+    }
   },
 
+  // add a stock to a watchlist and then push that value into the users stocks array
   addStockToWatchlist: function (req, res) {
-    console.log(req.body)
-    let {addStockToWatchListVal, id} = req.body; 
-    Watchlist.findOneAndUpdate({ _id: id}, { $push: { stocks: addStockToWatchListVal } }, { new: true })
-      .then(success => res.send({ success: true, message: 'Sucessfully added Stock' }))
-      .catch(err => res.status(422).json(err))
+    let { addStockToWatchListVal, id } = req.body;
+
+    if (addStockToWatchListVal && id) {
+      Watchlist.findOneAndUpdate({ _id: id }, { $push: { stocks: addStockToWatchListVal } }, { new: true })
+        .then(success => res.send({ success: true, message: "Successfully added Stock" }))
+        .catch(err => res.status(422).json(err));
+    } else {
+      res.send({ success: false, message: "Could not add stock to watchlist" });
+    }
   }
-
-
-}
+};

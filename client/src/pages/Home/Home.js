@@ -3,16 +3,15 @@ import Authorize from '../../utils/Authorize';
 import ArticleFunction from '../../utils/ArticleData';
 import Investment from '../../utils/InvestmentData';
 import WatchlistFunction from '../../utils/Watchlists';
-import './Home.css';
 import MainNavbar from '../../components/Navbar';
 import ModalPage from '../../components/SideApiResult';
 import Article from '../../components/Article';
 import InvestAccordion from '../../components/InvestAccordion';
 import WatchlistTab from '../../components/WatchlistTabs';
-import { Row, Col, Button } from 'mdbreact';
+import { Row, Col, Button,  Dropdown, DropdownToggle, DropdownMenu, DropdownItem  } from 'mdbreact';
 import swal from 'sweetalert';
 import moment from 'moment';
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
+import './Home.css';
 
 class Home extends Component {
 
@@ -136,7 +135,6 @@ class Home extends Component {
     ArticleFunction.deleteArticle(_id)
       .then((response) => {
         if (response.data.success) {
-
           let { savedArticles } = this.state;
           savedArticles = savedArticles.slice(0, index).concat(savedArticles.slice(index + 1));
           this.setState({
@@ -285,6 +283,12 @@ class Home extends Component {
           if (result.data.success) {
             swal("Stock added", "Best of luck", "success");
             this.getAllUserData('investments')
+          } else {
+            swal({
+              title: "Could not add, please try again",
+              icon: "error",
+              dangerMode: true,
+            })
           }
         })
     }
@@ -301,6 +305,9 @@ class Home extends Component {
       })
   }
 
+
+  // gets the total value all of all users investments, both in total and for each stock
+  // returns an array of the values
   getInvestmentTotals = (e) => {
     let investedMoney = [];
     let moneyMade = [];
@@ -323,6 +330,7 @@ class Home extends Component {
     return (
       <div className="home-div">
         <Button onClick={() => this.toggle(8)} className="home-article-btn p-2"></Button>
+        {/* Navbar component */}
         <MainNavbar
           pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
@@ -372,13 +380,14 @@ class Home extends Component {
         {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <Row className="w-100 m-0 justify-content-center home-page-row">
+          {/* first column shows all users watchlists */}
             <Col md="6" className="investments-col p-2">
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
                 <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Watchlist
-                    </DropdownToggle>
+                  </DropdownToggle>
                   <DropdownMenu className="mr-5">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
@@ -400,6 +409,7 @@ class Home extends Component {
                   </DropdownMenu>
                 </Dropdown>
               </div>
+              {/* populate watchlist tab component with info from the state */}
               <WatchlistTab
                 watchlists={this.state.watchlists}
                 deleteWatchlist={this.deleteWatchlist}
@@ -410,12 +420,13 @@ class Home extends Component {
               />
             </Col>
             <Col md="6" className="p-2">
+            {/* second columns shows all users investments */}
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Investments</h4>
-                <Dropdown size="sm" className="mr-3">
+                <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Stock
-                    </DropdownToggle>
+                  </DropdownToggle>
                   <DropdownMenu className="mr-5">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
