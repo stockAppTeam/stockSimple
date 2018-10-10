@@ -91,7 +91,7 @@ function createStockSummaryData(recentData, historicalData) {
   }
 
   // Now we combine the objects created into one for each ticker. They data can be later accessed from this array by using the ticker as the key
-  for (let symbol in arrayOfTickers){
+  for (let symbol in arrayOfTickers) {
     arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyDates = allHistoryObjects[arrayOfTickers[symbol]].historyDates;
     arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyOpen = allHistoryObjects[arrayOfTickers[symbol]].historyOpen;
     arrayOfNicelyFormattedData[arrayOfTickers[symbol]].historyClose = allHistoryObjects[arrayOfTickers[symbol]].historyClose;
@@ -103,6 +103,114 @@ function createStockSummaryData(recentData, historicalData) {
   //console.log("allHistoryObjects: ", arrayOfNicelyFormattedData);
 
   return arrayOfNicelyFormattedData;
+}
+
+// Builds an array of objects which contains data to directly create Line charts on the front end
+function createHistoricalChartData(arrayOfNicelyFormattedData) {
+
+  let allHistoricalCharts = [];
+
+  for (let ticker in arrayOfNicelyFormattedData) {
+    console.log(ticker);
+    //console.log(arrayOfNicelyFormattedData);
+
+    //let {} = 
+
+
+    // a new chart object, to be added with the object property value being the ticker
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
+    allHistoricalCharts[ticker] = {
+      labels: arrayOfNicelyFormattedData[ticker].historyDates, // date info from historyDates
+      datasets: [
+        {
+          label: 'Open',
+          //yAxisID: 'stockPriceAxis',
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: 'rgba(75,192,192,0.4)',
+          borderColor: 'rgba(75,192,192,1)',
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: 'rgba(75,192,192,1)',
+          pointBackgroundColor: '#fff',
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+          pointHoverBorderColor: 'rgba(220,220,220,1)',
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: arrayOfNicelyFormattedData[ticker].historyOpen // from historyOpen
+        },
+        {
+          label: 'Close',
+          //yAxisID: 'stockPriceAxis',
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: 'rgba(127, 63, 191)',
+          borderColor: 'rgba(75,192,192,1)',
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: 'rgba(75,192,192,1)',
+          pointBackgroundColor: '#fff',
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+          pointHoverBorderColor: 'rgba(220,220,220,1)',
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: arrayOfNicelyFormattedData[ticker].historyClose // from historyClose
+        }
+        //{
+        //   label: 'Volume',
+        //   yAxisID: 'stockVolumeAxis',
+        //   fill: false,
+        //   lineTension: 0.1,
+        //   backgroundColor: 'rgba(127, 63, 191)',
+        //   borderColor: 'rgba(75,192,192,1)',
+        //   borderCapStyle: 'butt',
+        //   borderDash: [],
+        //   borderDashOffset: 0.0,
+        //   borderJoinStyle: 'miter',
+        //   pointBorderColor: 'rgba(75,192,192,1)',
+        //   pointBackgroundColor: '#fff',
+        //   pointBorderWidth: 1,
+        //   pointHoverRadius: 5,
+        //   pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+        //   pointHoverBorderColor: 'rgba(220,220,220,1)',
+        //   pointHoverBorderWidth: 2,
+        //   pointRadius: 1,
+        //   pointHitRadius: 10,
+        //   data: arrayOfNicelyFormattedData[ticker].historyVolume // from historyVolume
+        // }
+      ]
+      // options: {
+      //   scales: {
+      //     yAxes: [{
+      //       id: 'stockPriceAxis',
+      //       type: 'linear',
+      //       position: 'left',
+      //     }, {
+      //       id: 'stockVolumeAxis',
+      //       type: 'linear',
+      //       position: 'right',
+      //       ticks: {
+      //         max: 10,
+      //         min: 0
+      //       }
+      //     }]
+      //   }
+      // }          
+    };
+  };
+
+  return allHistoricalCharts;
+
 }
 
 
@@ -254,10 +362,13 @@ module.exports = {
 
           })
           .then((nicelyFormattedData) => {
-            
+
+
+            let x = createHistoricalChartData(nicelyFormattedData);
+            console.log(x);
             // Oct 10, 8am: To do: pass this information, along with the investments data below, to the next .then in this chain
             // and then to the front end.
-            console.log("nicelyFormattedData from recent + historical stockAPI queries: ", nicelyFormattedData);
+            //console.log("nicelyFormattedData from recent + historical stockAPI queries: ", nicelyFormattedData);
           });
 
 
@@ -276,7 +387,7 @@ module.exports = {
         }
       })
 
-      // Oct 9: the code below has not yet been modified to pass the ful recent/historical data for each ticker
+      // Oct 9: the code below has not yet been modified to pass the full recent/historical data for each ticker
       // Do this on Oct 10th
       .then((tickerString) => {
 
