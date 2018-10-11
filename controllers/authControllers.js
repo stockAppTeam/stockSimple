@@ -364,40 +364,36 @@ module.exports = {
           })
           .then((summarizedData) => {
 
-              // investment info
-              let tickerString = [];
-              // if the user has any investments, populate and array with their ticker value 
-              // return the array joined to a string and the user id
-              if (userDBInfo[0].investments.length) {
-                userDBInfo[0].investments.forEach((investment) => {
-                  tickerString.push(investment.ticker)
-                });
-                
-                // If stock data is available, return it along with the user info from the database
-                return {
-                  tickerString: tickerString.join(),
-                  userInfo: userDBInfo,
-                  historicalChartData: summarizedData.historicalChartData,
-                  nicelyFormattedData: summarizedData.nicelyFormattedData
-                };
-              } 
-              else { // No stock data is available, so just return the user info
-                return { userInfo: userDBInfo };
-              }
+            // investment info
+            let tickerString = [];
+            // if the user has any investments, populate and array with their ticker value 
+            // return the array joined to a string and the user id
+            if (userDBInfo[0].investments.length) {
+              userDBInfo[0].investments.forEach((investment) => {
+                tickerString.push(investment.ticker)
+              });
+
+              // If stock data is available, return it along with the user info from the database
+              return {
+                tickerString: tickerString.join(),
+                userInfo: userDBInfo,
+                historicalChartData: summarizedData.historicalChartData,
+                nicelyFormattedData: summarizedData.nicelyFormattedData
+              };
+            }
+            else { // No stock data is available, so just return the user info
+              return { userInfo: userDBInfo };
+            }
           })
 
           // Oct 10, 2018: A lot of this functionality can be optimized. Even though we are differentiating between watchlists
           // and investments, we could share the code that makes the stock api calls.
           // If there is time towards the end of the project, this is what we should do. For now, just keep the existing
           // investment data intact as it was, and pass the watchlist data along with it.
-    
           .then((consolidatedUserInfo) => {
-    
-            console.log("C");
-            //console.log("consolidatedUserInfo: ", consolidatedUserInfo);
-    
+
             let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
-    
+
             // if the user has investments, use the returned string to generate a query
             if (consolidatedUserInfo.tickerString) {
               axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${consolidatedUserInfo.tickerString}&api_token=${API_KEY}`)
@@ -407,7 +403,7 @@ module.exports = {
                   stock.data.data.forEach((stock) => {
                     currentPriceArray.push({ currentPrice: stock.price, ticker: stock.symbol })
                   })
-    
+
                   // add the current price to the investment object passed back to the user
                   for (let i = 0; i < currentPriceArray.length; i++) {
                     for (let j = 0; j < consolidatedUserInfo.userInfo[0].investments.length; j++) {
@@ -416,18 +412,22 @@ module.exports = {
                       }
                     }
                   }
-    
+
                   let userInfo = {};
                   userInfo.name = consolidatedUserInfo.userInfo[0].name;
                   userInfo.investments = consolidatedUserInfo.userInfo[0].investments;
                   userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
                   userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
+                  userInfo.historicalChartData = consolidatedUserInfo.historicalChartData;
+                  userInfo.nicelyFormattedData = consolidatedUserInfo.nicelyFormattedData;
+                  console.log("userInfo: ", userInfo);
                   res.send(userInfo);
                 })
                 .catch((err) => {
+                  console.log("catching an error!", err);
                   res.send({ success: false, msg: ' Authentication Internal Error.' });
                 });
-    
+
               // if no investments, then return the user info as is from the db
             } else {
               let userInfo = {};
@@ -435,6 +435,8 @@ module.exports = {
               userInfo.investments = consolidatedUserInfo.userInfo[0].investments;
               userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
               userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
+              userInfo.historicalChartData = consolidatedUserInfo.historicalChartData;
+              userInfo.nicelyFormattedData = consolidatedUserInfo.nicelyFormattedData;              
               res.send(userInfo);
             }
           })
