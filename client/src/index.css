@@ -36,5 +36,12 @@ a {
     color: white !important; 
   }
 
+  @media only screen and (max-width: 500px) {
+    .md-form label {
+        position: absolute !important;
+        top: 0rem !important;
+        left: 0 !important;
+    }
+  }
   
    

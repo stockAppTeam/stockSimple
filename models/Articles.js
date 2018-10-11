@@ -7,21 +7,16 @@ let ArticleSchema = new Schema ({
     
     title: {
       type: String,
-      unique: true, 
-      dropDups: true, 
       required: true
     },
     link: {
       type: String,
-      required: true
     },
     desc: {
       type: String,
-      required: true
     },
     imgLink: {
       type: String,
-      required: true
     },
     date: {
      type: String

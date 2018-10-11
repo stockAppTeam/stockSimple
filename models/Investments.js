@@ -6,8 +6,6 @@ let Schema = mongoose.Schema;
 let InvestmentSchema = new Schema({
     ticker: {
         type: String,
-        unique: true,
-        dropDups: true,
         required: true
     },
     name: {

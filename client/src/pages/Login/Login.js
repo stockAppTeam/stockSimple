@@ -45,8 +45,8 @@ class Login extends Component {
     e.preventDefault();
 
     let currentUser = {
-      email: this.state.email,
-      password: this.state.password
+      email: this.state.email.trim(),
+      password: this.state.password.trim()
     }
 
     Authorize.login(currentUser)
@@ -94,18 +94,18 @@ class Login extends Component {
                     <form className="form content-font">
                       <p className="h4 text-center p-2">Login</p>
                       <div className="text-white">
-                        <Input label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
-                        <Input label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
+                        <Input className="auth-input"  label="Your email" icon="envelope" group type="email" validate error="wrong" name="email" value={email} onChange={this.onChange} success="right" />
+                        <Input className="auth-input" label="Your password" icon="lock" group type="password" validate name="password" value={password} onChange={this.onChange} />
                       </div>
                       <div className="text-center p-2 mt-1">
                         <Button className="turq-bg" type="sumbit" onSubmit={this.onSubmit} onClick={this.onSubmit}>Login</Button>
                       </div>
                       <p>
-                        Not a member ? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3" aria-hidden="true"></span>Sign up here</Link>
+                        Not a member ? <Link to="/register"><span className="glyphicon glyphicon-plus-sign mt-3 auth-message" aria-hidden="true"></span>Sign up here</Link>
                       </p>
                     </form>
                     {message !== '' &&
-                      <div className="alert alert-warning alert-dismissible bg-grey" role="alert">
+                      <div className="alert alert-warning bg-grey auth-message" role="alert">
                         {message}
                       </div>
                     }

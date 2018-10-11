@@ -22,7 +22,7 @@ module.exports = {
       let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
       axios.get(`https://www.worldtradingdata.com/api/v1/stock?symbol=${tickerString}&api_token=${API_KEY}`)
-        .then((res) => {
+        .then((res) => { 
           resolve(res.data); // Pass the data back
         });
     });

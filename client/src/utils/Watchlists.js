@@ -14,7 +14,8 @@ const Watchlists = {
   },
   // delete one of the stocks from a single watchlist
   deleteStockFromWatchlist: function (stockInfo) {
-    return axios.delete(`data/watchlist/${stockInfo.id}/${stockInfo.stock}`)
+    let stockName = stockInfo.stockName
+    return axios.put(`data/watchlist/${stockInfo.id}/${stockName}`)
   },
 
   // add a stock to one watchlist

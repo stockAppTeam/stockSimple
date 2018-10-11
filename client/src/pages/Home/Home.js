@@ -54,71 +54,71 @@ class Home extends Component {
   // pass it into authenticate function. If server responds ok, then load data
   // if not then push to login screen
   componentDidMount() {
-    this.getAllUserData('all');
+    this.getAllUserData();
   }
 
   // gets the user data, returns specific data based on parameter passed in
-  getAllUserData(update) {
+  getAllUserData() {
     let userAuthInfo = {
       token: localStorage.getItem('jwtToken'),
       userID: localStorage.getItem('userID')
     }
-    switch (update) {
-      case 'all':
-        Authorize.authenticate(userAuthInfo)
-          .then((res) => {
-            this.setState({
-              username: res.data.name,
-              savedArticles: res.data.articles,
-              savedArticlesFilter: res.data.articles,
-              investments: res.data.investments,
-              watchlists: res.data.watchlists
-            })
-          })
-          .then(() => {
-            this.setState({
-              isLoading: false
-            })
-            this.getInvestmentTotals();
-          })
-          .catch((error) => {
-            console.log(error)
-            if (error.response.status === 401) {
-              this.props.history.push("/login");
+    Authorize.authenticate(userAuthInfo)
+      .then((res) => {
+        let { nicelyFormattedData, watchlists } = res.data;
+
+        for (let i = 0; i < watchlists.length; i++) {
+          for (let j = 0; j < watchlists[i].stocks.length; j++) {
+            Object.keys(nicelyFormattedData).forEach(function (item) {
+            
+              let stockName = watchlists[i].stocks[j]; 
+
+              // ticker from the API query is all uppercase, so make sure it still matches if the user inputs a lower case value
+              if (typeof stockName === 'string') {
+                stockName = stockName.toUpperCase(); 
+              }
+ 
+              if (stockName === nicelyFormattedData[item].symbol) {
+                let stockVal = {};
+                stockVal.name = watchlists[i].stocks[j];
+                stockVal.price = nicelyFormattedData[item].price;
+                watchlists[i].stocks[j] = stockVal;
+              }
+            });
+            if (typeof watchlists[i].stocks[j] != 'object') {
+              let name = watchlists[i].stocks[j];
+              watchlists[i].stocks[j] = { name, price: 'N/A' }
             }
-          });
-        break;
-      case 'investments':
-        Authorize.authenticate(userAuthInfo)
-          .then((res) => {
-            this.setState({
-              investments: res.data.investments
-            })
-          })
-          .catch((error) => {
-            swal({
-              title: "Error. Please refresh page",
-              icon: "error",
-              dangerMode: true,
-            })
-          });
-        break;
-      case 'watchlists':
-        Authorize.authenticate(userAuthInfo)
-          .then((res) => {
-            this.setState({
-              watchlists: res.data.watchlists
-            })
-          })
-          .catch((error) => {
-            swal({
-              title: "Error. Please refresh page",
-              icon: "error",
-              dangerMode: true,
-            })
-          });
-        break;
-    }
+          }
+        }
+
+        console.log(res.data)
+        this.setState({
+          username: res.data.name,
+          savedArticles: res.data.articles,
+          savedArticlesFilter: res.data.articles,
+          investments: res.data.investments,
+          watchlists: watchlists, 
+          addStockName: "",
+          addStockTicker: "",
+          addStockShares: "",
+          addStockPrice: "",
+          addWatchlistName: "",
+          addStockToWatchListVal: "",
+        })
+      })
+      .then(() => {
+        this.setState({
+          isLoading: false
+        })
+        this.getInvestmentTotals();
+      })
+      .catch((error) => {
+        console.log(error)
+        if (error.response.status === 401) {
+          this.props.history.push("/login");
+        }
+      });
   }
 
   // delete the entire users portfolio
@@ -224,10 +224,13 @@ class Home extends Component {
     let userId = localStorage.getItem('userID');
     let { addWatchlistName } = this.state
     if (addWatchlistName) {
+
+      addWatchlistName = addWatchlistName.trim();
+
       WatchlistFunction.addFullWatchlist({ addWatchlistName, userId })
         .then((res) => {
           swal("Watchlist added", "Remember to watch for market changes", "success");
-          this.getAllUserData('watchlists')
+          this.getAllUserData()
         })
     } else {
       swal({
@@ -245,7 +248,7 @@ class Home extends Component {
       .then((res) => {
         if (res.data.success) {
           swal("Watchlist deleted", "You will no loner have access to this data", "success");
-          this.getAllUserData('watchlists')
+          this.getAllUserData()
         } else {
           swal({
             title: "Could not delete please try again",
@@ -257,11 +260,12 @@ class Home extends Component {
   }
 
   deleteStockFromWatchlist = (id, stock) => {
-    WatchlistFunction.deleteStockFromWatchlist({ id, stock })
+   let stockName = stock.name; 
+    WatchlistFunction.deleteStockFromWatchlist({ id, stockName })
       .then((res) => {
         if (res.data.success) {
           swal("Stock deleted", "You will no loner have access to this data", "success");
-          this.getAllUserData('watchlists')
+          this.getAllUserData()
         } else {
           swal({
             title: "Could not delete please try again",
@@ -275,11 +279,14 @@ class Home extends Component {
   addStockToWatchList = (id) => {
     let { addStockToWatchListVal } = this.state;
     if (addStockToWatchListVal) {
+
+      addStockToWatchListVal = addStockToWatchListVal.trim();
+
       WatchlistFunction.addStockToWatchList({ addStockToWatchListVal, id })
         .then((res) => {
           if (res.data.success) {
             swal("Stock added", "Best of luck", "success");
-            this.getAllUserData('watchlists')
+            this.getAllUserData()
           } else {
             swal({
               title: "Could not add please try again",
@@ -302,6 +309,12 @@ class Home extends Component {
   // function to add a stock to users portfolio
   addStockInvestment = (e) => {
     let { addStockName, addStockPrice, addStockShares, addStockTicker, date } = this.state;
+
+    addStockName = addStockName.trim();
+    addStockPrice = addStockPrice.trim();
+    addStockShares = addStockShares.trim();
+    addStockTicker = addStockTicker.trim();
+
     let userID = localStorage.getItem('userID');
     if (!addStockName || !addStockPrice || !addStockShares || !addStockTicker) {
       swal({
@@ -321,7 +334,7 @@ class Home extends Component {
         .then((result) => {
           if (result.data.success) {
             swal("Stock added", "Best of luck", "success");
-            this.getAllUserData('investments')
+            this.getAllUserData()
           } else {
             swal({
               title: "Could not add, please try again",
@@ -342,7 +355,7 @@ class Home extends Component {
       .then((result) => {
         if (result.data.success) {
           swal("Investment deleted", "Sorry it didnt work out", "success");
-          this.getAllUserData('investments')
+          this.getAllUserData()
         }
       })
   }
