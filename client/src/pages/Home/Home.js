@@ -67,12 +67,33 @@ class Home extends Component {
       case 'all':
         Authorize.authenticate(userAuthInfo)
           .then((res) => {
+            let { nicelyFormattedData, watchlists } = res.data;
+            console.log(nicelyFormattedData)
+
+            for (let i = 0; i < watchlists.length; i++) {
+              for (let j = 0; j < watchlists[i].stocks.length; j++) {
+                Object.keys(nicelyFormattedData).forEach(function (item) {
+                  if (watchlists[i].stocks[j] === nicelyFormattedData[item].symbol) {
+                      let stockVal = {}; 
+                      stockVal.name = watchlists[i].stocks[j]; 
+                      stockVal.price = nicelyFormattedData[item].price; 
+                      watchlists[i].stocks[j] = stockVal; 
+                  }
+                });
+                if (typeof watchlists[i].stocks[j] != 'object') {
+                  let name = watchlists[i].stocks[j]; 
+                  watchlists[i].stocks[j] = {name, price:'N/A'}
+                }
+              }
+            }
+
+
             this.setState({
               username: res.data.name,
               savedArticles: res.data.articles,
               savedArticlesFilter: res.data.articles,
               investments: res.data.investments,
-              watchlists: res.data.watchlists
+              watchlists: watchlists
             })
           })
           .then(() => {

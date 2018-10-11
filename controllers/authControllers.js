@@ -392,6 +392,16 @@ module.exports = {
           // investment data intact as it was, and pass the watchlist data along with it.
           .then((consolidatedUserInfo) => {
 
+            let historicalChartData = {}
+            for (let historicTicker in consolidatedUserInfo.historicalChartData) {
+              historicalChartData[historicTicker] = consolidatedUserInfo.historicalChartData[historicTicker];
+            }
+
+            let nicelyFormattedData = {}
+            for (let recentTicker in consolidatedUserInfo.nicelyFormattedData) {
+              nicelyFormattedData[recentTicker] = consolidatedUserInfo.nicelyFormattedData[recentTicker];
+            }
+
             let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
             // if the user has investments, use the returned string to generate a query
@@ -418,9 +428,8 @@ module.exports = {
                   userInfo.investments = consolidatedUserInfo.userInfo[0].investments;
                   userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
                   userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
-                  userInfo.historicalChartData = consolidatedUserInfo.historicalChartData;
-                  userInfo.nicelyFormattedData = consolidatedUserInfo.nicelyFormattedData;
-                  console.log("userInfo: ", userInfo);
+                  userInfo.historicalChartData = historicalChartData;
+                  userInfo.nicelyFormattedData = nicelyFormattedData;
                   res.send(userInfo);
                 })
                 .catch((err) => {
@@ -428,15 +437,16 @@ module.exports = {
                   res.send({ success: false, msg: ' Authentication Internal Error.' });
                 });
 
-              // if no investments, then return the user info as is from the db
+              // if Frn the user info as is from the db
             } else {
+
               let userInfo = {};
               userInfo.name = consolidatedUserInfo.userInfo[0].name;
               userInfo.investments = consolidatedUserInfo.userInfo[0].investments;
               userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
               userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
-              userInfo.historicalChartData = consolidatedUserInfo.historicalChartData;
-              userInfo.nicelyFormattedData = consolidatedUserInfo.nicelyFormattedData;              
+              userInfo.historicalChartData = historicalChartData;
+              userInfo.nicelyFormattedData = nicelyFormattedData;
               res.send(userInfo);
             }
           })
@@ -447,7 +457,7 @@ module.exports = {
       .catch((err) => {
         res.send({ success: false, msg: 'Server Error' });
       });
-      },
+  },
 
   deleteProfile: function (req, res) {
     let { userId } = req.params;

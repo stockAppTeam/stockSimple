@@ -27,9 +27,9 @@ const WatchlistTab = props => (
                                             <h6 className="content-font text-white m-1 pb-2">Currently tracking in {watchlist.name}</h6>
                                             {watchlist.stocks.map((stock, index) => (
                                                 <ListGroupItem key={index} className="d-flex justify-content-betweeen turq-text">
-                                                    {stock}
+                                                    {stock.name}
                                                     <div className="ml-auto">
-                                                        <Badge id="badge" className="turq-bg text-white mr-2" pill>$$$
+                                                        <Badge id="badge" className="turq-bg text-white mr-2" pill> {`$ ${stock.price}`}
                                         </Badge><i onClick={() => props.deleteStock(watchlist._id, stock)} className="fa fa-times text-danger del-watchlist-stock fa-lg"></i>
                                                     </div>
                                                 </ListGroupItem>
