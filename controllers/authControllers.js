@@ -308,7 +308,7 @@ module.exports = {
   //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
 
-    let API_KEY = process.env.WORLDTRADINGDATA_API_KEY;
+    let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
     // read from database and get all user info
     db.User.find({ _id: req.params.userID })
@@ -411,6 +411,7 @@ module.exports = {
                         consolidatedUserInfo.userInfo[0].investments[j].currentPrice = currentPriceArray[i].currentPrice
                       }
                     }
+                  }
 
                   let userInfo = {};
                   userInfo.name = consolidatedUserInfo.userInfo[0].name;
@@ -445,7 +446,8 @@ module.exports = {
 
       .catch((err) => {
         res.send({ success: false, msg: 'Server Error' });
-      }),
+      });
+      },
 
   deleteProfile: function (req, res) {
     let { userId } = req.params;
