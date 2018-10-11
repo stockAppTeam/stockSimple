@@ -325,21 +325,24 @@ module.exports = {
 
         // watchlist info. Iterate through each watchlist and add the assigned tickers to the allWatchlistTickers array
         let allWatchlistTickers = [];
+
+        // declare two empty variables, if the user. if the user has no watchlists then these will return false to the next promise
+        // the next promise checks the value of these, and only executes an APi query if they are truthy
         let readRecentStockInfo;
         let readHistoricalStockInfo;
 
 
   
-
+        // this if condition checks if the user has any watchlists, if they do not, there is no api call to retrieve stock information and therefore no error
         if (userDBInfo[0].watchlists.length) {
             for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
+              // since the user may have an empty watchlist, this makes sure there are stocks to add to the array that is passed to the API query
               if (userDBInfo[0].watchlists[i].stocks.length) {
                 allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
                 // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
               }
             }
 
-            console.log('4444444444444444', allWatchlistTickers)
             // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
             let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
             //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
@@ -363,18 +366,18 @@ module.exports = {
         // https://stackoverflow.com/questions/28250680/how-do-i-access-previous-promise-results-in-a-then-chain
         Promise.all([readRecentStockInfo, readHistoricalStockInfo])
           .then(([resultRecentStockInfo, resultHistoricalStockInfo]) => {
-            // if data has been retieved from the watchlist, return the info, else return false
-            // console.log('222222222222222222222', resultRecentStockInfo.symbols_returned)
-            console.log('33333333333333333333333333', resultHistoricalStockInfo)
-            console.log('33333333333333333333333333', resultRecentStockInfo)
+            // the first condition makes sure there is actually historical data returned
+            // the second checks to make sure the API returned some symbols
             if (resultHistoricalStockInfo && resultRecentStockInfo.symbols_returned != undefined) {
+              // for all the historical info on stocks, remove any stocks where the ticker came back undefined
+              // this avoids the createStockSummaryData throwing an error by trying to query 'undefined'
               resultHistoricalStockInfo.forEach((stock, index) => {
                 if (stock.ticker === undefined) {
                   resultHistoricalStockInfo.splice(index, 1)
                 }
               })
 
-              console.log('==================', resultHistoricalStockInfo)
+              // if there is anything left in the array after making sure there are no errors returned, than excute the error - otherwise return false
               if (resultHistoricalStockInfo.length) {
                 // call a function which puts the two results into an array of objects that is easier to consume on the front end
                 return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
@@ -413,7 +416,7 @@ module.exports = {
                 nicelyFormattedData: summarizedData.nicelyFormattedData
               };
             }
-            else { // No stock data is available, so just return the user info
+            else { // No stock data is available, so just return the user info and the data from the queries
               return {
                 userInfo: userDBInfo,
                 historicalChartData: summarizedData.historicalChartData,

@@ -34,8 +34,8 @@ class Register extends Component {
       });
   }
 
+  // checks the value of the checkbox. it is true only if the user checks it upon registering
   handleCheck = (e) => {
-    console.log(this.state.ageCheck)
     this.setState({ ageCheck: !this.state.ageCheck });
   }
 

@@ -6,7 +6,7 @@ import { Navbar, NavbarNav, NavItem, NavLink, Dropdown, DropdownToggle, Dropdown
 const MainNavbar = props => (
     <Navbar className="nav-bg text-white content-font pt-0 pb-0 pr-2 pl-2 fixed-top" dark expand="md" scrolling>
         <div className="nav-logo mr-2"></div>
-        <h4 className="content-font h3 turq-text mr-2 d-inline">{props.username}</h4>
+        <h4 className="content-font h4 turq-text mr-2 d-inline pt-2">{props.username}</h4>
             <NavbarNav right>
                 <NavItem className="d-flex align-items-center">
                     <Dropdown>

@@ -70,9 +70,10 @@ class Home extends Component {
         for (let i = 0; i < watchlists.length; i++) {
           for (let j = 0; j < watchlists[i].stocks.length; j++) {
             Object.keys(nicelyFormattedData).forEach(function (item) {
-              
+            
               let stockName = watchlists[i].stocks[j]; 
 
+              // ticker from the API query is all uppercase, so make sure it still matches if the user inputs a lower case value
               if (typeof stockName === 'string') {
                 stockName = stockName.toUpperCase(); 
               }

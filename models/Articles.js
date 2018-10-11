@@ -11,15 +11,12 @@ let ArticleSchema = new Schema ({
     },
     link: {
       type: String,
-      required: true
     },
     desc: {
       type: String,
-      required: true
     },
     imgLink: {
       type: String,
-      required: true
     },
     date: {
      type: String
