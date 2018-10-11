@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const db = require('../models');
+const axios = require("axios");
 
 
 // Defining methods for the stockAPIController
@@ -39,42 +40,52 @@ module.exports = {
   */
   getHistoricalInfoAllTickers: function (tickersToFind, startDate, endDate) {
 
-    console.log(`About to find historical info in getHistoricalInfoAllTickers for ${tickersToFind.length} tickers: ${tickersToFind}`);
+    try {
 
-    let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
+      console.log(`About to find historical info in getHistoricalInfoAllTickers for ${tickersToFind.length} tickers: ${tickersToFind}`);
 
-    if (startDate.length > 0) {
-      startDate = `&date_from=${startDate}`;
-    } else {
-      startDate = "&date_from=2018-09-01"; // No start date, so include the entire history of the stock. Keep it the start of Sept for now. Correct later to be empty string
-    }
+      let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
 
-    if (endDate.length > 0) {
-      endDate = `&date_to=${endDate}`;
-    } else {
-      endDate = ""; // No start date, so include the entire history of the stock
-    }
+      if (startDate.length > 0) {
+        startDate = `&date_from=${startDate}`;
+      } else {
+        startDate = "&date_from=2018-09-01"; // No start date, so include the entire history of the stock. Keep it the start of Sept for now. Correct later to be empty string
+      }
 
-    let arrayToReturn = [];
-    let axiosCalls = tickersToFind.map(function (ticker) {
+      if (endDate.length > 0) {
+        endDate = `&date_to=${endDate}`;
+      } else {
+        endDate = ""; // No start date, so include the entire history of the stock
+      }
 
-      // To do: add the date range parameters. For now, I've just hard-coded the 
-      axios.get(`https://www.worldtradingdata.com/api/v1/history?symbol=${ticker}${startDate}${endDate}&sort=oldest&api_token=${API_KEY}`)
-        .then(function (response) {
-          // Each response of historical data for the stock gets added to the return array in a cleaner object, to make it easier on the front end
-          arrayToReturn.push({ ticker: response.data.name, history: response.data.history });
-        });
-    });
+      // Now we will create an axios call for each ticker, then use Promise.all to wait until they are all complete before returning the data
+      let arrayToReturn = [];
+      let axiosCalls = tickersToFind.map(function (ticker) {
 
-    // Once the history information for all tickers has been obtained, return the array of objects
-    return Promise.all(axiosCalls)
-      .then(function () {
-        return arrayToReturn;
+        return axios.get(`https://www.worldtradingdata.com/api/v1/history?symbol=${ticker}${startDate}${endDate}&sort=oldest&api_token=${API_KEY}`)
+          .then(function (response) {
+            // Each response of historical data for the stock gets added to the return array in a cleaner object, to make it easier on the front end
+            arrayToReturn.push({ ticker: response.data.name, history: response.data.history });
+          });
       });
+
+      // Once the history information for all tickers has been obtained, return the array of objects
+      return Promise.all(axiosCalls)
+        .then(function () {
+          return arrayToReturn;
+        });
+
+    }
+    catch (error) {
+      console.error("Error in getHistoricalInfoAllTickers: ", error);
+    }
+
   },
 
   // This will return the historical information for one ticker only
   getHistoricalInfoOneTicker: function (tickerToFind, startDate, endDate) {
+
+    console.log("getHistoricalInfoOneTicker");
 
     // returning a promise so that we can use .then
     return new Promise(function (resolve, reject) {
