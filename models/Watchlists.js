@@ -5,8 +5,6 @@ let Schema = mongoose.Schema;
 let WatchlistSchema = new Schema({
     name: {
         type: String,
-        unique: true,
-        dropDups: true,
         required: true
     },
     stocks: [String]

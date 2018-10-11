@@ -23,6 +23,6 @@ router
 //delete oe stock from a watchlist
 router
     .route("/:deleteStockId/:deleteStockName")
-    .delete(watchlistControllers.deleteStockFromWatchlist);
+    .put(watchlistControllers.deleteStockFromWatchlist);
 
 module.exports = router;

@@ -7,8 +7,6 @@ let ArticleSchema = new Schema ({
     
     title: {
       type: String,
-      unique: true, 
-      dropDups: true, 
       required: true
     },
     link: {

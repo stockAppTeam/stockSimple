@@ -52,6 +52,8 @@ function createStockSummaryData(recentData, historicalData) {
 
   let { data: recent } = recentData;
 
+  console.log(typeof recentData)
+
   // For each recent data object
   recent.map(function (recentTicker) {
 
@@ -217,13 +219,13 @@ module.exports = {
   // controller for creating a new user
   create: function (req, res) {
     if (!req.body.age) {
-      res.json({ success: false, msg: "You must be 16 or older to use this app!" });
+      res.json({ success: false, msg: "You must be 16 or older" });
     } else if (!req.body.name || !req.body.password) {
-      res.json({ success: false, msg: "Your email, password, or username is incomplete." });
+      res.json({ success: false, msg: "Incomplete username, password, or email" });
     } else if (req.body.password.length < 12) {
-      res.json({ success: false, msg: "Your password must be at least 12 characters long." });
+      res.json({ success: false, msg: "Password must be at least 12 characters long." });
     } else if (!validateEmail(req.body.email)) {
-      res.json({ success: false, msg: "That is not a valid email address" });
+      res.json({ success: false, msg: "Invalid email address" });
     } else {
       let newUser = new User({
         name: req.body.name,
@@ -305,7 +307,6 @@ module.exports = {
       }
     );
   },
-  //controller for grabbing all user related data once the user has logged in
   loadData: function (req, res) {
 
     let API_KEY = process.env.WORLDTRADINGDATA_API_KEY || "demo";
@@ -324,46 +325,77 @@ module.exports = {
 
         // watchlist info. Iterate through each watchlist and add the assigned tickers to the allWatchlistTickers array
         let allWatchlistTickers = [];
+        let readRecentStockInfo;
+        let readHistoricalStockInfo;
+
+
+  
+
         if (userDBInfo[0].watchlists.length) {
-          userDBInfo[0].watchlists.forEach((watchlist) => {
-            //console.log("watchlist stocks: ", watchlist.stocks); // gives each watchlist array, like: ["V","MA","AXP","BAC","RY"]
-            allWatchlistTickers = [...watchlist.stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
-            // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
-          });
+            for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
+              if (userDBInfo[0].watchlists[i].stocks.length) {
+                allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
+                // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
+              }
+            }
+
+            console.log('4444444444444444', allWatchlistTickers)
+            // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
+            let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
+            //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
+
+
+            // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
+            // so that we can be sure all the results have been obtained before continuing
+            readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
+
+
+            // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
+            // By leaving the end date empty, it will show the stock into up to the current date
+            let startDate = "2018-09-01";
+            let endDate = "";
+            readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise 
         }
-
-        // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
-        let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
-        //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
-
-
-        // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
-        // so that we can be sure all the results have been obtained before continuing
-        let readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
-
-        // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
-        // By leaving the end date empty, it will show the stock into up to the current date
-        let startDate = "2018-09-01";
-        let endDate = "";
-        let readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise
+        //if the user does not have watchlists return false for the values being passed into the promise.all
 
         // Using Promise.all, we wait until the recent and historical stock queries have completed,
         // then we combine that data into an easy-to-use array of objects that the front end can take care of displaying
         // https://stackoverflow.com/questions/28250680/how-do-i-access-previous-promise-results-in-a-then-chain
         Promise.all([readRecentStockInfo, readHistoricalStockInfo])
           .then(([resultRecentStockInfo, resultHistoricalStockInfo]) => {
+            // if data has been retieved from the watchlist, return the info, else return false
+            // console.log('222222222222222222222', resultRecentStockInfo.symbols_returned)
+            console.log('33333333333333333333333333', resultHistoricalStockInfo)
+            console.log('33333333333333333333333333', resultRecentStockInfo)
+            if (resultHistoricalStockInfo && resultRecentStockInfo.symbols_returned != undefined) {
+              resultHistoricalStockInfo.forEach((stock, index) => {
+                if (stock.ticker === undefined) {
+                  resultHistoricalStockInfo.splice(index, 1)
+                }
+              })
 
-            // call a function which puts the two results into an array of objects that is easier to consume on the front end
-            return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
+              console.log('==================', resultHistoricalStockInfo)
+              if (resultHistoricalStockInfo.length) {
+                // call a function which puts the two results into an array of objects that is easier to consume on the front end
+                return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
+              } else {
+                return false; 
+              }
+            } else {
+              return false;
+            }
 
           })
           .then((nicelyFormattedData) => {
-
-            let historicalChartData = createHistoricalChartData(nicelyFormattedData);
-            return { historicalChartData: historicalChartData, nicelyFormattedData: nicelyFormattedData };
+            // if there is formatted data, return it, other wise return false
+            if (nicelyFormattedData) {
+              let historicalChartData = createHistoricalChartData(nicelyFormattedData);
+              return { historicalChartData: historicalChartData, nicelyFormattedData: nicelyFormattedData };
+            } else {
+              return false;
+            }
           })
           .then((summarizedData) => {
-
             // investment info
             let tickerString = [];
             // if the user has any investments, populate and array with their ticker value 
@@ -382,7 +414,11 @@ module.exports = {
               };
             }
             else { // No stock data is available, so just return the user info
-              return { userInfo: userDBInfo };
+              return {
+                userInfo: userDBInfo,
+                historicalChartData: summarizedData.historicalChartData,
+                nicelyFormattedData: summarizedData.nicelyFormattedData
+              };
             }
           })
 
@@ -410,9 +446,14 @@ module.exports = {
                 .then((stock) => {
                   let currentPriceArray = [];
                   // make an array of objects with the ticker value and price  of ech returned stock
-                  stock.data.data.forEach((stock) => {
-                    currentPriceArray.push({ currentPrice: stock.price, ticker: stock.symbol })
-                  })
+
+                  // make sure there is something to iterate over
+                  if (stock.data.data) {
+                    stock.data.data.forEach((stock) => {
+                      currentPriceArray.push({ currentPrice: stock.price, ticker: stock.symbol })
+                    })
+                  }
+
 
                   // add the current price to the investment object passed back to the user
                   for (let i = 0; i < currentPriceArray.length; i++) {
@@ -455,7 +496,8 @@ module.exports = {
       })
 
       .catch((err) => {
-        res.send({ success: false, msg: 'Server Error' });
+        console.log(err)
+        res.send({ success: false, msg: 'Data loading Error' });
       });
   },
 

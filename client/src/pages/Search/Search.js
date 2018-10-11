@@ -262,7 +262,8 @@ class Search extends Component {
               nameSearchPopulated: true,
               tickerSearchPopulated: false,
               sideSearchOpen: false,
-              stockSearchName: ""
+              stockSearchName: "",
+              stockSearchTicker: ""
             })
           } else {
             this.setState({
@@ -306,6 +307,7 @@ class Search extends Component {
             tickerSearchPopulated: true,
             nameSearchPopulated: false,
             sideSearchOpen: false,
+            stockSearchName: "",
             stockSearchTicker: ""
           })
         })
