@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import Authorize from '../../utils/Authorize';
 import ArticleFunction from '../../utils/ArticleData';
 import Investment from '../../utils/InvestmentData';
-import WatchlistAdd from '../../utils/Watchlists';
-import './Home.css';
+import WatchlistFunction from '../../utils/Watchlists';
 import MainNavbar from '../../components/Navbar';
 import ModalPage from '../../components/SideApiResult';
 import Article from '../../components/Article';
 import InvestAccordion from '../../components/InvestAccordion';
 import WatchlistTab from '../../components/WatchlistTabs';
-import { Row, Col, Button } from 'mdbreact';
+import { Row, Col, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
 import swal from 'sweetalert';
 import moment from 'moment';
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
+import './Home.css';
 
 class Home extends Component {
 
@@ -20,14 +19,16 @@ class Home extends Component {
     super(props);
     this.deleteArticle = this.deleteArticle.bind(this);
     this.handleArticleFilter = this.handleArticleFilter.bind(this);
-    this.addInvestmentVal = this.addInvestmentVal.bind(this);
+    this.inputVal = this.inputVal.bind(this);
     this.addStockInvestment = this.addStockInvestment.bind(this);
     this.deleteInvestment = this.deleteInvestment.bind(this);
     this.getAllUserData = this.getAllUserData.bind(this);
     this.getInvestmentTotals = this.getInvestmentTotals.bind(this);
     this.addFullWatchlist = this.addFullWatchlist.bind(this);
-    this.addWatchlistVal = this.addWatchlistVal.bind(this);
     this.deleteWatchlist = this.deleteWatchlist.bind(this);
+    this.deleteStockFromWatchlist = this.deleteStockFromWatchlist.bind(this);
+    this.addStockToWatchList = this.addStockToWatchList.bind(this);
+    this.deleteProfile = this.deleteProfile.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -44,6 +45,7 @@ class Home extends Component {
       addStockShares: "",
       addStockPrice: "",
       addWatchlistName: "",
+      addStockToWatchListVal: "",
       date: moment().format("DD-MM-YYYY"),
     };
   }
@@ -80,6 +82,7 @@ class Home extends Component {
             this.getInvestmentTotals();
           })
           .catch((error) => {
+            console.log(error)
             if (error.response.status === 401) {
               this.props.history.push("/login");
             }
@@ -118,6 +121,40 @@ class Home extends Component {
     }
   }
 
+  // delete the entire users portfolio
+  deleteProfile = (e) => {
+    let userAuthInfo = {
+      token: localStorage.getItem('jwtToken'),
+      userID: localStorage.getItem('userID')
+    }
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will lose all your data Forever",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          Authorize.deleteProfile(userAuthInfo)
+            .then((res) => {
+              if (res.data.success) {
+                this.logout()
+              } else {
+                swal({
+                  title: "Could not delete, Please Try again",
+                  icon: "error",
+                  dangerMode: true,
+                })
+              }
+            })
+        } else {
+          swal("Good choice!");
+        }
+      });
+
+  }
+
   // clear the web token and email from local storage when the user logs out
   logout = () => {
     localStorage.removeItem('jwtToken');
@@ -130,10 +167,11 @@ class Home extends Component {
   // Article function imported from 'utils' which hits back end sraping route
   deleteArticle = index => {
     let { _id } = this.state.savedArticles[index];
-    ArticleFunction.deleteArticle(_id)
+    let userId = localStorage.getItem('userID');
+
+    ArticleFunction.deleteArticle(_id, userId)
       .then((response) => {
         if (response.data.success) {
-
           let { savedArticles } = this.state;
           savedArticles = savedArticles.slice(0, index).concat(savedArticles.slice(index + 1));
           this.setState({
@@ -176,27 +214,21 @@ class Home extends Component {
   }
 
   // sets the state to the values of the inputs being used to add stocks
-  addInvestmentVal = (e) => {
-    const state = this.state
-    state[e.target.name] = e.target.value;
-    this.setState(state);
-  }
-
-  addWatchlistVal = (e) => {
+  inputVal = (e) => {
     const state = this.state
     state[e.target.name] = e.target.value;
     this.setState(state);
   }
 
   addFullWatchlist = (e) => {
-    let userId = localStorage.getItem('userID'); 
+    let userId = localStorage.getItem('userID');
     let { addWatchlistName } = this.state
     if (addWatchlistName) {
-      WatchlistAdd.addFullWatchlist({addWatchlistName, userId})
-      .then ((res) => {
-        swal("Watchlist added", "Remember to watch for market changes", "success");
-        this.getAllUserData('watchlists')
-      })
+      WatchlistFunction.addFullWatchlist({ addWatchlistName, userId })
+        .then((res) => {
+          swal("Watchlist added", "Remember to watch for market changes", "success");
+          this.getAllUserData('watchlists')
+        })
     } else {
       swal({
         title: "Cannot add empty value",
@@ -207,8 +239,65 @@ class Home extends Component {
   }
 
   deleteWatchlist = (e) => {
-    console.log(e.target.name); 
+    let userId = localStorage.getItem('userID');
+    // e.target.name is the id of the watchlist. the watchlist id is set to the 'name' property of each button so that it can be retrieved on click
+    WatchlistFunction.deleteFullWatchList(e.target.name, userId)
+      .then((res) => {
+        if (res.data.success) {
+          swal("Watchlist deleted", "You will no loner have access to this data", "success");
+          this.getAllUserData('watchlists')
+        } else {
+          swal({
+            title: "Could not delete please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      });
   }
+
+  deleteStockFromWatchlist = (id, stock) => {
+    WatchlistFunction.deleteStockFromWatchlist({ id, stock })
+      .then((res) => {
+        if (res.data.success) {
+          swal("Stock deleted", "You will no loner have access to this data", "success");
+          this.getAllUserData('watchlists')
+        } else {
+          swal({
+            title: "Could not delete please try again",
+            icon: "error",
+            dangerMode: true,
+          })
+        }
+      })
+  }
+
+  addStockToWatchList = (id) => {
+    let { addStockToWatchListVal } = this.state;
+    if (addStockToWatchListVal) {
+      WatchlistFunction.addStockToWatchList({ addStockToWatchListVal, id })
+        .then((res) => {
+          if (res.data.success) {
+            swal("Stock added", "Best of luck", "success");
+            this.getAllUserData('watchlists')
+          } else {
+            swal({
+              title: "Could not add please try again",
+              icon: "error",
+              dangerMode: true,
+            })
+          }
+        })
+    } else {
+      swal({
+        title: "You must enter a value",
+        icon: "error",
+        dangerMode: true,
+      })
+    }
+
+  }
+
 
   // function to add a stock to users portfolio
   addStockInvestment = (e) => {
@@ -233,6 +322,12 @@ class Home extends Component {
           if (result.data.success) {
             swal("Stock added", "Best of luck", "success");
             this.getAllUserData('investments')
+          } else {
+            swal({
+              title: "Could not add, please try again",
+              icon: "error",
+              dangerMode: true,
+            })
           }
         })
     }
@@ -240,7 +335,10 @@ class Home extends Component {
 
   // deletes a stock from the users investment portfolio
   deleteInvestment = (e) => {
-    Investment.deleteStock(e.target.name)
+    let userId = localStorage.getItem('userID');
+    console.log(e.target.name)
+    // e.target.name is the id of the watchlist. the watchlist id is set to the 'name' property of each button so that it can be retrieved on click
+    Investment.deleteStock(e.target.name, userId)
       .then((result) => {
         if (result.data.success) {
           swal("Investment deleted", "Sorry it didnt work out", "success");
@@ -249,6 +347,9 @@ class Home extends Component {
       })
   }
 
+
+  // gets the total value all of all users investments, both in total and for each stock
+  // returns an array of the values
   getInvestmentTotals = (e) => {
     let investedMoney = [];
     let moneyMade = [];
@@ -264,9 +365,6 @@ class Home extends Component {
         moneyMade.push(investment.sharesPurchased * investment.currentPrice);
       }
     })
-    console.log(singleStockVal)
-    console.log(investedMoney)
-    console.log(moneyMade)
   }
 
 
@@ -274,12 +372,14 @@ class Home extends Component {
     return (
       <div className="home-div">
         <Button onClick={() => this.toggle(8)} className="home-article-btn p-2"></Button>
+        {/* Navbar component */}
         <MainNavbar
           pageName={'Stock Simple'}
           logout={localStorage.getItem('jwtToken') && this.logout}
           username={this.state.username}
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
+          deleteProfile={this.deleteProfile}
         />
         {/* Modal that toggles and displays all saved articles */}
         <ModalPage
@@ -322,22 +422,23 @@ class Home extends Component {
 
         {/* ternary that covers all visible components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
-          <Row className="w-100 m-0 justify-content-center">
+          <Row className="w-100 m-0 justify-content-center home-page-row">
+            {/* first column shows all users watchlists */}
             <Col md="6" className="investments-col p-2">
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
                 <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Watchlist
-                    </DropdownToggle>
-                  <DropdownMenu className="mr-5">
+                  </DropdownToggle>
+                  <DropdownMenu className="mr-5 p-2">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
                         <input
                           name="addWatchlistName"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Name"
-                          onChange={this.addWatchlistVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                     </ul>
@@ -351,26 +452,32 @@ class Home extends Component {
                   </DropdownMenu>
                 </Dropdown>
               </div>
+              {/* populate watchlist tab component with info from the state */}
               <WatchlistTab
                 watchlists={this.state.watchlists}
-                deleteWatchlist = {this.deleteWatchlist}
+                deleteWatchlist={this.deleteWatchlist}
+                deleteStock={this.deleteStockFromWatchlist}
+                addStockToWatchList={this.addStockToWatchList}
+                addStockToWatchListInput={this.inputVal}
+                name={'addStockToWatchListVal'}
               />
             </Col>
             <Col md="6" className="p-2">
+              {/* second columns shows all users investments */}
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Investments</h4>
-                <Dropdown size="sm" className="mr-3">
+                <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Stock
-                    </DropdownToggle>
-                  <DropdownMenu className="mr-5">
+                  </DropdownToggle>
+                  <DropdownMenu className="mr-5 p-2">
                     <ul className="list-unstyled p-2 mb-0">
                       <li>
                         <input
                           name="addStockName"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Name"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -378,7 +485,7 @@ class Home extends Component {
                           name="addStockTicker"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Stock ticker"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -386,7 +493,7 @@ class Home extends Component {
                           name="addStockShares"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="# of shares"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                       <li>
@@ -394,7 +501,7 @@ class Home extends Component {
                           name="addStockPrice"
                           className="search w-100 mb-2 p-2 border-rounded"
                           placeholder="Price"
-                          onChange={this.addInvestmentVal}
+                          onChange={this.inputVal}
                         />
                       </li>
                     </ul>

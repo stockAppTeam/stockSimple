@@ -95,3 +95,10 @@
     50% { opacity: 0.8; }
     100% { opacity: 0; }
 }
+
+@media only screen and (max-width: 425px) {
+    #page-wrap {
+        margin-top: 30px; 
+    }
+  
+  }

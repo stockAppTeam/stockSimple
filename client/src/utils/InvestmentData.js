@@ -1,13 +1,13 @@
 const axios = require('axios')
 
+// routes to both add a stock and delete a stock from the users investments
 const investment = {
-    // pass user object to backend to crate user. front end kicks to login when this completes
     addStock: function (info) {
        return axios.post("/data/investment/", info)
     }, 
 
-    deleteStock: function (id) {
-        return axios.delete(`/data/investment/${id}`)
+    deleteStock: function (investmentId, userId) {
+        return axios.delete(`/data/investment/${investmentId}/${userId}`)
     }
 
 }

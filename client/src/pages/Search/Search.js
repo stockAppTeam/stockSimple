@@ -4,7 +4,6 @@ import SearchFunction from '../../utils/ScrapeFunctions';
 import ArticleFunction from '../../utils/ArticleData';
 import QueryStock from '../../utils/StockAPI';
 import WatchlistAdd from '../../utils/Watchlists';
-import './Search.css';
 import MainNavbar from '../../components/Navbar';
 import Article from '../../components/Article';
 import SearchBar from '../../components/SearchBar';
@@ -16,6 +15,7 @@ import moment from 'moment';
 import { Row, Col } from 'mdbreact';
 import swal from 'sweetalert';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact'
+import './Search.css';
 
 
 
@@ -30,6 +30,7 @@ class Search extends Component {
     this.handleParam = this.handleParam.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.addToWatchlist = this.addToWatchlist.bind(this);
+    this.deleteProfile = this.deleteProfile.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -78,7 +79,9 @@ class Search extends Component {
 
 
   // when the page loads grab the token and userID from local storage
-  // pass it into authenticate function. If server responds ok, then load data
+  // pass it into authenticate function.
+  //if server responds ok than populate watchlists (used for the 'add to watchlist' feature of the search page)
+  // then scrape websites for articles, then set is loading to false to remove to loading icon
   // if not then push to login screen
   componentDidMount() {
     let userAuthInfo = {
@@ -106,6 +109,40 @@ class Search extends Component {
           this.props.history.push("/login");
         }
       });
+  }
+
+  // delete the entire users portfolio
+  deleteProfile = (e) => {
+    let userAuthInfo = {
+      token: localStorage.getItem('jwtToken'),
+      userID: localStorage.getItem('userID')
+    }
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will lose all your data Forever",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          Authorize.deleteProfile(userAuthInfo)
+            .then((res) => {
+              if (res.data.success) {
+                this.logout()
+              } else {
+                swal({
+                  title: "Could not delete, Please Try again",
+                  icon: "error",
+                  dangerMode: true,
+                })
+              }
+            })
+        } else {
+          swal("Good choice!");
+        }
+      });
+
   }
 
   // clear the web token and email from local storage when the user logs out
@@ -140,19 +177,13 @@ class Search extends Component {
 
 
   //function saves article. It finds the selected article by getting the array element with the index passed in from the 'map function'
+  // when the server responds with succuess, filter through the articles array of the state to remove the one that was just saved and sisplay a message
   saveArticle = index => {
     let { title, link, desc, imgLink } = this.state.articleSearch[index];
     let date = this.state.date;
     let user = localStorage.getItem('userID');
 
-    ArticleFunction.saveArticle({
-      user,
-      title,
-      link,
-      desc,
-      imgLink,
-      date
-    })
+    ArticleFunction.saveArticle({ user, title, link, desc, imgLink, date })
       .then((response) => {
         if (response.data.success) {
           this.setState({
@@ -239,11 +270,10 @@ class Search extends Component {
               badSearchMessage: "That search returned zero results. Try again"
             })
           }
-            return sortedResults.length
+          return sortedResults.length
         })
         .then((length) => {
           // toggle the side bar after the results have come back
-          console.log(length)
           if (length) {
             this.toggle(8)
           }
@@ -315,16 +345,16 @@ class Search extends Component {
   // the buttons are made by mapping the users 'watchlists' in the state and the id is passed into the 'on click' function
   // if condition used to check where the request came from because the state stores the 'search by ticker' and search by name resulst separately
   addToWatchlist = (name, watchlistId, stockInfo) => {
-    let addedStock = { name };
-    addedStock.watchListId = watchlistId;
+    let addedStock = {};
+    addedStock.id = watchlistId;
     if (stockInfo === 'ticker') {
       let symbol = this.state.tickerSearchResult.symbol;
-      addedStock.symbol = symbol;
+      addedStock.addStockToWatchListVal = symbol;
     } else {
-      addedStock.symbol = stockInfo.symbol;
+      addedStock.addStockToWatchListVal = stockInfo.symbol;
     }
 
-    WatchlistAdd.saveStockToWatchlist(addedStock)
+    WatchlistAdd.addStockToWatchList(addedStock)
       .then((res) => {
         if (res.data.success) {
           swal({
@@ -341,7 +371,11 @@ class Search extends Component {
         }
       })
       .catch((err) => {
-        console.log(err)
+        swal({
+          title: "Could not add. Please try again",
+          icon: "error",
+          dangerMode: true,
+        });
       })
 
   }
@@ -362,6 +396,7 @@ class Search extends Component {
           username={this.state.username}
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
+          deleteProfile={this.deleteProfile}
         />
 
         {/* Side Modal that displays results. Component displayed determined by which boolean in state is true */}
@@ -424,7 +459,7 @@ class Search extends Component {
                     </DropdownToggle>
                     <DropdownMenu>
                       {this.state.watchlists.map((watchlist, index) => (
-                        <DropdownItem onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, stock)}>{watchlist.name}</DropdownItem>
+                        <DropdownItem key={index} onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, stock)}>{watchlist.name}</DropdownItem>
                       ))
                       }
                     </DropdownMenu>
@@ -437,7 +472,7 @@ class Search extends Component {
         </ModalPage>
 
 
-        {/* ternary that covers all components. if 'this.state.isLoading' is true than the waiting icon shows */}
+        {/* ternary that covers all page components. if 'this.state.isLoading' is true than the waiting icon shows */}
         {!this.state.isLoading ? (
           <div id="SearchContainer">
 
@@ -481,16 +516,15 @@ class Search extends Component {
             {/* Display the latest news articles */}
             <Row className="justify-content-center p-2">
               <Col lg="12" className="mb-2 pl-4">
-                <h2 className="turq-text text-center content-font d-block pl-3">Latest News</h2>
+                <h4 className="turq-text text-center content-font d-block">Latest News</h4>
               </Col>
 
               {/* render the articles and only return 5*/}
               {this.state.articleSearch.map((article, index) => {
                 if (index < 5) {
                   return (
-                    <div className="p-2">
+                    <div key={index} className="p-2">
                       <Article
-                        key={index}
                         imgLink={article.imgLink}
                         title={article.title}
                         desc={article.desc}

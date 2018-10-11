@@ -5,6 +5,7 @@
 #delete-stock-btn {
     background-color: red !important; 
     color: white !important; 
+    height: 40px; 
 }
 
 .up-arrow {
