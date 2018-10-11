@@ -59,11 +59,12 @@ router
             })
         })
         .then(() => {
+            // send the objcto of two arrays to the front end
             movers.gainers = topGainers; 
             movers.losers = topLosers; 
             res.send(movers)
-        })
-    })
+        }); 
+    }); 
 
 module.exports = router;
 

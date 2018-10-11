@@ -4,13 +4,25 @@ const watchlistControllers = require("../../controllers/watchlistControllers");
 
 
 // Matches with "/data/watchlist"
-router
-    .route("/")
-    .post(watchlistControllers.addStockToWatchlist)
 
+//route to add an entire watchlist
 router
     .route("/addfull")
-    .post(watchlistControllers.addFullWatchlist)
+    .post(watchlistControllers.addFullWatchlist);
 
+// add one stock to watchlist
+router
+    .route("/addStock")
+    .post(watchlistControllers.addStockToWatchlist);
+
+// delete an entire watchlist
+router
+    .route("/:watchlistId/:userId")
+    .delete(watchlistControllers.deleteFullWatchlist);
+
+//delete oe stock from a watchlist
+router
+    .route("/:deleteStockId/:deleteStockName")
+    .delete(watchlistControllers.deleteStockFromWatchlist);
 
 module.exports = router;

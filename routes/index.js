@@ -6,11 +6,19 @@ const dataRoutes = require("./data");
 const apiRoutes = require("./api");
 const stockAPIRoutes = require("./stockAPI");
 
-// All routes
+// use for authorizing the user
 router.use("/auth", authRoutes);
+
+//used for scraping articles from investopedia and market watch 
 router.use("/scrape", scrapeRoutes);
+
+//used for all changes to users data, including articles, investments and watchlists
 router.use("/data", dataRoutes);
+
+// used for all hits to the world trading stock API
 router.use("/api", apiRoutes);
+
+
 router.use("/stockapi", stockAPIRoutes);
 
 // Use the react app if no api routes are hit

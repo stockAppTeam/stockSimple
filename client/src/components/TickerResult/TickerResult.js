@@ -2,6 +2,7 @@ import React from 'react';
 import "./TickerResult.css";
 import { ListGroup, ListGroupItem, Badge } from 'mdbreact'
 
+// this component displays when a user searches by ticker, the data is passed into the props
 const TickerResult = props => (
     <div>
         <h5 className="turq-bg text-white content-font mb-3 p-2">General</h5>

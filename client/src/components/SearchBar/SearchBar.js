@@ -8,7 +8,7 @@ const SearchBar = props => (
     <Menu isOpen={props.open}  className="content-font justify-content-center search-bar-font"  {...props}>
         <h3 className="turq-text ml-4 mobile-hidden"><i className="fa fa-bar-chart-o custom mr-3 search-header"></i>Search Stocks</h3>
         {/* For each input, the 'name' is the property of the state that is changed when the user types something. onChange() handles that and changes and calls a function to change the state */}
-        <Row className="mt-2 flex-row justfy-content-center p-3 w-75 mx-auto">
+        <Row className="mt-2 flex-row justfy-content-center p-3 w-75 mx-auto search-row">
             <h4 className="content-font turq-text mb-3 search-bar-font">Search by name</h4>
             <Col className="pr-0 pl-0" lg="12">
                 <div className="active-cyan-4 mb-4">
@@ -35,8 +35,8 @@ const SearchBar = props => (
             </Col>
             <Button id="search-stock-btn" name="name" className="turq-bg text-white btn-block mt-4 ml-auto mr-auto" onClick={props.stockQueryName}>find</Button>
         </Row>
-        <hr className="bg-white mb-1 mt-4 p-0"></hr>
-        <Row className="p-3 mx-auto w-75">
+        <hr className="bg-white mb-1 mt-4 p-0 search-row"></hr>
+        <Row className="p-3 mx-auto w-75 search-row">
             <h4 className="content-font turq-text mb-3 mt-3 search-bar-font">Search by ticker</h4>
             <Col className="pr-0 pl-0" lg="12">
                 <div className="active-cyan-4 mb-4">
@@ -45,7 +45,7 @@ const SearchBar = props => (
             </Col>
 
             <Button id="search-stock-btn" name="ticker" className="turq-bg text-white btn-block mt-4 ml-auto mr-auto" onClick={props.stockQueryTicker}>Find</Button>
-            <p className="content-font text-white mt-3">{props.badSearch}</p>
+            <p className="content-font text-white mt-3 search-error-msg">{props.badSearch}</p>
         </Row>
 
 

@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
 import './Test.css';
 import StockAPI from '../../utils/StockAPI';
 import { Line } from 'react-chartjs-2';
-import LineChart from '../../components/LineChart';
+// import LineChart from '../../components/LineChart';
 // import BarChart from '../../components/BarChart';
 // import PieChart from '../../components/PieChart';
 

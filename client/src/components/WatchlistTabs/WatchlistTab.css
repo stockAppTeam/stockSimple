@@ -1,0 +1,31 @@
+.del-watchlist-stock {
+    transition: all 1s;
+}
+
+.del-watchlist-stock:hover {
+    color: white !important; 
+    background-color: red; 
+    transform: scale(1.1);
+    cursor: pointer;  
+}
+
+ #add-stock-watchlist-drop  {
+    background-color: green !important; 
+    font-size: 12px; 
+    margin: 0px; 
+
+ } 
+ 
+ .add-stock-watchlist-btn {
+    transition: all 1s; 
+    text-align: center; 
+ }
+
+ .add-stock-watchlist-btn:hover {
+    background-color: green !important; 
+    color: white; 
+ }
+ 
+.tab-bg {
+    border: 1px solid white; 
+}
