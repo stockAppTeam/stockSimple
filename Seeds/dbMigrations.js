@@ -1,1 +1,1 @@
-let db = require ('../models')
+let db = require('../models');
