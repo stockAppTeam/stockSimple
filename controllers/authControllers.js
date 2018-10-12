@@ -221,48 +221,83 @@ function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
   // For each ticker in the watchlist I need to add a new data section with the label being the ticker, and the data being the daily close (label: 'Close')
   //console.log("watchlists: ", watchlists);
 
-  let counter = 0;
-  for (let x in watchlists) {
+  //console.log("nicelyFormattedData:", nicelyFormattedData);
 
-    // Why is this iterating a lot more time than I expect, and giving undefined stocks for a lot at the end?
-    // patch it for now. If the stocks array is undefined, skip and go to the next loop iteration
-    if (typeof (watchlists[x].stocks) == 'undefined') {
-      continue;
-    }
+  let allWatchlists = {};
+  let allHistoricalChartsByWatchlist = [];
+  if (watchlists.length) {
+    watchlists.forEach((watchlist) => {
+      //tickerString.push(investment.ticker)
+      //console.log("watchlist:", watchlist);
+      allWatchlists[watchlist.name] = watchlist.stocks;
+      //console.log(`watchlist: ${watchlist.name}`, watchlist.stocks);
 
-    // Otherwise, we're getting an array of watchlist stocks as we expect, so we can use the data
-    counter++;
-
-    // For each of these arrays, we need to combine the this.state.historicalChartData existing objects into one for each group
-    for (let j in watchlists[x].stocks) {
-
-      // Another patch here. Need to investigate all the undefined items
-      if (typeof (watchlists[x].stocks[j].stocks) == 'undefined') {
-        continue;
-      }
-
-      // This is an array of tickers contained in each watchlist. I need to generate charts for each watchlist
-      // with multiple data sections, one for each ticker
-      console.log(watchlists[x].stocks[j].stocks);
-
-      for (let symbol in watchlists[x].stocks[j].stocks) {
-        
-        // Why is a lot of extra content being printed here?
-        console.log(watchlists[x].stocks[j].stocks[symbol]);
-      }
-
-
-    }
-
+    });
   }
-  //console.log(watchlistChartObjects);
-  console.log("Number of watchlists to create historical charts for: ", counter);
 
+  console.log("allWatchlists: ", allWatchlists);
 
+  //allWatchlists.forEach((watchlist) => {
+  for (let watchlist in allWatchlists) {
 
+    let datasetObjects = {}; // Used to store the daily close data for each ticker
 
+    console.log("watchlist: ", watchlist);
+    console.log("watchlist array: ", allWatchlists[watchlist]);
 
-  return ({ test1: 'this is a testicle' });
+    // Build a chartjs data object for each ticker
+    allWatchlists[watchlist].forEach((watchlistItem) => {
+      console.log(watchlistItem);
+      
+      // The history dates are going to be the same for every watchlist stock (future enhancement to make that adjustable)
+      // so just use the date of the first item for everything in the chart
+      
+      // First build our datasets for the watchlist, based on the array of tickers in the watchlist
+      let datasetObjects = [];
+      
+      //console.log("watchlist.stocks: ", watchlist.stocks);
+      for (let ticker in watchlist.stocks) {
+        
+
+        console.log("ticker:", watchlist.stocks[ticker]);
+        console.log("nicelyFormattedData[ticker].historyClose: ", nicelyFormattedData[watchlist.stocks[ticker]].historyClose);
+        datasetObjects.push(
+          [{
+            label: watchlist.stocks[ticker],
+            fill: false,
+            lineTension: 0.1,
+            backgroundColor: 'rgba(75,192,192,0.4)',
+            borderColor: 'rgba(75,192,192,1)',
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: 'rgba(75,192,192,1)',
+            pointBackgroundColor: '#fff',
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+            pointHoverBorderColor: 'rgba(220,220,220,1)',
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data: nicelyFormattedData[ticker].historyClose
+          }]
+
+        );
+
+      }
+
+      allHistoricalChartsByWatchlist[watchlist] = {
+        labels: nicelyFormattedData['AAPL'].historyDates, // date info from historyDates
+        datasets: datasetObjects
+      };
+
+    });
+
+  };
+
+  return allHistoricalChartsByWatchlist;
 }
 
 
