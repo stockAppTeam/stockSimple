@@ -437,7 +437,7 @@ module.exports = {
           // investment data intact as it was, and pass the watchlist data along with it.
           .then((consolidatedUserInfo) => {
 
-console.log("consolidatedUserInfo: ",consolidatedUserInfo);
+            //console.log("consolidatedUserInfo: ",consolidatedUserInfo);
 
             let historicalChartData = {}
             for (let historicTicker in consolidatedUserInfo.historicalChartData) {
@@ -445,8 +445,8 @@ console.log("consolidatedUserInfo: ",consolidatedUserInfo);
             }
 
             let historicalChartDataByWatchlist = {}
-            for (let historicTicker in consolidatedUserInfo.historicalChartData) {
-              historicalChartDataByWatchlist[historicTicker] = consolidatedUserInfo.historicalChartData[historicTicker];
+            for (let historicTicker in consolidatedUserInfo.historicalChartDataByWatchlist) {
+              historicalChartDataByWatchlist[historicTicker] = consolidatedUserInfo.historicalChartDataByWatchlist[historicTicker];
             }
 
             let nicelyFormattedData = {}
