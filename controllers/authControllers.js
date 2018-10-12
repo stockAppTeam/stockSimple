@@ -195,7 +195,7 @@ function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
 
     // Build a chartjs data object for each ticker
     allWatchlists[watchlist.name].forEach((watchlistTicker) => {
-      console.log("watchlistItem: ", watchlistTicker); // this is the ticker name
+      //console.log("watchlistItem: ", watchlistTicker); // this is the ticker name
 
       //Account for stocks that are in the watchlist, but cannot be found through the stock API
       // If this happens, don't try to build a chart for that ticker.
