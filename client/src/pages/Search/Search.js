@@ -429,9 +429,9 @@ class Search extends Component {
                 <DropdownToggle caret color="grey">
                   Add to Watchlist
                     </DropdownToggle>
-                <DropdownMenu>
+                <DropdownMenu className="p-2">
                   {this.state.watchlists.map((watchlist, index) => (
-                    <DropdownItem onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, 'ticker')}>{watchlist.name}</DropdownItem>
+                    <DropdownItem key={index} className="drop-down-btn" onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, 'ticker')}>{watchlist.name}</DropdownItem>
                   ))
                   }
                 </DropdownMenu>
@@ -449,6 +449,7 @@ class Search extends Component {
               />
               {this.state.nameSearchResultFilter.map((stock, filterindex) => (
                 <NameResult
+                  cla={true}
                   key={filterindex}
                   name={stock.name}
                   ticker={stock.symbol}
@@ -460,9 +461,9 @@ class Search extends Component {
                     <DropdownToggle caret color="grey">
                       Add to Watchlist
                     </DropdownToggle>
-                    <DropdownMenu>
+                    <DropdownMenu className="p-2">
                       {this.state.watchlists.map((watchlist, index) => (
-                        <DropdownItem key={index} onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, stock)}>{watchlist.name}</DropdownItem>
+                        <DropdownItem key={index} className="drop-down-btn" onClick={() => this.addToWatchlist(watchlist.name, watchlist._id, stock)}>{watchlist.name}</DropdownItem>
                       ))
                       }
                     </DropdownMenu>
