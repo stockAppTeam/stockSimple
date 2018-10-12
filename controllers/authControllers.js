@@ -213,6 +213,51 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
 
 }
 
+// createHistoricalChartDataByWatchlist(nicelyFormattedData, userDBInfo[0].watchlists)
+function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
+
+  // For each watchlist, I have to create a chart
+  // the label is going to be the same for all: labels: arrayOfNicelyFormattedData[ticker].historyDates, // date info from historyDates
+  // For each ticker in the watchlist I need to add a new data section with the label being the ticker, and the data being the daily close (label: 'Close')
+  //console.log("watchlists: ", watchlists);
+
+  let counter = 0;
+  for (let x in watchlists) {
+
+    // Why is this iterating a lot more time than I expect, and giving undefined stocks for a lot at the end?
+    // patch it for now. If the stocks array is undefined, skip and go to the next loop iteration
+    if (typeof (watchlists[x].stocks) == 'undefined') {
+      continue;
+    }
+
+    // Otherwise, we're getting an array of watchlist stocks as we expect, so we can use the data
+    counter++;
+
+    // For each of these arrays, we need to combine the this.state.historicalChartData existing objects into one for each group
+    for (let j in watchlists[x].stocks) {
+
+      // Another patch here. Need to investigate all the undefined items
+      if (typeof (watchlists[x].stocks[j].stocks) == 'undefined') {
+        continue;
+      }
+
+      // This is an array of tickers contained in each watchlist. I need to generate charts for each watchlist
+      // with multiple data sections, one for each ticker
+      console.log(watchlists[x].stocks[j].stocks);
+
+    }
+
+  }
+  //console.log(watchlistChartObjects);
+  console.log("Number of watchlists to create historical charts for: ", counter);
+
+
+
+
+
+  return ({ test1: 'this is a testicle' });
+}
+
 
 // Defining methods for the authorizeController
 module.exports = {
@@ -332,32 +377,32 @@ module.exports = {
         let readHistoricalStockInfo;
 
 
-  
+
         // this if condition checks if the user has any watchlists, if they do not, there is no api call to retrieve stock information and therefore no error
         if (userDBInfo[0].watchlists.length) {
-            for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
-              // since the user may have an empty watchlist, this makes sure there are stocks to add to the array that is passed to the API query
-              if (userDBInfo[0].watchlists[i].stocks.length) {
-                allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
-                // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
-              }
+          for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
+            // since the user may have an empty watchlist, this makes sure there are stocks to add to the array that is passed to the API query
+            if (userDBInfo[0].watchlists[i].stocks.length) {
+              allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
+              // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
             }
+          }
 
-            // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
-            let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
-            //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
-
-
-            // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
-            // so that we can be sure all the results have been obtained before continuing
-            readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
+          // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
+          let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
+          //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
 
 
-            // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
-            // By leaving the end date empty, it will show the stock into up to the current date
-            let startDate = "2018-09-01";
-            let endDate = "";
-            readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise 
+          // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
+          // so that we can be sure all the results have been obtained before continuing
+          readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
+
+
+          // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
+          // By leaving the end date empty, it will show the stock into up to the current date
+          let startDate = "2018-09-01";
+          let endDate = "";
+          readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise 
         }
         //if the user does not have watchlists return false for the values being passed into the promise.all
 
@@ -382,7 +427,7 @@ module.exports = {
                 // call a function which puts the two results into an array of objects that is easier to consume on the front end
                 return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
               } else {
-                return false; 
+                return false;
               }
             } else {
               return false;
@@ -393,10 +438,10 @@ module.exports = {
             // if there is formatted data, return it, other wise return false
             if (nicelyFormattedData) {
               let historicalChartData = createHistoricalChartData(nicelyFormattedData);
-              
+
               // Will I need to add a promise here?
-              let historicalChartDataByWatchlist = {test1: 'this is a test'};//createHistoricalChartData(nicelyFormattedData);
-              
+              let historicalChartDataByWatchlist = createHistoricalChartDataByWatchlist(nicelyFormattedData, userDBInfo[0].watchlists);
+
               return { historicalChartData: historicalChartData, historicalChartDataByWatchlist: historicalChartDataByWatchlist, nicelyFormattedData: nicelyFormattedData };
             } else {
               return false;
