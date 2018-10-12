@@ -12,6 +12,7 @@ import { Row, Col, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem 
 import swal from 'sweetalert';
 import moment from 'moment';
 import './Home.css';
+import { Line, Bar } from 'react-chartjs-2';
 
 class Home extends Component {
 
@@ -29,6 +30,7 @@ class Home extends Component {
     this.deleteStockFromWatchlist = this.deleteStockFromWatchlist.bind(this);
     this.addStockToWatchList = this.addStockToWatchList.bind(this);
     this.deleteProfile = this.deleteProfile.bind(this);
+    this.createInvestmentBarChart = this.createInvestmentBarChart.bind(this);
     this.state = {
       isLoading: true,
       username: "",
@@ -47,6 +49,21 @@ class Home extends Component {
       addWatchlistName: "",
       addStockToWatchListVal: "",
       date: moment().format("DD-MM-YYYY"),
+      investmentChart: {}, // Holds the object required to pass to a chartjs Bar chart type
+      investmentChartOptions: // Options for the display of the investment chart
+      {
+        legend: {
+          display: false
+        },
+        barValueSpacing: 20,
+        scales: {
+          xAxes: [{ stacked: true }],
+          yAxes: [{ stacked: true }]
+        },
+        tooltips: {
+          enabled: false
+        }
+      }
     };
   }
 
@@ -70,14 +87,14 @@ class Home extends Component {
         for (let i = 0; i < watchlists.length; i++) {
           for (let j = 0; j < watchlists[i].stocks.length; j++) {
             Object.keys(nicelyFormattedData).forEach(function (item) {
-            
-              let stockName = watchlists[i].stocks[j]; 
+
+              let stockName = watchlists[i].stocks[j];
 
               // ticker from the API query is all uppercase, so make sure it still matches if the user inputs a lower case value
               if (typeof stockName === 'string') {
-                stockName = stockName.toUpperCase(); 
+                stockName = stockName.toUpperCase();
               }
- 
+
               if (stockName === nicelyFormattedData[item].symbol) {
                 let stockVal = {};
                 stockVal.name = watchlists[i].stocks[j];
@@ -98,7 +115,7 @@ class Home extends Component {
           savedArticles: res.data.articles,
           savedArticlesFilter: res.data.articles,
           investments: res.data.investments,
-          watchlists: watchlists, 
+          watchlists: watchlists,
           addStockName: "",
           addStockTicker: "",
           addStockShares: "",
@@ -111,7 +128,9 @@ class Home extends Component {
         this.setState({
           isLoading: false
         })
-        this.getInvestmentTotals();
+        this.getInvestmentTotals().then((investmentInfo) => {
+          this.createInvestmentBarChart(investmentInfo);
+        });
       })
       .catch((error) => {
         console.log(error)
@@ -260,7 +279,7 @@ class Home extends Component {
   }
 
   deleteStockFromWatchlist = (id, stock) => {
-   let stockName = stock.name; 
+    let stockName = stock.name;
     WatchlistFunction.deleteStockFromWatchlist({ id, stockName })
       .then((res) => {
         if (res.data.success) {
@@ -361,24 +380,125 @@ class Home extends Component {
   }
 
 
-  // gets the total value all of all users investments, both in total and for each stock
-  // returns an array of the values
+  // This function provides information about the user's investments, to be consumed by
+  // the createInvestmentBarChart function that builds the actual chart object
   getInvestmentTotals = (e) => {
     let investedMoney = [];
     let moneyMade = [];
     let singleStockVal = [];
-    this.state.investments.forEach((investment) => {
-      if (investment.currentPrice) {
-        let name = investment.name;
-        let startingVal = investment.sharesPurchased * investment.pricePurchased;
-        let currentVal = investment.sharesPurchased * investment.currentPrice;
-        let singleStock = { name, startingVal, currentVal };
-        singleStockVal.push(singleStock);
-        investedMoney.push(investment.sharesPurchased * investment.pricePurchased);
-        moneyMade.push(investment.sharesPurchased * investment.currentPrice);
-      }
-    })
+
+    return new Promise((resolve, reject) => {
+
+      this.state.investments.forEach((investment) => {
+        if (investment.currentPrice) {
+          let name = investment.name;
+          let startingVal = investment.sharesPurchased * investment.pricePurchased;
+          let currentVal = investment.sharesPurchased * investment.currentPrice;
+          let singleStock = { name, startingVal, currentVal };
+          singleStockVal.push(singleStock);
+          investedMoney.push(investment.sharesPurchased * investment.pricePurchased);
+          moneyMade.push(investment.sharesPurchased * investment.currentPrice);
+        }
+      })
+      resolve(singleStockVal);
+    });
   }
+
+  // This functions builds a Bar-style chart object of the user's investments
+  // Because of the way that the chart is displayed, we have to do some math.
+  // The base bar shows the total investment amount of the stock.
+  // Depending on whether the stock has gone down or up after the initial purchase,
+  // the top of the bar will show in green (gain) or red (loss).
+  // This allows the user to quickly and easily see how each individual investment is doing.
+  createInvestmentBarChart(info) {
+
+    // ChartJS requires the labels and data to be in arrays, so we need to build the object accordingly
+    let names = [];
+    let startingVal = [];
+    let currentVal = [];
+
+    names.push("Total"); // for the summary of all values for loss/gain
+    for (let stock in info) {
+      names.push(info[stock].name);
+      startingVal.push(info[stock].startingVal);
+      currentVal.push(info[stock].currentVal);
+    }
+
+    // Now the math to properly scale the profit/loss in the chart.
+    // Between the purchase price and the present price, the max scale for each stock will be the greater value.
+    // The top portion of the chart will be either green (if recent > original) or red (if original > recent)
+    let baseVal = [];
+    let gainVal = [];
+    let lossVal = [];
+
+    // Pre-allocate the first spot in the arrays for the total values result
+    baseVal.push(0);
+    gainVal.push(0);
+    lossVal.push(0);
+
+    // Check each of the user's investments and build the arrays to use in the bar chart object
+    for (let i = 0; i < startingVal.length; i++) {
+
+      // If a loss, then the gainVal = 0
+      if (startingVal[i] > currentVal[i]) {
+        gainVal.push(0);
+        lossVal.push(startingVal[i] - currentVal[i]);
+        baseVal.push(currentVal[i]);
+        lossVal[0] += (startingVal[i] - currentVal[i]);
+      }
+      else if (startingVal[i] < currentVal[i]) {
+        lossVal.push(0);
+        gainVal.push(currentVal[i] - startingVal[i]);
+        baseVal.push(startingVal[i]);
+        gainVal[0] += (currentVal[i] - startingVal[i]);
+      }
+
+      baseVal[0] += startingVal[i]; // This holds the total amount invested initially in all stocks
+    }
+
+    // Now see whether we've gained or lost overall
+    if (gainVal[0] > lossVal[0]) {
+      // we've made a profit!
+      gainVal[0] = gainVal[0] - lossVal[0];
+      lossVal[0] = 0;
+    }
+    else if (gainVal[0] < lossVal[0]) {
+      // money has been lost
+      lossVal[0] = lossVal[0] - gainVal[0];
+      gainVal[0] = 0;
+    }
+
+    let investmentChartObject = ({
+      labels: names,
+      datasets: [
+        {
+          label: "Baseline",
+          backgroundColor: "blue",
+          data: baseVal
+        },
+        {
+          label: "Loss",
+          backgroundColor: 'rgba(255, 0, 0, 0.3)', // Translucent red. Does this look a bit better for the loss? It needs to be clear for the user that the blue is the money they have left after the loss
+          data: lossVal
+        }, {
+          label: "Gain",
+          backgroundColor: "green",
+          data: gainVal
+        }
+      ]
+    });
+
+    // Add this new chartjs object to the state, so we can use it in the render
+    this.setState({
+      investmentChart: investmentChartObject
+    });
+
+    // When rendering use something like:
+    // <Bar data={this.state.investmentChart} options={this.state.investmentChartOptions} />
+
+  }
+
+
 
 
   render() {
@@ -535,6 +655,7 @@ class Home extends Component {
                 deleteInvestment={this.deleteInvestment}
               >
               </InvestAccordion>
+              <Bar data={this.state.investmentChart} options={this.state.investmentChartOptions} />
             </Col>
           </Row>
         ) : (
