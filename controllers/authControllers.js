@@ -245,6 +245,13 @@ function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
       // with multiple data sections, one for each ticker
       console.log(watchlists[x].stocks[j].stocks);
 
+      for (let symbol in watchlists[x].stocks[j].stocks) {
+        
+        // Why is a lot of extra content being printed here?
+        console.log(watchlists[x].stocks[j].stocks[symbol]);
+      }
+
+
     }
 
   }
