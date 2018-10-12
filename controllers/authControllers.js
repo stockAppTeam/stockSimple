@@ -124,7 +124,6 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
       datasets: [
         {
           label: 'Open',
-          //yAxisID: 'stockPriceAxis',
           fill: false,
           lineTension: 0.1,
           backgroundColor: 'rgba(75,192,192,0.4)',
@@ -146,7 +145,6 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
         },
         {
           label: 'Close',
-          //yAxisID: 'stockPriceAxis',
           fill: false,
           lineTension: 0.1,
           backgroundColor: 'rgba(127, 63, 191)',
@@ -166,46 +164,7 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
           pointHitRadius: 10,
           data: arrayOfNicelyFormattedData[ticker].historyClose // from historyClose
         }
-        //{
-        //   label: 'Volume',
-        //   yAxisID: 'stockVolumeAxis',
-        //   fill: false,
-        //   lineTension: 0.1,
-        //   backgroundColor: 'rgba(127, 63, 191)',
-        //   borderColor: 'rgba(75,192,192,1)',
-        //   borderCapStyle: 'butt',
-        //   borderDash: [],
-        //   borderDashOffset: 0.0,
-        //   borderJoinStyle: 'miter',
-        //   pointBorderColor: 'rgba(75,192,192,1)',
-        //   pointBackgroundColor: '#fff',
-        //   pointBorderWidth: 1,
-        //   pointHoverRadius: 5,
-        //   pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-        //   pointHoverBorderColor: 'rgba(220,220,220,1)',
-        //   pointHoverBorderWidth: 2,
-        //   pointRadius: 1,
-        //   pointHitRadius: 10,
-        //   data: arrayOfNicelyFormattedData[ticker].historyVolume // from historyVolume
-        // }
       ]
-      // options: {
-      //   scales: {
-      //     yAxes: [{
-      //       id: 'stockPriceAxis',
-      //       type: 'linear',
-      //       position: 'left',
-      //     }, {
-      //       id: 'stockVolumeAxis',
-      //       type: 'linear',
-      //       position: 'right',
-      //       ticks: {
-      //         max: 10,
-      //         min: 0
-      //       }
-      //     }]
-      //   }
-      // }          
     };
   };
 
@@ -213,57 +172,44 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
 
 }
 
-// createHistoricalChartDataByWatchlist(nicelyFormattedData, userDBInfo[0].watchlists)
 function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
 
   // For each watchlist, I have to create a chart
   // the label is going to be the same for all: labels: arrayOfNicelyFormattedData[ticker].historyDates, // date info from historyDates
-  // For each ticker in the watchlist I need to add a new data section with the label being the ticker, and the data being the daily close (label: 'Close')
-  //console.log("watchlists: ", watchlists);
-
-  //console.log("nicelyFormattedData:", nicelyFormattedData);
+  // For each ticker in the watchlist I need to add a new data section with the label being the ticker, and the data being historyClose
 
   let allWatchlists = {};
   let allHistoricalChartsByWatchlist = [];
   if (watchlists.length) {
     watchlists.forEach((watchlist) => {
-      //tickerString.push(investment.ticker)
-      //console.log("watchlist:", watchlist);
       allWatchlists[watchlist.name] = watchlist.stocks;
-      //console.log(`watchlist: ${watchlist.name}`, watchlist.stocks);
-
     });
   }
 
-  console.log("allWatchlists: ", allWatchlists);
+  // The history dates are going to be the same for every watchlist stock (future enhancement to make that adjustable)
+  // so just use the date of the first item for everything in the chart
+  let commonDateRange = [];
 
-  //allWatchlists.forEach((watchlist) => {
-  for (let watchlist in allWatchlists) {
-
-    let datasetObjects = {}; // Used to store the daily close data for each ticker
-
-    console.log("watchlist: ", watchlist);
-    console.log("watchlist array: ", allWatchlists[watchlist]);
+  watchlists.forEach((watchlist) => {
+    let datasetObjects = []; // Used to store the daily close data for each ticker
 
     // Build a chartjs data object for each ticker
-    allWatchlists[watchlist].forEach((watchlistItem) => {
-      console.log(watchlistItem);
-      
-      // The history dates are going to be the same for every watchlist stock (future enhancement to make that adjustable)
-      // so just use the date of the first item for everything in the chart
-      
-      // First build our datasets for the watchlist, based on the array of tickers in the watchlist
-      let datasetObjects = [];
-      
-      //console.log("watchlist.stocks: ", watchlist.stocks);
-      for (let ticker in watchlist.stocks) {
-        
+    allWatchlists[watchlist.name].forEach((watchlistTicker) => {
+      console.log("watchlistItem: ", watchlistTicker); // this is the ticker name
 
-        console.log("ticker:", watchlist.stocks[ticker]);
-        console.log("nicelyFormattedData[ticker].historyClose: ", nicelyFormattedData[watchlist.stocks[ticker]].historyClose);
+      //Account for stocks that are in the watchlist, but cannot be found through the stock API
+      // If this happens, don't try to build a chart for that ticker.
+      if (nicelyFormattedData.hasOwnProperty(watchlistTicker)) {
+
+        // If there is not yet a "default" date range (as it is the same for all), then add it now
+        if (commonDateRange.length < 1) {
+          commonDateRange = nicelyFormattedData[watchlistTicker].historyDates; // date info from historyDates
+        }
+
+        // First build our datasets for the watchlist, based on the array of tickers in the watchlist
         datasetObjects.push(
-          [{
-            label: watchlist.stocks[ticker],
+          {
+            label: watchlistTicker, // ticker symbol
             fill: false,
             lineTension: 0.1,
             backgroundColor: 'rgba(75,192,192,0.4)',
@@ -281,21 +227,19 @@ function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
             pointHoverBorderWidth: 2,
             pointRadius: 1,
             pointHitRadius: 10,
-            data: nicelyFormattedData[ticker].historyClose
-          }]
-
+            data: nicelyFormattedData[watchlistTicker].historyClose
+          }
         );
-
       }
-
-      allHistoricalChartsByWatchlist[watchlist] = {
-        labels: nicelyFormattedData['AAPL'].historyDates, // date info from historyDates
-        datasets: datasetObjects
-      };
-
     });
 
-  };
+    // All the datasets have been added, so create the new chartjs object    
+    allHistoricalChartsByWatchlist[watchlist.name] = {
+      labels: commonDateRange, // date info from historyDates
+      datasets: datasetObjects
+    };
+
+  });
 
   return allHistoricalChartsByWatchlist;
 }
