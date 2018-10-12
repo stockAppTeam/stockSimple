@@ -393,7 +393,11 @@ module.exports = {
             // if there is formatted data, return it, other wise return false
             if (nicelyFormattedData) {
               let historicalChartData = createHistoricalChartData(nicelyFormattedData);
-              return { historicalChartData: historicalChartData, nicelyFormattedData: nicelyFormattedData };
+              
+              // Will I need to add a promise here?
+              let historicalChartDataByWatchlist = {test1: 'this is a test'};//createHistoricalChartData(nicelyFormattedData);
+              
+              return { historicalChartData: historicalChartData, historicalChartDataByWatchlist: historicalChartDataByWatchlist, nicelyFormattedData: nicelyFormattedData };
             } else {
               return false;
             }
@@ -413,6 +417,7 @@ module.exports = {
                 tickerString: tickerString.join(),
                 userInfo: userDBInfo,
                 historicalChartData: summarizedData.historicalChartData,
+                historicalChartDataByWatchlist: summarizedData.historicalChartDataByWatchlist,
                 nicelyFormattedData: summarizedData.nicelyFormattedData
               };
             }
@@ -420,6 +425,7 @@ module.exports = {
               return {
                 userInfo: userDBInfo,
                 historicalChartData: summarizedData.historicalChartData,
+                historicalChartDataByWatchlist: summarizedData.historicalChartDataByWatchlist,
                 nicelyFormattedData: summarizedData.nicelyFormattedData
               };
             }
@@ -431,9 +437,16 @@ module.exports = {
           // investment data intact as it was, and pass the watchlist data along with it.
           .then((consolidatedUserInfo) => {
 
+console.log("consolidatedUserInfo: ",consolidatedUserInfo);
+
             let historicalChartData = {}
             for (let historicTicker in consolidatedUserInfo.historicalChartData) {
               historicalChartData[historicTicker] = consolidatedUserInfo.historicalChartData[historicTicker];
+            }
+
+            let historicalChartDataByWatchlist = {}
+            for (let historicTicker in consolidatedUserInfo.historicalChartData) {
+              historicalChartDataByWatchlist[historicTicker] = consolidatedUserInfo.historicalChartData[historicTicker];
             }
 
             let nicelyFormattedData = {}
@@ -473,6 +486,7 @@ module.exports = {
                   userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
                   userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
                   userInfo.historicalChartData = historicalChartData;
+                  userInfo.historicalChartDataByWatchlist = historicalChartDataByWatchlist;
                   userInfo.nicelyFormattedData = nicelyFormattedData;
                   res.send(userInfo);
                 })
