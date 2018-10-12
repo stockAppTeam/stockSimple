@@ -43,6 +43,11 @@
     color: white; 
 }
 
+.chartjs-render-monitor {
+   margin: 20px auto;
+   padding: 10px 5px;  
+}
+
 @media only screen and (max-width: 768px) {
     .home-article-btn {
         width: 30px; 

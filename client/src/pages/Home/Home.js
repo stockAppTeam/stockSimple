@@ -57,8 +57,8 @@ class Home extends Component {
         },
         barValueSpacing: 20,
         scales: {
-          xAxes: [{ stacked: true }],
-          yAxes: [{ stacked: true }]
+          xAxes: [{ stacked: true, ticks: { fontSize: 18 } }],
+          yAxes: [{ stacked: true, ticks: { fontSize: 18 } }]
         },
         tooltips: {
           enabled: false
@@ -299,7 +299,7 @@ class Home extends Component {
     let { addStockToWatchListVal } = this.state;
     if (addStockToWatchListVal) {
 
-      addStockToWatchListVal = addStockToWatchListVal.trim();
+      addStockToWatchListVal = addStockToWatchListVal.toUpperCase().trim();
 
       WatchlistFunction.addStockToWatchList({ addStockToWatchListVal, id })
         .then((res) => {
@@ -473,7 +473,7 @@ class Home extends Component {
       datasets: [
         {
           label: "Baseline",
-          backgroundColor: "blue",
+          backgroundColor: "#127880",
           data: baseVal
         },
         {
@@ -651,12 +651,17 @@ class Home extends Component {
               </div>
 
               {/* Investment accordion component */}
+              {/* If there are investments in the state than display the chart */}
+              {this.state.investments.length ? (
+                <Bar className="bar-chart" data={this.state.investmentChart} options={this.state.investmentChartOptions} />
+              ) : (
+                  false
+                )}
               <InvestAccordion
                 investments={this.state.investments}
                 deleteInvestment={this.deleteInvestment}
               >
               </InvestAccordion>
-              <Bar data={this.state.investmentChart} options={this.state.investmentChartOptions} />
             </Col>
           </Row>
         ) : (
