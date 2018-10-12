@@ -393,6 +393,7 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
           deleteProfile={this.deleteProfile}
+          goHome={'/'}
         />
         {/* Modal that toggles and displays all saved articles */}
         <ModalPage

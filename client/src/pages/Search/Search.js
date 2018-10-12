@@ -398,6 +398,7 @@ class Search extends Component {
           username={this.state.username}
           pageSwitchName='Go to Home'
           pageSwitchLink='/'
+          goHome='/'
           deleteProfile={this.deleteProfile}
         />
 
