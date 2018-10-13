@@ -28,7 +28,7 @@ app.get('*', function (req, res) {
 });
 
 // Connect to the Mongo DB
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/stockSimple";
+let MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/stockSimple";
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/stockSimple");
 
 // Connect to the Mongo DB

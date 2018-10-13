@@ -17,6 +17,13 @@
     cursor: pointer; 
     background-color:  #127880 !important; 
     color: white !important; 
+    transition: all 1s; 
+}
+
+.nav-logo:hover {
+    transform: scale(1.1); 
+    cursor: pointer; 
+    background-color: white; 
 }
 
 .nav-logo {

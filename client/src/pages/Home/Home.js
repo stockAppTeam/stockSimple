@@ -57,8 +57,8 @@ class Home extends Component {
         },
         barValueSpacing: 20,
         scales: {
-          xAxes: [{ stacked: true }],
-          yAxes: [{ stacked: true }]
+          xAxes: [{ stacked: true, ticks: { fontSize: 18 } }],
+          yAxes: [{ stacked: true, ticks: { fontSize: 18 } }]
         },
         tooltips: {
           enabled: false
@@ -72,10 +72,22 @@ class Home extends Component {
         },
         tooltips: {
           enabled: true
+        },
+        scales: {
+          xAxes: [{
+            type: 'time',
+            time: {
+              unit: 'day',
+              displayFormats: {
+                'day': 'MMM DD'
+              }
+            }
+          }]
         }
-      },      
+      },
     };
   }
+
 
   // when the page loads grab the token and userID from local storage
   // pass it into authenticate function. If server responds ok, then load data
@@ -119,7 +131,6 @@ class Home extends Component {
           }
         }
 
-        console.log(res.data)
         this.setState({
           username: res.data.name,
           savedArticles: res.data.articles,
@@ -310,7 +321,7 @@ class Home extends Component {
     let { addStockToWatchListVal } = this.state;
     if (addStockToWatchListVal) {
 
-      addStockToWatchListVal = addStockToWatchListVal.trim();
+      addStockToWatchListVal = addStockToWatchListVal.toUpperCase().trim();
 
       WatchlistFunction.addStockToWatchList({ addStockToWatchListVal, id })
         .then((res) => {
@@ -484,7 +495,7 @@ class Home extends Component {
       datasets: [
         {
           label: "Baseline",
-          backgroundColor: "blue",
+          backgroundColor: "#127880",
           data: baseVal
         },
         {
@@ -513,18 +524,16 @@ class Home extends Component {
 
 
   render() {
-    
-    console.log(this.state);
-    
+
+
     // Build an array of chart objects
     // we're using the for-in loop because each chart object has a property (which is the ticker name), and this makes it easy to get
     let watchlistCharts = [];
     for (let watchlist in this.state.historicalChartDataByWatchlist) {
-      
+
       // Add to the array of chart objects, to be used for rendering
       watchlistCharts.push([
         <div>
-          <h2>{watchlist}</h2>
           <Line
             key={watchlist}
             data={this.state.historicalChartDataByWatchlist[watchlist]}
@@ -532,7 +541,7 @@ class Home extends Component {
           />
         </div>]);
     }
-    
+
     // This is what actually gets rendered
     return (
       <div className="home-div">
@@ -545,6 +554,7 @@ class Home extends Component {
           pageSwitchName='Go to Search'
           pageSwitchLink='/search'
           deleteProfile={this.deleteProfile}
+          goHome={'/'}
         />
         {/* Modal that toggles and displays all saved articles */}
         <ModalPage
@@ -592,6 +602,7 @@ class Home extends Component {
             <Col md="6" className="investments-col p-2">
               <div className="d-flex justify-content-between">
                 <h4 className="content-font turq-text ml-3 d-inline">Watchlists</h4>
+
                 <Dropdown size="sm">
                   <DropdownToggle caret id="add-stock-drop">
                     Add Watchlist
@@ -625,7 +636,10 @@ class Home extends Component {
                 addStockToWatchList={this.addStockToWatchList}
                 addStockToWatchListInput={this.inputVal}
                 name={'addStockToWatchListVal'}
-              />
+                historicalChartDataByWatchlist={this.state.historicalChartDataByWatchlist}
+                historicalChartOptions={this.state.historicalChartOptions}
+              >
+              </WatchlistTab>
             </Col>
             <Col md="6" className="p-2">
               {/* second columns shows all users investments */}
@@ -682,15 +696,17 @@ class Home extends Component {
               </div>
 
               {/* Investment accordion component */}
+              {/* If there are investments in the state than display the chart */}
               <InvestAccordion
                 investments={this.state.investments}
                 deleteInvestment={this.deleteInvestment}
               >
               </InvestAccordion>
-              <Bar data={this.state.investmentChart} options={this.state.investmentChartOptions} />
-
-              {watchlistCharts}
-
+              {this.state.investments.length ? (
+                <Bar className="bar-chart" data={this.state.investmentChart} options={this.state.investmentChartOptions} />
+              ) : (
+                  false
+                )}
             </Col>
           </Row>
         ) : (

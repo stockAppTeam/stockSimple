@@ -6,7 +6,7 @@
 
 
 .home-article-btn {
-    position: fixed;
+    position: fixed !important;
     width: 40px; 
     height: 40px; 
     right: 90px;
@@ -41,6 +41,12 @@
     background-color:   #127880 !important; 
     cursor: pointer; 
     color: white; 
+}
+
+.chartjs-render-monitor {
+   margin: auto;
+   padding: 10px 5px;  
+
 }
 
 @media only screen and (max-width: 768px) {
