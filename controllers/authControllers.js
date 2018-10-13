@@ -124,7 +124,6 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
       datasets: [
         {
           label: 'Open',
-          //yAxisID: 'stockPriceAxis',
           fill: false,
           lineTension: 0.1,
           backgroundColor: 'rgba(75,192,192,0.4)',
@@ -146,7 +145,6 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
         },
         {
           label: 'Close',
-          //yAxisID: 'stockPriceAxis',
           fill: false,
           lineTension: 0.1,
           backgroundColor: 'rgba(127, 63, 191)',
@@ -166,51 +164,84 @@ function createHistoricalChartData(arrayOfNicelyFormattedData) {
           pointHitRadius: 10,
           data: arrayOfNicelyFormattedData[ticker].historyClose // from historyClose
         }
-        //{
-        //   label: 'Volume',
-        //   yAxisID: 'stockVolumeAxis',
-        //   fill: false,
-        //   lineTension: 0.1,
-        //   backgroundColor: 'rgba(127, 63, 191)',
-        //   borderColor: 'rgba(75,192,192,1)',
-        //   borderCapStyle: 'butt',
-        //   borderDash: [],
-        //   borderDashOffset: 0.0,
-        //   borderJoinStyle: 'miter',
-        //   pointBorderColor: 'rgba(75,192,192,1)',
-        //   pointBackgroundColor: '#fff',
-        //   pointBorderWidth: 1,
-        //   pointHoverRadius: 5,
-        //   pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-        //   pointHoverBorderColor: 'rgba(220,220,220,1)',
-        //   pointHoverBorderWidth: 2,
-        //   pointRadius: 1,
-        //   pointHitRadius: 10,
-        //   data: arrayOfNicelyFormattedData[ticker].historyVolume // from historyVolume
-        // }
       ]
-      // options: {
-      //   scales: {
-      //     yAxes: [{
-      //       id: 'stockPriceAxis',
-      //       type: 'linear',
-      //       position: 'left',
-      //     }, {
-      //       id: 'stockVolumeAxis',
-      //       type: 'linear',
-      //       position: 'right',
-      //       ticks: {
-      //         max: 10,
-      //         min: 0
-      //       }
-      //     }]
-      //   }
-      // }          
     };
   };
 
   return allHistoricalCharts;
 
+}
+
+function createHistoricalChartDataByWatchlist(nicelyFormattedData, watchlists) {
+
+  // For each watchlist, I have to create a chart
+  // the label is going to be the same for all: labels: arrayOfNicelyFormattedData[ticker].historyDates, // date info from historyDates
+  // For each ticker in the watchlist I need to add a new data section with the label being the ticker, and the data being historyClose
+
+  let allWatchlists = {};
+  let allHistoricalChartsByWatchlist = [];
+  if (watchlists.length) {
+    watchlists.forEach((watchlist) => {
+      allWatchlists[watchlist.name] = watchlist.stocks;
+    });
+  }
+
+  // The history dates are going to be the same for every watchlist stock (future enhancement to make that adjustable)
+  // so just use the date of the first item for everything in the chart
+  let commonDateRange = [];
+
+  watchlists.forEach((watchlist) => {
+    let datasetObjects = []; // Used to store the daily close data for each ticker
+
+    // Build a chartjs data object for each ticker
+    allWatchlists[watchlist.name].forEach((watchlistTicker) => {
+      //console.log("watchlistItem: ", watchlistTicker); // this is the ticker name
+
+      //Account for stocks that are in the watchlist, but cannot be found through the stock API
+      // If this happens, don't try to build a chart for that ticker.
+      if (nicelyFormattedData.hasOwnProperty(watchlistTicker)) {
+
+        // If there is not yet a "default" date range (as it is the same for all), then add it now
+        if (commonDateRange.length < 1) {
+          commonDateRange = nicelyFormattedData[watchlistTicker].historyDates; // date info from historyDates
+        }
+
+        // First build our datasets for the watchlist, based on the array of tickers in the watchlist
+        datasetObjects.push(
+          {
+            label: watchlistTicker, // ticker symbol
+            fill: false,
+            lineTension: 0.1,
+            backgroundColor: 'rgba(75,192,192,0.4)',
+            borderColor: 'rgba(75,192,192,1)',
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: 'rgba(75,192,192,1)',
+            pointBackgroundColor: '#fff',
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+            pointHoverBorderColor: 'rgba(220,220,220,1)',
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data: nicelyFormattedData[watchlistTicker].historyClose
+          }
+        );
+      }
+    });
+
+    // All the datasets have been added, so create the new chartjs object    
+    allHistoricalChartsByWatchlist[watchlist.name] = {
+      labels: commonDateRange, // date info from historyDates
+      datasets: datasetObjects
+    };
+
+  });
+
+  return allHistoricalChartsByWatchlist;
 }
 
 
@@ -332,32 +363,32 @@ module.exports = {
         let readHistoricalStockInfo;
 
 
-  
+
         // this if condition checks if the user has any watchlists, if they do not, there is no api call to retrieve stock information and therefore no error
         if (userDBInfo[0].watchlists.length) {
-            for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
-              // since the user may have an empty watchlist, this makes sure there are stocks to add to the array that is passed to the API query
-              if (userDBInfo[0].watchlists[i].stocks.length) {
-                allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
-                // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
-              }
+          for (let i = 0; i < userDBInfo[0].watchlists.length; i++) {
+            // since the user may have an empty watchlist, this makes sure there are stocks to add to the array that is passed to the API query
+            if (userDBInfo[0].watchlists[i].stocks.length) {
+              allWatchlistTickers = [...userDBInfo[0].watchlists[i].stocks, ...allWatchlistTickers]; // concatenate each array of tickers from each watchlist into one master array
+              // https://blog.toshima.ru/2017/03/24/es6-array-merge.html
             }
+          }
 
-            // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
-            let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
-            //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
-
-
-            // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
-            // so that we can be sure all the results have been obtained before continuing
-            readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
+          // remove any duplicated ticker from the master watchlist array. Better efficiency for the eventual external API call.
+          let uniqueWatchlistTickers = removeDuplicatesFromArray(allWatchlistTickers);
+          //console.log("uniqueWatchlistTickers: ", uniqueWatchlistTickers, uniqueWatchlistTickers.length);
 
 
-            // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
-            // By leaving the end date empty, it will show the stock into up to the current date
-            let startDate = "2018-09-01";
-            let endDate = "";
-            readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise 
+          // Now we will create variables to hold the results of the axios calls (which returns a promise), and call promise.all below 
+          // so that we can be sure all the results have been obtained before continuing
+          readRecentStockInfo = stockAPIControllers.getLatestStockInfoAllTickers(uniqueWatchlistTickers); // returns a promise
+
+
+          // for the purposes of this project, and due to time limitations, we will be only getting historical info back to the beginning of Sept 2018
+          // By leaving the end date empty, it will show the stock into up to the current date
+          let startDate = "2018-09-01";
+          let endDate = "";
+          readHistoricalStockInfo = stockAPIControllers.getHistoricalInfoAllTickers(uniqueWatchlistTickers, startDate, endDate); //returns a promise 
         }
         //if the user does not have watchlists return false for the values being passed into the promise.all
 
@@ -382,7 +413,7 @@ module.exports = {
                 // call a function which puts the two results into an array of objects that is easier to consume on the front end
                 return createStockSummaryData(resultRecentStockInfo, resultHistoricalStockInfo);
               } else {
-                return false; 
+                return false;
               }
             } else {
               return false;
@@ -393,7 +424,11 @@ module.exports = {
             // if there is formatted data, return it, other wise return false
             if (nicelyFormattedData) {
               let historicalChartData = createHistoricalChartData(nicelyFormattedData);
-              return { historicalChartData: historicalChartData, nicelyFormattedData: nicelyFormattedData };
+
+              // Will I need to add a promise here?
+              let historicalChartDataByWatchlist = createHistoricalChartDataByWatchlist(nicelyFormattedData, userDBInfo[0].watchlists);
+
+              return { historicalChartData: historicalChartData, historicalChartDataByWatchlist: historicalChartDataByWatchlist, nicelyFormattedData: nicelyFormattedData };
             } else {
               return false;
             }
@@ -413,6 +448,7 @@ module.exports = {
                 tickerString: tickerString.join(),
                 userInfo: userDBInfo,
                 historicalChartData: summarizedData.historicalChartData,
+                historicalChartDataByWatchlist: summarizedData.historicalChartDataByWatchlist,
                 nicelyFormattedData: summarizedData.nicelyFormattedData
               };
             }
@@ -420,6 +456,7 @@ module.exports = {
               return {
                 userInfo: userDBInfo,
                 historicalChartData: summarizedData.historicalChartData,
+                historicalChartDataByWatchlist: summarizedData.historicalChartDataByWatchlist,
                 nicelyFormattedData: summarizedData.nicelyFormattedData
               };
             }
@@ -431,9 +468,16 @@ module.exports = {
           // investment data intact as it was, and pass the watchlist data along with it.
           .then((consolidatedUserInfo) => {
 
+            //console.log("consolidatedUserInfo: ",consolidatedUserInfo);
+
             let historicalChartData = {}
             for (let historicTicker in consolidatedUserInfo.historicalChartData) {
               historicalChartData[historicTicker] = consolidatedUserInfo.historicalChartData[historicTicker];
+            }
+
+            let historicalChartDataByWatchlist = {}
+            for (let historicTicker in consolidatedUserInfo.historicalChartDataByWatchlist) {
+              historicalChartDataByWatchlist[historicTicker] = consolidatedUserInfo.historicalChartDataByWatchlist[historicTicker];
             }
 
             let nicelyFormattedData = {}
@@ -473,6 +517,7 @@ module.exports = {
                   userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
                   userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
                   userInfo.historicalChartData = historicalChartData;
+                  userInfo.historicalChartDataByWatchlist = historicalChartDataByWatchlist;
                   userInfo.nicelyFormattedData = nicelyFormattedData;
                   res.send(userInfo);
                 })

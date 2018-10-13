@@ -63,7 +63,17 @@ class Home extends Component {
         tooltips: {
           enabled: false
         }
-      }
+      },
+      historicalChartDataByWatchlist: "", // used with the historical charts for watchlists
+      historicalChartOptions: // Options for the display of the historical charts
+      {
+        legend: {
+          display: true
+        },
+        tooltips: {
+          enabled: true
+        }
+      },      
     };
   }
 
@@ -116,6 +126,7 @@ class Home extends Component {
           savedArticlesFilter: res.data.articles,
           investments: res.data.investments,
           watchlists: watchlists,
+          historicalChartDataByWatchlist: res.data.historicalChartDataByWatchlist,
           addStockName: "",
           addStockTicker: "",
           addStockShares: "",
@@ -502,6 +513,27 @@ class Home extends Component {
 
 
   render() {
+    
+    console.log(this.state);
+    
+    // Build an array of chart objects
+    // we're using the for-in loop because each chart object has a property (which is the ticker name), and this makes it easy to get
+    let watchlistCharts = [];
+    for (let watchlist in this.state.historicalChartDataByWatchlist) {
+      
+      // Add to the array of chart objects, to be used for rendering
+      watchlistCharts.push([
+        <div>
+          <h2>{watchlist}</h2>
+          <Line
+            key={watchlist}
+            data={this.state.historicalChartDataByWatchlist[watchlist]}
+            options={this.state.historicalChartOptions}
+          />
+        </div>]);
+    }
+    
+    // This is what actually gets rendered
     return (
       <div className="home-div">
         <Button onClick={() => this.toggle(8)} className="home-article-btn p-2"></Button>
