@@ -534,6 +534,7 @@ module.exports = {
               userInfo.investments = consolidatedUserInfo.userInfo[0].investments;
               userInfo.articles = consolidatedUserInfo.userInfo[0].articles;
               userInfo.watchlists = consolidatedUserInfo.userInfo[0].watchlists;
+              userInfo.historicalChartDataByWatchlist = historicalChartDataByWatchlist;
               userInfo.historicalChartData = historicalChartData;
               userInfo.nicelyFormattedData = nicelyFormattedData;
               res.send(userInfo);

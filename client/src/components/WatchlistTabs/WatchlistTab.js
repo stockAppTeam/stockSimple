@@ -2,12 +2,16 @@ import React from 'react';
 import "./WatchlistTab.css";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { ListGroup, ListGroupItem, Badge, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact'
+import { ListGroup, ListGroupItem, Badge, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'mdbreact';
+import { Line } from 'react-chartjs-2';
+
+
 
 // tabs component used for all watchlists displayedon the home page
 const WatchlistTab = props => (
     <div className="p-2 mt-1">
         {/* check if there are any watchlists, else display a div saying 'no watchlists yet' */}
+
         {props.watchlists.length ? (
             <Tabs className="grey-bg text-white mb-2 p-2 tab-bg">
                 <TabList className="bg-dark p-2">
@@ -15,25 +19,32 @@ const WatchlistTab = props => (
                         <Tab key={index}>{watchlist.name}</Tab>
                     ))}
                 </TabList>
-    {/* map over the watchlists */}
+                {/* map over the watchlists */}
                 {props.watchlists.map((watchlist, index) => (
                     <TabPanel key={index}>
+                        {/* {console.log(props.historicalChartDataByWatchlist[watchlist.name])} */}
                         <ListGroup className="p-2">
-                        {/* emdedded if statement to check if a certain watchlist has any stocks in it */}
+                            {/* emdedded if statement to check if a certain watchlist has any stocks in it */}
                             {
                                 (() => {
                                     if (watchlist.stocks.length) {
                                         return <div>
                                             <h6 className="content-font text-white m-1 pb-2">Currently tracking in {watchlist.name}</h6>
+                                            <Line
+                                                key={watchlist}
+                                                data={props.historicalChartDataByWatchlist[watchlist.name]}
+                                                options={props.historicalChartOptions}
+                                            />
                                             {watchlist.stocks.map((stock, index) => (
                                                 <ListGroupItem key={index} className="d-flex justify-content-betweeen turq-text">
                                                     {stock.name}
                                                     <div className="ml-auto">
                                                         <Badge id="badge" className="turq-bg text-white mr-2" pill> {`$ ${stock.price}`}
-                                        </Badge><i onClick={() => props.deleteStock(watchlist._id, stock)} className="fa fa-times text-danger del-watchlist-stock fa-lg"></i>
+                                                        </Badge><i onClick={() => props.deleteStock(watchlist._id, stock)} className="fa fa-times text-danger del-watchlist-stock fa-lg"></i>
                                                     </div>
                                                 </ListGroupItem>
                                             ))}
+
                                         </div>
                                     }
                                     else
